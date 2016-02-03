@@ -122,7 +122,8 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
     private void initializePlayField() {
         // Here we will initialize all the game objects
 
-        // Make a new player ship
+        // Make a new player
+        player = new Player(context, screenX, screenY);
 
         // Prepare the players projectile
 
@@ -161,7 +162,8 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
         // Has the player lost
         boolean lost = false;
 
-        // Move the player's
+        // Move the player
+        player.update(fps);
 
         // Update the invaders if visible
 
@@ -201,6 +203,7 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
             paint.setColor(Color.argb(255, 0, 255, 0));
 
             // Draw the player spaceship
+            canvas.drawBitmap(player.getBitmap(), player.getX(), player.getY(), paint);
 
             // Draw the invaders
 
