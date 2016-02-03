@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SpaceInvaders</string>
+    <string name="action_settings">Settings</string>
+</resources>
