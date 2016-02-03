@@ -10,7 +10,7 @@
         android:theme="@style/AppFullScreenTheme"
         android:screenOrientation="portrait">
         <activity
-            android:name=".SpaceInvadersActivity"
+            android:name="com.spaceinvaders.SpaceInvadersActivity"
             android:theme="@style/AppFullScreenTheme"
             android:screenOrientation="portrait"
             android:label="@string/app_name"

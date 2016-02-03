@@ -1,4 +1,4 @@
-package com.tutorials.joseph.spaceinvaders;
+package com.spaceinvaders;
 
 import android.graphics.Point;
 import android.os.Bundle;
