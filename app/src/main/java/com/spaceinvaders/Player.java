@@ -34,12 +34,13 @@ public class Player extends Sprite{
                 (int)(bitmap.getWidth() * (ratio / 1.5f)), (int)(bitmap.getHeight() * (ratio / 1.5f)), false);
 
         this.x = (screenWidth / 2) - (bitmap.getWidth() / 2);
-        this.y = screenHeight - 1000;
+        this.y = screenHeight - (screenHeight / 2.75f);
 
         // initialize player movement speed
         speed = 350;
     }
 
+    @Override
     public void update(long fps) {
         if(movement == Movement.LEFT) {
             x = x + speed / fps;
