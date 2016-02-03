@@ -87,6 +87,7 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
         screenX = x;
         screenY = y;
 
+        // TODO this is deprecated and we will most likely change it
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
 
         try {
@@ -115,13 +116,13 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
             Log.e("error", "failed to load sound files");
         }
 
-        prepareLevel();
+        initializePlayField();
     }
 
-    private void prepareLevel() {
+    private void initializePlayField() {
         // Here we will initialize all the game objects
 
-        // Make a new player space ship
+        // Make a new player ship
 
         // Prepare the players projectile
 
@@ -169,7 +170,7 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
         // Did and invader bump into the edge of the screen
 
         if(lost) {
-            prepareLevel();
+            initializePlayField();
         }
 
         // Update the players projectile
