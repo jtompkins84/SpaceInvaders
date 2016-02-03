@@ -42,11 +42,11 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
     private int screenX;
     private int screenY;
 
-    private PlayerShip playerShip;
+    private Player player;
 
-    private Bullet bullet;
+    private Projectile projectile;
 
-    private Bullet[] invadersBullets = new Bullet[200];
+    private Projectile[] invadersProjectiles = new Projectile[200];
     private int nextBullet;
     private int maxInvaderBullets = 10;
 
@@ -123,9 +123,9 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
 
         // Make a new player space ship
 
-        // Prepare the players bullet
+        // Prepare the players projectile
 
-        // Initialize the invadersBullets array
+        // Initialize the invadersProjectiles array
 
         // Build an army of invaders
 
@@ -172,19 +172,19 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
             prepareLevel();
         }
 
-        // Update the players bullet
+        // Update the players projectile
 
-        // Has the player's bullet hit the top of the screen
+        // Has the player's projectile hit the top of the screen
 
-        // Has an invaders' bullet hit the bottom of the screen
+        // Has an invaders' projectile hit the bottom of the screen
 
-        // Has the player's bullet hit and invader
+        // Has the player's projectile hit and invader
 
-        // Has an alien bullet hit a shelter brick
+        // Has an alien projectile hit a shelter brick
 
-        // Has the player bullet hit a shelter brick
+        // Has the player projectile hit a shelter brick
 
-        // Has an invader bullet hit the player ship
+        // Has an invader projectile hit the player ship
     }
 
     private void draw() {
@@ -205,7 +205,7 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
 
             // Draw the bricks if visible
 
-            // Draw the players bullet if active
+            // Draw the players projectile if active
 
             // Draw the score and remaining lives
             // Change brush color
