@@ -89,7 +89,5 @@ public abstract class Sprite {
      * Implement the movement, animation, and other things relative to gameplay here.
      * @param fps
      */
-    public void update(long fps) {
-
-    }
+    abstract public void update(long fps);
 }
