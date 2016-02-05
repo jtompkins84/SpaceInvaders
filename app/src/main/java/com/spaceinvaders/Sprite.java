@@ -144,6 +144,21 @@ public abstract class Sprite {
         }
     }
 
+    /**
+     * Set position relative to previous position.
+     * @param dx
+     * @param dy
+     */
+    protected void move(float dx, float dy) {
+        pos.set(pos.x + dx, pos.y + dy);
+        if(hitBox != null) {
+            hitBox.left = pos.x + hitBoxOffset.x;
+            hitBox.right = hitBox.left + hitBoxWidth;
+            hitBox.top = pos.y + hitBoxOffset.y;
+            hitBox.bottom = hitBox.top + hitBoxHeight;
+        }
+    }
+
 /******************************************************
  * ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
  * Getters/Setters

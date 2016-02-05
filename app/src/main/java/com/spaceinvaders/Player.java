@@ -37,12 +37,10 @@ public class Player extends Sprite {
     @Override
     public void update(long fps) {
         if(movement == Movement.RIGHT && hitBox.right < rBoundary) {
-            x = x + speed / fps;
+            move(speed / fps, 0.0f);
         }
         if(movement == Movement.LEFT && hitBox.left > lBoundary) {
-            x = x - speed / fps;
+            move(-(speed / fps), 0.0f);
         }
-        // update hitbox location
-        hitBox.offsetTo(x, y);
     }
 }
