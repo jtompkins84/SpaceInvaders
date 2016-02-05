@@ -1,7 +1,6 @@
 package com.spaceinvaders;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 public class Player extends Sprite {
 
@@ -18,8 +17,7 @@ public class Player extends Sprite {
      * @param screenHeight <code>float</code> - screen's current height
      */
     public Player(Bitmap bitmap, float screenWidth, float screenHeight) {
-        super(bitmap, screenWidth, screenHeight, 34.0f, 80.0f, 365.0f, 140.0f);
-        Log.v("hitBoxOffset", hitBoxOffset.toString());
+        super(bitmap, 108.0f, 66.0f, screenWidth, screenHeight, 9.0f, 21.0f, 90.0f, 34.0f);
 
         // resize the image to fit device resolution
         resizeToResolution();

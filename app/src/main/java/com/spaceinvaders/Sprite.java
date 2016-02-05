@@ -67,10 +67,15 @@ public abstract class Sprite {
      * @param screenWidth
      * @param screenHeight
      */
-    protected Sprite(Bitmap bitmap, float screenWidth, float screenHeight, float hitBoxOffsetX, float hitBoxOffsetY, float hitBoxWidth, float hitBoxHeight) {
+    protected Sprite(Bitmap bitmap, float imageWidth, float imageHeight, float screenWidth,
+                     float screenHeight, float hitBoxOffsetX,
+                     float hitBoxOffsetY, float hitBoxWidth, float hitBoxHeight) {
         this.bitmap = bitmap;
         resolutionRatio = screenWidth / screenHeight;
-        initHitBox(hitBoxOffsetX, hitBoxOffsetY, hitBoxWidth, hitBoxHeight);
+        float imageRatio = bitmap.getWidth() / imageWidth;
+
+        initHitBox(hitBoxOffsetX * imageRatio, hitBoxOffsetY * imageRatio,
+                hitBoxWidth * imageRatio, hitBoxHeight * imageRatio);
     }
 
 /******************************************************
@@ -125,13 +130,18 @@ public abstract class Sprite {
      * @param y
      */
     public void setPosition(float x, float y) {
-        pos.set(x - hitBoxOffset.x - (hitBoxWidth / 2),
-                y - hitBoxOffset.y - (hitBoxHeight / 2));
+        if(hitBox != null) {
+            pos.set(x - hitBoxOffset.x - (hitBoxWidth / 2),
+                    y - hitBoxOffset.y - (hitBoxHeight / 2));
 
-        hitBox.left = pos.x + hitBoxOffset.x;
-        hitBox.right = hitBox.left + hitBoxWidth;
-        hitBox.top = pos.y + hitBoxOffset.y;
-        hitBox.bottom = hitBox.top + hitBoxHeight;
+            hitBox.left = pos.x + hitBoxOffset.x;
+            hitBox.right = hitBox.left + hitBoxWidth;
+            hitBox.top = pos.y + hitBoxOffset.y;
+            hitBox.bottom = hitBox.top + hitBoxHeight;
+        }
+        else {
+            pos.set(x - (bitmap.getWidth() / 2), y - (bitmap.getHeight() / 2));
+        }
     }
 
 /******************************************************
