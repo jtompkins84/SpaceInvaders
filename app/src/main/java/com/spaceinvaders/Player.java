@@ -1,11 +1,7 @@
 package com.spaceinvaders;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.RectF;
-
-import com.tutorials.joseph.spaceinvaders.R;
+import android.util.Log;
 
 public class Player extends Sprite {
 
@@ -18,33 +14,26 @@ public class Player extends Sprite {
     /**
      * <code><b><i>Player</i></b></code><p>
      * <code>Player</code> contructor.
-     * @param context the context that this <code>Player</code> belongs to
      * @param screenWidth <code>float</code> - screen's current width
      * @param screenHeight <code>float</code> - screen's current height
      */
-    public Player(Context context, float screenWidth, float screenHeight) {
-        // Initialize the hit-box
-        hitBox = new RectF();
-
-        // set the boundaries for the player relative to screen resolution
-        lBoundary = 0.0f + (screenWidth / 24);
-        rBoundary = screenWidth - (screenWidth / 24);
-
-        // initialize the player graphics
-        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.player);
-        // ratio of width / height for calculating resize based on screen resolution
-        float ratio = screenWidth / screenHeight;
+    public Player(Bitmap bitmap, float screenWidth, float screenHeight) {
+        super(bitmap, screenWidth, screenHeight, 34.0f, 80.0f, 365.0f, 140.0f);
+        Log.v("hitBoxOffset", hitBoxOffset.toString());
 
         // resize the image to fit device resolution
-        bitmap = Bitmap.createScaledBitmap(bitmap,
-                (int)(bitmap.getWidth() * (ratio / 1.5f)), (int)(bitmap.getHeight() * (ratio / 1.5f)), false);
+        resizeToResolution();
 
         // set postion relative to device resolution
-        this.x = (screenWidth / 2) - (bitmap.getWidth() / 2);
-        this.y = screenHeight - (screenHeight / 2.75f);
+        setPosition((screenWidth / 2),
+                screenHeight - (screenHeight / 2.75f));
 
         // initialize player movement speed
         speed = 350;
+
+        // set the boundaries for the player relative to screen resolution
+        lBoundary = screenWidth / 24;
+        rBoundary = screenWidth - (screenWidth / 24);
     }
 
     @Override

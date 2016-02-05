@@ -3,6 +3,8 @@ package com.spaceinvaders;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -12,6 +14,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import com.tutorials.joseph.spaceinvaders.R;
 
 import java.io.IOException;
 
@@ -76,6 +80,13 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
 
     private long lastMenaceTime = System.currentTimeMillis();
 
+    /*
+    *
+    * RESOURCES
+    * v v v v v v v v v
+    */
+    Bitmap bmap_player;
+
     public SpaceInvadersView(Context context, int x, int y) {
         super(context);
 
@@ -86,6 +97,9 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
 
         screenX = x;
         screenY = y;
+
+        // TODO initialize all resources. Perhaps create seperate method or class for this.
+        bmap_player = BitmapFactory.decodeResource(context.getResources(), R.drawable.player);
 
         // TODO this is deprecated and we will most likely change it
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC,0);
@@ -123,7 +137,7 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
         // Here we will initialize all the game objects
 
         // Make a new player
-        player = new Player(context, screenX, screenY);
+        player = new Player(bmap_player, screenX, screenY);
 
         // Prepare the players projectile
 
@@ -203,7 +217,7 @@ public class SpaceInvadersView extends SurfaceView implements Runnable {
             paint.setColor(Color.argb(255, 0, 255, 0));
 
             // Draw the player spaceship
-            canvas.drawBitmap(player.getBitmap(), player.getX(), player.getY(), paint);
+            player.draw(canvas, paint, true);
 
             // Draw the invaders
 
