@@ -61,21 +61,20 @@ public abstract class Sprite {
 
     }
 
+    protected Sprite(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
+
     /**
      * <b><u>IMPORTANT</u></b><div></div>
      * Must be called with super() from within a constructor of an inheriting class.
-     * @param screenWidth
-     * @param screenHeight
      */
-    protected Sprite(Bitmap bitmap, float imageWidth, float imageHeight, float screenWidth,
-                     float screenHeight, float hitBoxOffsetX,
+    protected Sprite(Bitmap bitmap, float hitBoxOffsetX,
                      float hitBoxOffsetY, float hitBoxWidth, float hitBoxHeight) {
         this.bitmap = bitmap;
-        resolutionRatio = screenWidth / screenHeight;
-        float imageRatio = bitmap.getWidth() / imageWidth;
 
-        initHitBox(hitBoxOffsetX * imageRatio, hitBoxOffsetY * imageRatio,
-                hitBoxWidth * imageRatio, hitBoxHeight * imageRatio);
+        initHitBox(hitBoxOffsetX, hitBoxOffsetY,
+                hitBoxWidth, hitBoxHeight);
     }
 
 /******************************************************
@@ -181,7 +180,7 @@ public abstract class Sprite {
     public void draw(Canvas canvas, Paint paint, boolean showHitBox) {
         canvas.drawBitmap(bitmap, pos.x, pos.y, paint);
 
-        if(showHitBox == true) {
+        if(hitBox != null && showHitBox == true) {
             int oldColor = paint.getColor();
             paint.setARGB(150, 255, 0, 0);
             canvas.drawRect(hitBox, paint);

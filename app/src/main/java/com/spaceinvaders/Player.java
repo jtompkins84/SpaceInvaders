@@ -16,15 +16,11 @@ public class Player extends Sprite {
      * @param screenWidth <code>float</code> - screen's current width
      * @param screenHeight <code>float</code> - screen's current height
      */
-    public Player(Bitmap bitmap, float screenWidth, float screenHeight) {
-        super(bitmap, 108.0f, 66.0f, screenWidth, screenHeight, 9.0f, 21.0f, 90.0f, 34.0f);
-
-        // resize the image to fit device resolution
-        resizeToResolution();
+    public Player(Bitmap bitmap, int screenWidth, int screenHeight) {
+        super(bitmap, 18.0f, 42.0f, 180.0f, 68.0f);
 
         // set postion relative to device resolution
-        setPosition((screenWidth / 2),
-                screenHeight - (screenHeight / 2.75f));
+        setPosition(screenWidth / 2, screenHeight - (screenHeight / 24));
 
         // initialize player movement speed
         speed = 350;

@@ -21,6 +21,7 @@ import java.io.IOException;
 
 /**
  * Created by Joseph on 1/31/2016.
+ * TODO split this view up into GameThread & GameView Class
  */
 public class SpaceInvadersView extends SurfaceView implements Runnable {
     Context context;
