@@ -278,11 +278,15 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         int dpi = getResources().getDisplayMetrics().densityDpi;
         BitmapFactory.Options opt = new BitmapFactory.Options();
         opt.inDensity = 480 * (640 / dpi);
+        opt.inTargetDensity = 640;
+        opt.inScreenDensity = dpi;
 
+        float DPIRatio = (float)dpi / (float)opt.inDensity;
+        if(DPIRatio < 1.0f) DPIRatio = 1.0f - DPIRatio;
         Log.v("DPI Ratio", opt.inDensity + " / " + dpi + " = " + ((float)opt.inDensity / (float)dpi));
 
-        bmp_player = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player, opt), (float)dpi / (float)opt.inDensity);
-        Log.v("Width Ratio", bmp_player.getBitmap().getWidth() + " / " + getWidth() + " = " + ((float)bmp_player.getBitmap().getWidth() / (float)getWidth()));
+        bmp_player = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player, opt), DPIRatio);
+        Log.v("Width Ratio", bmp_player.getBitmap().getWidth() + " / " + getWidth() + " = " + ((float)bmp_player.getBitmap().getWidth() / (float)playFieldWidth));
         bmp_invader_a01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a01, opt), 100 / opt.inDensity);
         bmp_invader_a02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a02, opt), 100 / opt.inDensity);
         bmp_projectile_a = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.projectile_a, opt), 100 / opt.inDensity);

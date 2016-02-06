@@ -132,7 +132,7 @@ public abstract class Sprite {
             pos.set(x - hitBox.left - ((hitBox.right - hitBox.left) / 2),
                     y - hitBox.top - ((hitBox.bottom - hitBox.top) / 2));
             hitBox.offsetTo(pos.x + hitBox.left, pos.y + hitBox.top);
-//            Log.v("hitBox MOVED", " left = " + hitBox.left + " top = " + hitBox.top + " right = " + hitBox.right + " bottom = " + hitBox.bottom);
+            Log.v("hitBox MOVED", (hitBox.right - hitBox.left) + "x" + (hitBox.bottom - hitBox.top));
         }
         else {
             pos.set(x - (image.getBitmap().getWidth() / 2), y - (image.getBitmap().getHeight() / 2));
@@ -185,9 +185,6 @@ public abstract class Sprite {
         float DPICorrectionRatio = image.getDPIRatio();
         Log.v("DIP Ratio", " = " + image.getDPIRatio());
 
-//        hitBox = new RectF(hitBox.left * DPICorrectionRatio, hitBox.top * DPICorrectionRatio,
-//                hitBox.right * DPICorrectionRatio, hitBox.bottom * DPICorrectionRatio);
-
         Log.v("BEFORE", " left = " + hitBox.left + " top = " + hitBox.top + " right = " + hitBox.right + " bottom = " + hitBox.bottom);
         hitBox.left = hitBox.left * DPICorrectionRatio;
         hitBox.top = hitBox.top * DPICorrectionRatio;
@@ -195,5 +192,6 @@ public abstract class Sprite {
         hitBox.right = hitBox.right * DPICorrectionRatio;
         hitBox.bottom = hitBox.bottom * DPICorrectionRatio;
         Log.v("AFTER", " left = " + hitBox.left + " top = " + hitBox.top + " right = " + hitBox.right + " bottom = " + hitBox.bottom);
+        Log.v("hitBox Dim", (hitBox.right - hitBox.left) + "x" + (hitBox.bottom - hitBox.top));
     }
 }

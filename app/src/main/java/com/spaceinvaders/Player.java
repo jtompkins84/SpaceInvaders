@@ -20,7 +20,7 @@ public class Player extends Sprite {
         // sets the bitmap image and initializes the size of the hit-box.
         // hit-box values are derived by opening the original image in and image editor
         // and determining the dimension of the hit-box in pixels from there.
-        super(image, new RectF(9.0f, 21.0f, 90.0f, 34.0f));
+        super(image, new RectF(9.0f, 21.0f, 99.0f, 56.0f));
 
         // set postion relative to device resolution
         setPosition(screenWidth / 2, screenHeight - (screenHeight / 12));
