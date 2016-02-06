@@ -84,6 +84,13 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     * v v v v v v v v v
     */
     Bitmap bmap_player;
+    Bitmap bmap_invader_a01;
+    Bitmap bmap_invader_a02;
+    Bitmap bmap_projectile_a;
+    Bitmap bmap_brick_top_left01;
+    Bitmap bmap_brick_top_left02;
+    Bitmap bmap_brick_top_left03;
+    Bitmap bmap_brick_top_left04;
 
     public PlayFieldView(Context context, UserControllerView userControllerView, int width, int height) {
         super(context);
@@ -95,8 +102,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         paint = new Paint();
 
         // TODO initialize all resources. Perhaps create seperate method or class for this.
-        bmap_player = BitmapFactory.decodeResource(context.getResources(), R.drawable.player);
-        bmap_player.setDensity(300);
+        initResources();
 
         // TODO this is deprecated and we will most likely change it
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
@@ -133,7 +139,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         // Here we will initialize all the game objects
 
         // Make a new player
-        player = new Player(bmap_player, playFieldWidth, playFieldHeight);
+        player = new Player(getContext(), bmap_player, playFieldWidth, playFieldHeight);
 
         // Prepare the players projectile
 
@@ -205,7 +211,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         if (ourHolder.getSurface().isValid()) {
             // Lock the canvas ready to draw
             canvas = ourHolder.lockCanvas();
-            canvas.setDensity(150);
+            canvas.setDensity(100);
 
             //Draw the background color
             canvas.drawColor(Color.argb(255, 0, 0, 0));
@@ -266,6 +272,17 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
                 break;
         }
+
+        return true;
+    }
+
+    private boolean initResources() {
+        bmap_player = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player);
+        bmap_player.setDensity(300);
+        bmap_invader_a01 = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a01);
+        bmap_invader_a01.setDensity(300);
+        bmap_invader_a02 = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a02);
+        bmap_invader_a02.setDensity(300);
 
         return true;
     }

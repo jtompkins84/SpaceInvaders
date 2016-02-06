@@ -38,9 +38,11 @@ public class SpaceInvadersActivity extends AppCompatActivity {
 
         userControllerView = new UserControllerView(this);
         userControllerView.setId(1111);
-        playFieldView = new PlayFieldView(this, userControllerView, size.x, size.x + (size.x / 4));
+        playFieldView = new PlayFieldView(this, userControllerView, size.x, size.x);
         playFieldView.setId(2222);
 
+        // TODO need to credit below code to online source
+        // http://stackoverflow.com/questions/5327144/setting-up-relativelayout-in-java-code
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         RelativeLayout.LayoutParams q = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -48,7 +50,7 @@ public class SpaceInvadersActivity extends AppCompatActivity {
 
         q.addRule(RelativeLayout.ALIGN_PARENT_TOP);
         playFieldView.setLayoutParams(q);
-        gamePlayLayout.addView(playFieldView, size.x, size.x + (size.x / 4));
+        gamePlayLayout.addView(playFieldView, size.x, size.x);
 
         p.addRule(RelativeLayout.BELOW, playFieldView.getId());
         userControllerView.setLayoutParams(p);
