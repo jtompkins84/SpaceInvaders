@@ -7,13 +7,19 @@ import android.graphics.Bitmap;
  */
 public class SpriteImage {
 
-    private Bitmap bitmap;
-    private int width;
-    private int height;
+    private Bitmap bmp;
+    private float DPIRatio;
 
-    public SpriteImage(Bitmap bitmap, int imageWidth, int imageHeight) {
-        this.bitmap = bitmap;
-        this.width = imageWidth;
-        this.height = imageHeight;
+    public SpriteImage(Bitmap bitmap, float DPIRatioMetric) {
+        this.bmp = bitmap;
+        this.DPIRatio = DPIRatioMetric;
+    }
+
+    public Bitmap getBitmap() {
+        return bmp;
+    }
+
+    public float getDPIRatio() {
+        return DPIRatio;
     }
 }
