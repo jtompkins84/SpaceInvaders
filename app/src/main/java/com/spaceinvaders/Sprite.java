@@ -1,26 +1,24 @@
 package com.spaceinvaders;
 
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.util.Log;
 
 /**
  * Created by Joseph Tompkins on 2/3/2016.
  */
 public abstract class Sprite {
-    private Context context;
 
     // the sprite's associated image
-    protected Bitmap bitmap;
+    protected SpriteImage image;
     protected float resolutionRatio = 1.0f;
 
     /**
      * Array of images to animate. Should be in sequential order of frames.
      */
-    protected Bitmap[] animation = null;
+    protected SpriteImage[] animation = null;
 
     //TODO make setter method for animDelay. sets values less than 0 equal to 0.
     /**
@@ -39,13 +37,6 @@ public abstract class Sprite {
 
     // player hit-box
     protected RectF hitBox = null;
-    /**
-     * upper-left origin of hit box relative to the bitmap image. When (0, 0), hit-box
-     * will originate from the upper-left-hand corner of the bitmap image.
-     */
-    protected PointF hitBoxOffset = new PointF(0.0f, 0.0f);
-    protected float hitBoxWidth = 0.0f;
-    protected float hitBoxHeight = 0.0f;
 
     // pixel/second speed of the player
     protected float speed;
@@ -59,24 +50,30 @@ public abstract class Sprite {
      * TODO can likely get rid of this later
      * Default empty constructor.
      */
-    protected Sprite(Context context) {
-
+    protected Sprite() {
     }
 
-    protected Sprite(Context context, Bitmap bitmap) {
-        this.bitmap = bitmap;
+    protected Sprite(SpriteImage image) {
+        this.image = image;
+    }
+
+    protected Sprite(SpriteImage[] animation) {
+        this.animation = animation;
     }
 
     /**
-     * <b><u>IMPORTANT</u></b><div></div>
-     * Must be called with super() from within a constructor of an inheriting class.
+     *
      */
-    protected Sprite(Context context, Bitmap bitmap, float hitBoxOffsetX,
-                     float hitBoxOffsetY, float hitBoxWidth, float hitBoxHeight) {
-        this.bitmap = bitmap;
+    protected Sprite(SpriteImage image, RectF hitBox) {
+        this.image = image;
+        this.hitBox = hitBox;
+        initHitBox();
+    }
 
-        initHitBox(hitBoxOffsetX, hitBoxOffsetY,
-                hitBoxWidth, hitBoxHeight);
+    protected Sprite(SpriteImage[] animation, RectF[] hitBoxes) {
+        this.animation = animation;
+
+        initHitBox();
     }
 
 /******************************************************
@@ -95,14 +92,14 @@ public abstract class Sprite {
      * @return x-coordinate relative to center of hit-box
      */
     public float getX() {
-        return pos.x + hitBoxOffset.x + (hitBoxWidth / 2);
+        return pos.x + hitBox.left + (hitBox.right - hitBox.left / 2);
     }
 
     /**
      * @return y-coordinate relative to center of hit-box
      */
     public float getY() {
-        return pos.y + hitBoxOffset.y + (hitBoxHeight / 2);
+        return pos.y + hitBox.top + (hitBox.bottom - hitBox.top / 2);
     }
 
     public float getLength() {
@@ -132,16 +129,13 @@ public abstract class Sprite {
      */
     public void setPosition(float x, float y) {
         if(hitBox != null) {
-            pos.set(x - hitBoxOffset.x - (hitBoxWidth / 2),
-                    y - hitBoxOffset.y - (hitBoxHeight / 2));
-
-            hitBox.left = pos.x + hitBoxOffset.x;
-            hitBox.right = hitBox.left + hitBoxWidth;
-            hitBox.top = pos.y + hitBoxOffset.y;
-            hitBox.bottom = hitBox.top + hitBoxHeight;
+            pos.set(x - hitBox.left - ((hitBox.right - hitBox.left) / 2),
+                    y - hitBox.top - ((hitBox.bottom - hitBox.top) / 2));
+            hitBox.offsetTo(pos.x + hitBox.left, pos.y + hitBox.top);
+//            Log.v("hitBox MOVED", " left = " + hitBox.left + " top = " + hitBox.top + " right = " + hitBox.right + " bottom = " + hitBox.bottom);
         }
         else {
-            pos.set(x - (bitmap.getWidth() / 2), y - (bitmap.getHeight() / 2));
+            pos.set(x - (image.getBitmap().getWidth() / 2), y - (image.getBitmap().getHeight() / 2));
         }
     }
 
@@ -153,10 +147,7 @@ public abstract class Sprite {
     protected void move(float dx, float dy) {
         pos.set(pos.x + dx, pos.y + dy);
         if(hitBox != null) {
-            hitBox.left = pos.x + hitBoxOffset.x;
-            hitBox.right = hitBox.left + hitBoxWidth;
-            hitBox.top = pos.y + hitBoxOffset.y;
-            hitBox.bottom = hitBox.top + hitBoxHeight;
+            hitBox.offset(dx, dy);
         }
     }
 
@@ -180,7 +171,7 @@ public abstract class Sprite {
      * @param paint <code>Paint</code> object used to draw
      */
     public void draw(Canvas canvas, Paint paint, boolean showHitBox) {
-        canvas.drawBitmap(bitmap, pos.x, pos.y, paint);
+        canvas.drawBitmap(image.getBitmap(), pos.x, pos.y, paint);
 
         if(hitBox != null && showHitBox == true) {
             int oldColor = paint.getColor();
@@ -190,31 +181,19 @@ public abstract class Sprite {
         }
     }
 
-    /**
-     * Resizes the sprite to fit the resolution of the device. Auto-resizes the hit-box, so
-     * make sure hit-box is set before calling this method in the <code>Sprite</code>'s
-     * constructor.
-     */
-    @Deprecated
-    protected void resizeToResolution() {
-        float difRatio = bitmap.getWidth(); // take previous width
+    private void initHitBox() {
+        float DPICorrectionRatio = image.getDPIRatio();
+        Log.v("DIP Ratio", " = " + image.getDPIRatio());
 
-        bitmap = Bitmap.createScaledBitmap(bitmap,
-                (int) (bitmap.getWidth() * (resolutionRatio / 1.5f)), (int) (bitmap.getHeight() * (resolutionRatio / 1.5f)), false);
-        difRatio = ((float)bitmap.getWidth()) / difRatio;
+//        hitBox = new RectF(hitBox.left * DPICorrectionRatio, hitBox.top * DPICorrectionRatio,
+//                hitBox.right * DPICorrectionRatio, hitBox.bottom * DPICorrectionRatio);
 
-        hitBoxOffset.x = hitBoxOffset.x * difRatio;
-        hitBoxOffset.y = hitBoxOffset.y * difRatio;
-        hitBoxWidth = hitBoxWidth * difRatio;
-        hitBoxHeight = hitBoxHeight * difRatio;
-    }
-
-    private void initHitBox(float offsetX, float offsetY, float width, float height) {
-        hitBox = new RectF();
-
-        hitBoxOffset.x = offsetX;
-        hitBoxOffset.y = offsetY;
-        hitBoxWidth = width;
-        hitBoxHeight = height;
+        Log.v("BEFORE", " left = " + hitBox.left + " top = " + hitBox.top + " right = " + hitBox.right + " bottom = " + hitBox.bottom);
+        hitBox.left = hitBox.left * DPICorrectionRatio;
+        hitBox.top = hitBox.top * DPICorrectionRatio;
+        Log.v("MID", " left = " + hitBox.left + " top = " + hitBox.top + " right = " + hitBox.right + " bottom = " + hitBox.bottom);
+        hitBox.right = hitBox.right * DPICorrectionRatio;
+        hitBox.bottom = hitBox.bottom * DPICorrectionRatio;
+        Log.v("AFTER", " left = " + hitBox.left + " top = " + hitBox.top + " right = " + hitBox.right + " bottom = " + hitBox.bottom);
     }
 }

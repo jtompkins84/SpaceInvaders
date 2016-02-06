@@ -1,7 +1,6 @@
 package com.spaceinvaders;
 
-import android.content.Context;
-import android.graphics.Bitmap;
+import android.graphics.RectF;
 
 public class Player extends Sprite {
 
@@ -17,11 +16,11 @@ public class Player extends Sprite {
      * @param screenWidth <code>float</code> - screen's current width
      * @param screenHeight <code>float</code> - screen's current height
      */
-    public Player(Context context, Bitmap bitmap, int screenWidth, int screenHeight) {
+    public Player(SpriteImage image, int screenWidth, int screenHeight) {
         // sets the bitmap image and initializes the size of the hit-box.
         // hit-box values are derived by opening the original image in and image editor
         // and determining the dimension of the hit-box in pixels from there.
-        super(context, bitmap, 9.0f, 21.0f, 90.0f, 34.0f);
+        super(image, new RectF(9.0f, 21.0f, 90.0f, 34.0f));
 
         // set postion relative to device resolution
         setPosition(screenWidth / 2, screenHeight - (screenHeight / 12));

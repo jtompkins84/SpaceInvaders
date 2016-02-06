@@ -3,7 +3,6 @@ package com.spaceinvaders;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -83,14 +82,14 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     * RESOURCES
     * v v v v v v v v v
     */
-    Bitmap bmap_player;
-    Bitmap bmap_invader_a01;
-    Bitmap bmap_invader_a02;
-    Bitmap bmap_projectile_a;
-    Bitmap bmap_brick_top_left01;
-    Bitmap bmap_brick_top_left02;
-    Bitmap bmap_brick_top_left03;
-    Bitmap bmap_brick_top_left04;
+    SpriteImage bmp_player;
+    SpriteImage bmp_invader_a01;
+    SpriteImage bmp_invader_a02;
+    SpriteImage bmp_projectile_a;
+    SpriteImage bmp_brick_top_left01;
+    SpriteImage bmp_brick_top_left02;
+    SpriteImage bmp_brick_top_left03;
+    SpriteImage bmp_brick_top_left04;
 
     public PlayFieldView(Context context, UserControllerView userControllerView, int width, int height) {
         super(context);
@@ -139,7 +138,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         // Here we will initialize all the game objects
 
         // Make a new player
-        player = new Player(getContext(), bmap_player, playFieldWidth, playFieldHeight);
+        player = new Player(bmp_player, playFieldWidth, playFieldHeight);
 
         // Prepare the players projectile
 
@@ -154,7 +153,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     public void run() {
         while (playing) {
             long startFrameTime = System.currentTimeMillis();
-
             if (!paused) {
                 update();
             }
@@ -211,7 +209,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         if (ourHolder.getSurface().isValid()) {
             // Lock the canvas ready to draw
             canvas = ourHolder.lockCanvas();
-            canvas.setDensity(100);
+//            canvas.setDensity(100);
 
             //Draw the background color
             canvas.drawColor(Color.argb(255, 0, 0, 0));
@@ -277,12 +275,17 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     }
 
     private boolean initResources() {
-        bmap_player = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player);
-        bmap_player.setDensity(300);
-        bmap_invader_a01 = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a01);
-        bmap_invader_a01.setDensity(300);
-        bmap_invader_a02 = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a02);
-        bmap_invader_a02.setDensity(300);
+        int dpi = getResources().getDisplayMetrics().densityDpi;
+        BitmapFactory.Options opt = new BitmapFactory.Options();
+        opt.inDensity = 480 * (640 / dpi);
+
+        Log.v("DPI Ratio", opt.inDensity + " / " + dpi + " = " + ((float)opt.inDensity / (float)dpi));
+
+        bmp_player = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player, opt), (float)dpi / (float)opt.inDensity);
+        Log.v("Width Ratio", bmp_player.getBitmap().getWidth() + " / " + getWidth() + " = " + ((float)bmp_player.getBitmap().getWidth() / (float)getWidth()));
+        bmp_invader_a01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a01, opt), 100 / opt.inDensity);
+        bmp_invader_a02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a02, opt), 100 / opt.inDensity);
+        bmp_projectile_a = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.projectile_a, opt), 100 / opt.inDensity);
 
         return true;
     }
