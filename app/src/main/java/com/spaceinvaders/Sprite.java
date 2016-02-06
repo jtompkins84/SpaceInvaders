@@ -1,6 +1,5 @@
 package com.spaceinvaders;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -11,7 +10,6 @@ import android.graphics.RectF;
  * Created by Joseph Tompkins on 2/3/2016.
  */
 public abstract class Sprite {
-    private Context context;
 
     // the sprite's associated image
     protected Bitmap bitmap;
@@ -59,11 +57,10 @@ public abstract class Sprite {
      * TODO can likely get rid of this later
      * Default empty constructor.
      */
-    protected Sprite(Context context) {
-
+    protected Sprite() {
     }
 
-    protected Sprite(Context context, Bitmap bitmap) {
+    protected Sprite(Bitmap bitmap) {
         this.bitmap = bitmap;
     }
 
@@ -71,7 +68,7 @@ public abstract class Sprite {
      * <b><u>IMPORTANT</u></b><div></div>
      * Must be called with super() from within a constructor of an inheriting class.
      */
-    protected Sprite(Context context, Bitmap bitmap, float hitBoxOffsetX,
+    protected Sprite(Bitmap bitmap, float hitBoxOffsetX,
                      float hitBoxOffsetY, float hitBoxWidth, float hitBoxHeight) {
         this.bitmap = bitmap;
 
@@ -185,7 +182,9 @@ public abstract class Sprite {
         if(hitBox != null && showHitBox == true) {
             int oldColor = paint.getColor();
             paint.setARGB(150, 255, 0, 0);
+            canvas.setDensity(300);
             canvas.drawRect(hitBox, paint);
+            canvas.setDensity(100);
             paint.setColor(oldColor);
         }
     }

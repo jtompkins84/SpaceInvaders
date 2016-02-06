@@ -1,6 +1,5 @@
 package com.spaceinvaders;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 
 /**
@@ -9,8 +8,8 @@ import android.graphics.Bitmap;
     public class Invader extends Sprite {
 
     // TODO this is just a placeholder constructor
-    public Invader(Context context, Bitmap bitmap) {
-        super(context, bitmap);
+    public Invader(Bitmap bitmap) {
+        super(bitmap);
     }
 
     @Override

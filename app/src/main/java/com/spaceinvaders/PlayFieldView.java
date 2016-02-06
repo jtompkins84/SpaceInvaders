@@ -139,7 +139,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         // Here we will initialize all the game objects
 
         // Make a new player
-        player = new Player(getContext(), bmap_player, playFieldWidth, playFieldHeight);
+        player = new Player(bmap_player, playFieldWidth, playFieldHeight);
 
         // Prepare the players projectile
 
@@ -154,7 +154,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     public void run() {
         while (playing) {
             long startFrameTime = System.currentTimeMillis();
-
             if (!paused) {
                 update();
             }
@@ -211,7 +210,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         if (ourHolder.getSurface().isValid()) {
             // Lock the canvas ready to draw
             canvas = ourHolder.lockCanvas();
-            canvas.setDensity(100);
+//            canvas.setDensity(100);
 
             //Draw the background color
             canvas.drawColor(Color.argb(255, 0, 0, 0));
@@ -277,12 +276,13 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     }
 
     private boolean initResources() {
-        bmap_player = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player);
-        bmap_player.setDensity(300);
-        bmap_invader_a01 = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a01);
-        bmap_invader_a01.setDensity(300);
-        bmap_invader_a02 = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a02);
-        bmap_invader_a02.setDensity(300);
+        BitmapFactory.Options opt = new BitmapFactory.Options();
+//        opt.inDensity = 100;
+        opt.inScaled = false;
+
+        bmap_player = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player, opt);
+        bmap_invader_a01 = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a01, opt);
+        bmap_invader_a02 = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a02, opt);
 
         return true;
     }

@@ -1,6 +1,5 @@
 package com.spaceinvaders;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 
 public class DefenseBrick extends Sprite {
@@ -8,8 +7,8 @@ public class DefenseBrick extends Sprite {
     private short health = 4;
 
     // TODO this is just a placeholder constructor
-    public DefenseBrick(Context context, Bitmap bitmap) {
-        super(context, bitmap);
+    public DefenseBrick(Bitmap bitmap) {
+        super(bitmap);
     }
 
     @Override
