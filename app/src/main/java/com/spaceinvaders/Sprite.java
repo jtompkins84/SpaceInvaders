@@ -37,6 +37,7 @@ public abstract class Sprite {
 
     // player hit-box
     protected RectF hitBox = null;
+    protected RectF[] hitBoxes = null;
 
     // pixel/second speed of the player
     protected float speed;
@@ -67,13 +68,20 @@ public abstract class Sprite {
     protected Sprite(SpriteImage image, RectF hitBox) {
         this.image = image;
         this.hitBox = hitBox;
-        initHitBox();
+        if(hitBox != null)
+            initHitBox(this.hitBox);
     }
 
     protected Sprite(SpriteImage[] animation, RectF[] hitBoxes) {
         this.animation = animation;
+        image = animation[0];
 
-        initHitBox();
+        this.hitBoxes = hitBoxes;
+        if(hitBoxes != null) {
+            for(RectF hb : this.hitBoxes) {
+                initHitBox(hb);
+            }
+        }
     }
 
 /******************************************************
@@ -181,17 +189,12 @@ public abstract class Sprite {
         }
     }
 
-    private void initHitBox() {
+    private void initHitBox(RectF hitBox) {
         float DPICorrectionRatio = image.getDPIRatio();
-        Log.v("DIP Ratio", " = " + image.getDPIRatio());
 
-        Log.v("BEFORE", " left = " + hitBox.left + " top = " + hitBox.top + " right = " + hitBox.right + " bottom = " + hitBox.bottom);
         hitBox.left = hitBox.left * DPICorrectionRatio;
         hitBox.top = hitBox.top * DPICorrectionRatio;
-        Log.v("MID", " left = " + hitBox.left + " top = " + hitBox.top + " right = " + hitBox.right + " bottom = " + hitBox.bottom);
         hitBox.right = hitBox.right * DPICorrectionRatio;
         hitBox.bottom = hitBox.bottom * DPICorrectionRatio;
-        Log.v("AFTER", " left = " + hitBox.left + " top = " + hitBox.top + " right = " + hitBox.right + " bottom = " + hitBox.bottom);
-        Log.v("hitBox Dim", (hitBox.right - hitBox.left) + "x" + (hitBox.bottom - hitBox.top));
     }
 }

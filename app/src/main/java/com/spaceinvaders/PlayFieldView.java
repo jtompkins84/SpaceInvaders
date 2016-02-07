@@ -54,7 +54,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private Invader[] invaders = new Invader[60];
     private int numInvaders = 0;
 
-    private DefenseBrick[] bricks = new DefenseBrick[400];
+    private DefenseBrick[][] bricks = new DefenseBrick[3][4];
+    private DefenseWall[] walls = new DefenseWall[4];
     private int numBricks;
 
     private SoundPool soundPool;
@@ -86,11 +87,40 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     SpriteImage bmp_invader_a01;
     SpriteImage bmp_invader_a02;
     SpriteImage bmp_projectile_a;
-    SpriteImage bmp_brick_top_left01;
-    SpriteImage bmp_brick_top_left02;
-    SpriteImage bmp_brick_top_left03;
-    SpriteImage bmp_brick_top_left04;
+    SpriteImage bmp_brick_01;
+    SpriteImage bmp_brick_02;
+    SpriteImage bmp_brick_03;
+    SpriteImage bmp_brick_04;
+    SpriteImage bmp_brick_aa01;
+    SpriteImage bmp_brick_aa02;
+    SpriteImage bmp_brick_aa03;
+    SpriteImage bmp_brick_aa04;
+    SpriteImage bmp_brick_ad01;
+    SpriteImage bmp_brick_ad02;
+    SpriteImage bmp_brick_ad03;
+    SpriteImage bmp_brick_ad04;
+    SpriteImage bmp_brick_cb01;
+    SpriteImage bmp_brick_cb02;
+    SpriteImage bmp_brick_cb03;
+    SpriteImage bmp_brick_cb04;
+    SpriteImage bmp_brick_cc01;
+    SpriteImage bmp_brick_cc02;
+    SpriteImage bmp_brick_cc03;
+    SpriteImage bmp_brick_cc04;
+    SpriteImage[] brick;
+    SpriteImage[] brick_aa;
+    SpriteImage[] brick_ad;
+    SpriteImage[] brick_cb;
+    SpriteImage[] brick_cc;
 
+/*******************************************************************************
+ * Constructor
+ *
+ * @param context super constructor needs reference to this
+ * @param userControllerView needed for communication between player controls and game thread
+ * @param width <code>int</code> - this view's width in pixels
+ * @param height <code>int</code> - this view's height in pixels
+ ********************************************************************************/
     public PlayFieldView(Context context, UserControllerView userControllerView, int width, int height) {
         super(context);
 
@@ -146,7 +176,14 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
         // Build an army of invaders
 
-        // Build the shelters
+        // Build the defense walls
+        SpriteImage[][][] bricksInWall = new SpriteImage[3][4][4];
+        bricksInWall[0] = new SpriteImage[][] {brick_aa, brick, brick, brick_ad};
+        bricksInWall[1] = new SpriteImage[][] {brick, brick, brick, brick};
+        bricksInWall[2] = new SpriteImage[][] {brick, brick_cb, brick_cc, brick};
+        walls[0] = new DefenseWall(bricksInWall, playFieldWidth - (3.55f * (playFieldWidth / 4.5f)), playFieldHeight - (playFieldHeight / 4));
+        walls[1] = new DefenseWall(bricksInWall, playFieldWidth - (2.25f * (playFieldWidth / 4.5f)), playFieldHeight - (playFieldHeight / 4));
+        walls[2] = new DefenseWall(bricksInWall, playFieldWidth - (playFieldWidth / 4.5f), playFieldHeight - (playFieldHeight / 4));
     }
 
     @Override
@@ -218,11 +255,18 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             paint.setColor(Color.argb(255, 0, 255, 0));
 
             // Draw the player spaceship
-            player.draw(canvas, paint, true);
+            player.draw(canvas, paint, false);
 
             // Draw the invaders
 
             // Draw the bricks if visible
+            for(DefenseWall wall : walls) {
+                if(wall != null) {
+                    for (DefenseBrick[] bricks : wall.getBricks()) {
+                        for (DefenseBrick brick : bricks) brick.draw(canvas, paint, false);
+                    }
+                }
+            }
 
             // Draw the players projectile if active
 
@@ -280,16 +324,42 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         opt.inDensity = 480 * (640 / dpi);
         opt.inTargetDensity = 640;
         opt.inScreenDensity = dpi;
+//        opt.inScaled = false;
 
         float DPIRatio = (float)dpi / (float)opt.inDensity;
         if(DPIRatio < 1.0f) DPIRatio = 1.0f - DPIRatio;
         Log.v("DPI Ratio", opt.inDensity + " / " + dpi + " = " + ((float)opt.inDensity / (float)dpi));
 
         bmp_player = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player, opt), DPIRatio);
-        Log.v("Width Ratio", bmp_player.getBitmap().getWidth() + " / " + getWidth() + " = " + ((float)bmp_player.getBitmap().getWidth() / (float)playFieldWidth));
-        bmp_invader_a01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a01, opt), 100 / opt.inDensity);
-        bmp_invader_a02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a02, opt), 100 / opt.inDensity);
-        bmp_projectile_a = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.projectile_a, opt), 100 / opt.inDensity);
+        Log.v("Width Ratio", bmp_player.getBitmap().getWidth() + " / " + playFieldWidth + " = " + ((float)bmp_player.getBitmap().getWidth() / (float)playFieldWidth));
+        bmp_invader_a01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a01, opt), DPIRatio);
+        bmp_invader_a02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a02, opt), DPIRatio);
+        bmp_projectile_a = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.projectile_a, opt), DPIRatio);
+        bmp_brick_01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_01, opt), DPIRatio);
+        bmp_brick_02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_02, opt), DPIRatio);
+        bmp_brick_03 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_03, opt), DPIRatio);
+        bmp_brick_04 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_04, opt), DPIRatio);
+        bmp_brick_aa01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_aa01, opt), DPIRatio);
+        bmp_brick_aa02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_aa02, opt), DPIRatio);
+        bmp_brick_aa03 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_aa03, opt), DPIRatio);
+        bmp_brick_aa04 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_aa04, opt), DPIRatio);
+        bmp_brick_ad01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_ad01, opt), DPIRatio);
+        bmp_brick_ad02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_ad02, opt), DPIRatio);
+        bmp_brick_ad03 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_ad03, opt), DPIRatio);
+        bmp_brick_ad04 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_ad04, opt), DPIRatio);
+        bmp_brick_cb01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cb01, opt), DPIRatio);
+        bmp_brick_cb02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cb02, opt), DPIRatio);
+        bmp_brick_cb03 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cb03, opt), DPIRatio);
+        bmp_brick_cb04 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cb04, opt), DPIRatio);
+        bmp_brick_cc01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cc01, opt), DPIRatio);
+        bmp_brick_cc02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cc02, opt), DPIRatio);
+        bmp_brick_cc03 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cc03, opt), DPIRatio);
+        bmp_brick_cc04 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cc04, opt), DPIRatio);
+        brick = new SpriteImage[] {bmp_brick_01, bmp_brick_02, bmp_brick_03, bmp_brick_04};
+        brick_aa = new SpriteImage[] {bmp_brick_aa01, bmp_brick_aa02, bmp_brick_aa03, bmp_brick_aa04};
+        brick_ad = new SpriteImage[] {bmp_brick_ad01, bmp_brick_ad02, bmp_brick_ad03, bmp_brick_ad04};
+        brick_cb = new SpriteImage[] {bmp_brick_cb01, bmp_brick_cb02, bmp_brick_cb03, bmp_brick_cb04};
+        brick_cc = new SpriteImage[] {bmp_brick_cc01, bmp_brick_cc02, bmp_brick_cc03, bmp_brick_cc04};
 
         return true;
     }
