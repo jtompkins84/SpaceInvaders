@@ -195,7 +195,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             }
 
             draw();
-
             timeThisFrame = System.currentTimeMillis() - startFrameTime;
             if (timeThisFrame >= 1) {
                 fps = 1000 / timeThisFrame;
