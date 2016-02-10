@@ -1,37 +1,48 @@
 package com.spaceinvaderstutorial;
 
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.Display;
 
 public class SpaceInvadersActivity extends AppCompatActivity {
+
+    // spaceInvadersView will be the view of the game
+    // It will also hold the logic of the game
+    // and respond to screen touches as well
+    SpaceInvadersView spaceInvadersView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Get a Display object to access screen details
+        Display display = getWindowManager().getDefaultDisplay();
+        // Load the resolution into a Point object
+        Point size = new Point();
+        display.getSize(size);
+
+        // Initialize gameView and set it as the view
+        spaceInvadersView = new SpaceInvadersView(this, size.x, size.y);
+        setContentView(spaceInvadersView);
+
     }
 
+    // This method executes when the player starts the game
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_space_invaders, menu);
-        return true;
+    protected void onResume() {
+        super.onResume();
+
+        // Tell the gameView resume method to execute
+        spaceInvadersView.resume();
     }
 
+    // This method executes when the player quits the game
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    protected void onPause() {
+        super.onPause();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        // Tell the gameView pause method to execute
+        spaceInvadersView.pause();
     }
 }
