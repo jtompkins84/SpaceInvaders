@@ -234,23 +234,11 @@ public abstract class Sprite {
      * @param y
      */
     public void setPosition(float x, float y) {
-        if(hitBoxes != null || hitBoxes[currFrame] != null) {
-            pos.set(x - hitBoxes[currFrame].left - ((hitBoxes[currFrame].right - hitBoxes[currFrame].left) / 2),
-                    y - hitBoxes[currFrame].top - ((hitBoxes[currFrame].bottom - hitBoxes[currFrame].top) / 2));
+        pos.set(x - ((frames[currFrame].getWidth()) / 2),
+                y - ((frames[currFrame].getHeight()) / 2));
+
+        if(hitBoxes != null || hitBoxes[currFrame] != null)
             hitBoxes[currFrame].offsetTo(pos.x + hitBoxes[currFrame].left, pos.y + hitBoxes[currFrame].top);
-
-            Log.v("hitBox MOVED",
-                    (hitBoxes[currFrame].right - hitBoxes[currFrame].left)
-                    + "x"
-                    + (hitBoxes[currFrame].bottom - hitBoxes[currFrame].top));
-
-            return;
-        }
-
-        float ratio = frames[currFrame].getDPIRatio();
-        float width = frames[currFrame].getBitmap().getWidth();
-        pos.set(x - ((frames[currFrame].getBitmap().getWidth() * ratio) / 2),
-                y - ((frames[currFrame].getBitmap().getHeight() * ratio) / 2));
     }
 
 /******************************************************
@@ -288,8 +276,8 @@ public abstract class Sprite {
         float DPICorrectionRatio = frames[currFrame].getDPIRatio();
 //        DPICorrectionRatio = (float)frames[0].getBitmap().getScaledWidth(640) / (float)frames[0].getBitmap().getWidth(); // TODO remove line
 
-        float w = frames[0].getBitmap().getWidth();
-        float h = frames[0].getBitmap().getHeight();
+        float w = frames[0].getWidth();
+        float h = frames[0].getHeight();
 
         hitBox.left = hitBox.left * DPICorrectionRatio;
         hitBox.top = hitBox.top * DPICorrectionRatio;

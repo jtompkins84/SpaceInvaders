@@ -1,7 +1,6 @@
 package com.spaceinvaders;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 
 /**
  * Created by Joseph on 2/6/2016.
@@ -9,7 +8,6 @@ import android.graphics.Canvas;
 public class SpriteImage {
 
     private Bitmap bmp;
-    private Canvas canvas;
     private float DPIRatio;
 
     /**
@@ -21,7 +19,6 @@ public class SpriteImage {
      */
     public SpriteImage(Bitmap bitmap, float DPIRatioMetric) {
         this.bmp = bitmap;
-        this.canvas = canvas;
         this.DPIRatio = DPIRatioMetric;
     }
 
@@ -41,5 +38,13 @@ public class SpriteImage {
      */
     public float getDPIRatio() {
         return DPIRatio;
+    }
+
+    public int getWidth() {
+        return this.getBitmap().getWidth();
+    }
+
+    public int getHeight() {
+        return  this.getBitmap().getHeight();
     }
 }
