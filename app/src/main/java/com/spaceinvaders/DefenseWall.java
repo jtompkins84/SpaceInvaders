@@ -1,7 +1,6 @@
 package com.spaceinvaders;
 
 import android.graphics.PointF;
-import android.util.Log;
 
 /**
  * Created by Joseph on 2/6/2016.
@@ -36,7 +35,7 @@ public class DefenseWall {
      * Initializes <code>DefenseBrick</code>s of this wall by loading <code>spriteImages</code>
      * in order of left-right top-bottom. Fail-safes are built in, in case <code>spriteImages</code>
      * doesn't contain enough images.
-     * @param spriteImages dimensions of array are: row, column, animation frames
+     * @param spriteImages dimensions of array are: <code>[<i>row</i>][<i>column</i>][<i>animation frames</i>]</code>
      * @return <code>true</code> if <code>spriteImages</code> contained the right number of
      * <code>SpriteImage</code>s.
      */
@@ -54,12 +53,8 @@ public class DefenseWall {
         }
 
         // FIX PIXEL WIDTH AND HEIGHT OF WALL FOR DISPLAY RESOLUTION
-//        Log.v("DefenseWall", width + "x" + height);
         this.width = this.width * bricks[0][0].getDPIRatio();
         this.height = this.height * bricks[0][0].getDPIRatio();
-//        Log.v("DefenseWall", width + "x" + height);
-
-//        return true; // TODO REMOVE LINE: this function used to return a boolean.
     }
 
     public void setPos(float x, float y) {
@@ -68,16 +63,16 @@ public class DefenseWall {
         pos.set(x - this.width / 2.0f, y - this.height / 2.0f);
 
         // PLACE BRICKS
-        float brick_width = bricks[0][0].getCurrentFrameImage().getBitmap().getWidth();
-        float brick_height = bricks[0][0].getCurrentFrameImage().getBitmap().getHeight();
-        Log.v("DefenseWall", "BRICK DIMENSION: " + brick_width + "x" + brick_height); // TODO remove line
-        Log.v("DefenseWall", "WALL POSITION: " + pos.x + "x" + pos.y); // TODO remove line
+        float brick_width = bricks[0][0].getCurrentFrameImage().getWidth();
+        float brick_height = bricks[0][0].getCurrentFrameImage().getHeight();
+//        Log.v("DefenseWall", "BRICK DIMENSION: " + brick_width + "x" + brick_height); // TODO remove line
+//        Log.v("DefenseWall", "WALL POSITION: " + pos.x + "x" + pos.y); // TODO remove line
 
         for(int i = 0; i < bricksInCol; i++) {
             for(int j = 0; j < bricksInRow; j++) {
                 bricks[i][j].setPosition(pos.x + (j * brick_width), pos.y + (i * brick_height));
 
-                Log.v("DefenseWall", "BRICK POSITION: " + "(" + bricks[i][j].getX() + ", " + bricks[i][j].getY() + ")"); // TODO remove line
+//                Log.v("DefenseWall", "BRICK POSITION: " + "(" + bricks[i][j].getX() + ", " + bricks[i][j].getY() + ")"); // TODO remove line
             }
         }
     }
