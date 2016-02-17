@@ -46,8 +46,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private long timeThisFrame;
 
-    private int playFieldWidth;
-    private int playFieldHeight;
+    private float playFieldWidth;
+    private float playFieldHeight;
 
     private Player player;
 

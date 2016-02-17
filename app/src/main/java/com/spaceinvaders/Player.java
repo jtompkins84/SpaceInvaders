@@ -13,17 +13,17 @@ public class Player extends Sprite {
     /**
      * <code><b><i>Player</i></b></code><p>
      * <code>Player</code> contructor.
-     * @param screenWidth <code>float</code> - screen's current width
-     * @param screenHeight <code>float</code> - screen's current height
+     * @param screenWidth <code>float</code> - play field's current width
+     * @param screenHeight <code>float</code> - play field's current height
      */
-    public Player(SpriteImage image, int screenWidth, int screenHeight) {
+    public Player(SpriteImage image, float screenWidth, float screenHeight) {
         // sets the bitmap image and initializes the size of the hit-box.
         // hit-box values are derived by opening the original image in and image editor
         // and determining the dimension of the hit-box in pixels from there.
-        super(image, new RectF(9.0f, 21.0f, 99.0f, 56.0f));
+        super(image, new RectF(9.0f, 21.0f, 101.0f, 56.0f));
 
-        // set postion relative to device resolution
-        setPosition(screenWidth / 2, screenHeight - (screenHeight / 12));
+        // set position relative to view of the play field
+        setPosition(screenWidth / 2.0f, screenHeight - (screenHeight / 12.0f));
 
         // initialize player movement speed
         speed = 350;

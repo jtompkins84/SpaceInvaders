@@ -63,8 +63,8 @@ public class DefenseWall {
         pos.set(x - this.width / 2.0f, y - this.height / 2.0f);
 
         // PLACE BRICKS
-        float brick_width = bricks[0][0].getCurrentFrameImage().getWidth();
-        float brick_height = bricks[0][0].getCurrentFrameImage().getHeight();
+        float brick_width = bricks[0][0].getCurrentFrameSpriteImage().getWidth();
+        float brick_height = bricks[0][0].getCurrentFrameSpriteImage().getHeight();
 //        Log.v("DefenseWall", "BRICK DIMENSION: " + brick_width + "x" + brick_height); // TODO remove line
 //        Log.v("DefenseWall", "WALL POSITION: " + pos.x + "x" + pos.y); // TODO remove line
 

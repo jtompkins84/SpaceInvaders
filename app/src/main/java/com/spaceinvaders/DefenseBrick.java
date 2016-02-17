@@ -26,6 +26,6 @@ public class DefenseBrick extends Sprite {
      * @return
      */
     public float getDPIRatio() {
-        return this.getCurrentFrameImage().getDPIRatio();
+        return this.getCurrentFrameSpriteImage().getDPIRatio();
     }
 }

@@ -127,7 +127,7 @@ public abstract class Sprite {
      *
      * @return the <code>SpriteImage</code> associated with the current frame of animation.
      */
-    public SpriteImage getCurrentFrameImage() {
+    public SpriteImage getCurrentFrameSpriteImage() {
         return frames[currFrame];
     }
 
@@ -135,7 +135,7 @@ public abstract class Sprite {
      *
      * @return <code>int</code> representing the index of the current frame in <code>frames[]</code>.
      */
-    public int getCurrFrame() {
+    public int getCurrFrameIndex() {
         return currFrame;
     }
 
@@ -177,7 +177,7 @@ public abstract class Sprite {
 
 
     /**
-     * @return x-coordinate relative to center of hit-box
+     * @return x-coordinate relative to center this <code>Sprite</code>
      */
     public float getX() {
         if(hitBoxes == null || hitBoxes[currFrame] == null) {
@@ -191,7 +191,7 @@ public abstract class Sprite {
     }
 
     /**
-     * @return y-coordinate relative to center of hit-box
+     * @return y-coordinate relative to center of this <code>Sprite</code>
      */
     public float getY() {
         if(hitBoxes == null || hitBoxes[currFrame] == null) {
@@ -229,13 +229,15 @@ public abstract class Sprite {
     }
 
     /**
-     * Sets the position of the <code>Sprite</code>.
+     * Sets the position of the <code>Sprite</code>. Position is in pixels
      * @param x
      * @param y
      */
     public void setPosition(float x, float y) {
-        pos.set(x - ((frames[currFrame].getWidth()) / 2),
-                y - ((frames[currFrame].getHeight()) / 2));
+        pos.set(x - ((float)frames[currFrame].getWidth() / 2.0f),
+                y - ((float)frames[currFrame].getHeight() / 2.0f));
+
+        Log.v("Sprite", "Sprite position: (" + pos.x + ", " + pos.y + ")");
 
         if(hitBoxes != null || hitBoxes[currFrame] != null)
             hitBoxes[currFrame].offsetTo(pos.x + hitBoxes[currFrame].left, pos.y + hitBoxes[currFrame].top);
