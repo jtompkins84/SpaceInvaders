@@ -25,6 +25,12 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private Thread gameThread = null;
     private UserControllerView userControllerView;
     private SurfaceHolder ourHolder;
+    /**
+     * Set to 1.0f by default. DPIRatio is adjusted during resource initialization and is used to
+     * scale dimensions & coordinates to the correct proportions so that
+     * the play field looks the same no matter what device it is displayed on.
+     */
+    float DPIRatio = 1.0f;
 
     private volatile boolean playing;
 
@@ -40,8 +46,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private long timeThisFrame;
 
-    private int playFieldWidth;
-    private int playFieldHeight;
+    private float playFieldWidth;
+    private float playFieldHeight;
 
     private Player player;
 
@@ -165,25 +171,36 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     }
 
     private void initializePlayField() {
-        // Here we will initialize all the game objects
+    // Here we will initialize all the game objects
 
-        // Make a new player
+    // Make a new player
         player = new Player(bmp_player, playFieldWidth, playFieldHeight);
 
-        // Prepare the players projectile
+    // Prepare the players projectile
 
-        // Initialize the invadersProjectiles array
+    // Initialize the invadersProjectiles array
 
-        // Build an army of invaders
+    // Build an army of invaders
 
-        // Build the defense walls
+    // Build the defense walls
         SpriteImage[][][] bricksInWall = new SpriteImage[3][4][4];
         bricksInWall[0] = new SpriteImage[][] {brick_aa, brick, brick, brick_ad};
         bricksInWall[1] = new SpriteImage[][] {brick, brick, brick, brick};
         bricksInWall[2] = new SpriteImage[][] {brick, brick_cb, brick_cc, brick};
-        walls[0] = new DefenseWall(bricksInWall, playFieldWidth - (3.55f * (playFieldWidth / 4.5f)), playFieldHeight - (playFieldHeight / 4));
-        walls[1] = new DefenseWall(bricksInWall, playFieldWidth - (2.25f * (playFieldWidth / 4.5f)), playFieldHeight - (playFieldHeight / 4));
-        walls[2] = new DefenseWall(bricksInWall, playFieldWidth - (playFieldWidth / 4.5f), playFieldHeight - (playFieldHeight / 4));
+
+        playFieldWidth = this.getResources().getDisplayMetrics().widthPixels;
+
+        walls[1] = new DefenseWall(bricksInWall, playFieldWidth / 2, playFieldHeight - (playFieldHeight / 5));
+        walls[0] = new DefenseWall(bricksInWall, (playFieldWidth / 2) - (walls[1].getDimensions().x * 2.0f), playFieldHeight - (playFieldHeight / 5));
+        walls[2] = new DefenseWall(bricksInWall, (playFieldWidth / 2) + (walls[1].getDimensions().x * 2.0f), playFieldHeight - (playFieldHeight / 5));
+
+        /*walls[0] = new DefenseWall(bricksInWall, 500.0f, 500.0f);
+        walls[1] = new DefenseWall(bricksInWall, 500.0f, 500.0f);
+        walls[2] = new DefenseWall(bricksInWall, 500.0f, 500.0f);
+
+        walls[0].setPos((playFieldWidth / 2) - (walls[0].getDimensions().x * 2.0f), playFieldHeight - (playFieldHeight / 5));
+        walls[1].setPos(playFieldWidth / 2, playFieldHeight - (playFieldHeight / 5));
+        walls[2].setPos((playFieldWidth / 2) + (walls[2].getDimensions().x * 2.0f), playFieldHeight - (playFieldHeight / 5));*/
     }
 
     @Override
@@ -195,7 +212,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             }
 
             draw();
-
             timeThisFrame = System.currentTimeMillis() - startFrameTime;
             if (timeThisFrame >= 1) {
                 fps = 1000 / timeThisFrame;
@@ -273,7 +289,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Draw the score and remaining lives
             // Change brush color
             paint.setColor(Color.argb(255, 0, 255, 0));
-            paint.setTextSize(40);
+            paint.setTextSize(40 * DPIRatio);
             canvas.drawText("Score: " + score + "  Lives: " + lives, 10, 50, paint);
 
             // Draw everything to the screen
@@ -319,19 +335,20 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     }
 
     private boolean initResources() {
-        int dpi = getResources().getDisplayMetrics().densityDpi;
-        BitmapFactory.Options opt = new BitmapFactory.Options();
-        opt.inDensity = 480 * (640 / dpi);
-        opt.inTargetDensity = 640;
-        opt.inScreenDensity = dpi;
-//        opt.inScaled = false;
+        // Recalculate DPI to a standard size.
+        float dpi = (int)((640.0f / 1440.0f) * getResources().getDisplayMetrics().widthPixels); // Adjust to some ratio of desired DPI of 640
+        getResources().getDisplayMetrics().densityDpi = (int)dpi; // Change Display's DPI to new DPI
 
-        float DPIRatio = (float)dpi / (float)opt.inDensity;
-        if(DPIRatio < 1.0f) DPIRatio = 1.0f - DPIRatio;
-        Log.v("DPI Ratio", opt.inDensity + " / " + dpi + " = " + ((float)opt.inDensity / (float)dpi));
+        // Tell rendering how to size bitmaps
+        BitmapFactory.Options opt = new BitmapFactory.Options();
+//        Log.v("PlayFieldView", "DPI Ratio BEFORE: " + opt.inDensity + " / " + dpi + " = " + ((float) opt.inDensity / (float) dpi + " :: dpiScreen = " + dpiScreen));
+        opt.inDensity = 480;
+
+        DPIRatio = dpi / (float)opt.inDensity;
+//        Log.v("PlayFieldView", "DPI Ratio AFTER: " + opt.inDensity + " / " + dpi + " = " + ((float) opt.inDensity / (float) dpi));
 
         bmp_player = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player, opt), DPIRatio);
-        Log.v("Width Ratio", bmp_player.getBitmap().getWidth() + " / " + playFieldWidth + " = " + ((float)bmp_player.getBitmap().getWidth() / (float)playFieldWidth));
+        Log.v("PlayFieldView", "Width Ratio <SPRITE_WIDTH> / <SCREEN_WIDTH>: " + bmp_player.getBitmap().getWidth() + " / " + playFieldWidth + " = " + ((float)bmp_player.getBitmap().getWidth() / (float)playFieldWidth));
         bmp_invader_a01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a01, opt), DPIRatio);
         bmp_invader_a02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a02, opt), DPIRatio);
         bmp_projectile_a = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.projectile_a, opt), DPIRatio);

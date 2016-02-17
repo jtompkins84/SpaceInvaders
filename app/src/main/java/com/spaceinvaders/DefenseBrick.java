@@ -10,9 +10,8 @@ public class DefenseBrick extends Sprite {
     private short health;
 
     // TODO this is just a placeholder constructor
-    public DefenseBrick(SpriteImage[] animation) {
-        super(animation, new RectF[] {new RectF(0.0f, 0.0f, 35.0f, 28.0f)});
-        hitBox = hitBoxes[0];
+    public DefenseBrick(SpriteImage[] frames) {
+        super(frames, (new RectF[] {new RectF(0.0f, 0.0f, 35.0f, 28.0f)}));
 
         health = 4;
     }
@@ -27,6 +26,6 @@ public class DefenseBrick extends Sprite {
      * @return
      */
     public float getDPIRatio() {
-        return this.image.getDPIRatio();
+        return this.getCurrentFrameSpriteImage().getDPIRatio();
     }
 }
