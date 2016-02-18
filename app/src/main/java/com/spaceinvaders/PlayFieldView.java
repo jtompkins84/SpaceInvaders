@@ -193,14 +193,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         walls[1] = new DefenseWall(bricksInWall, playFieldWidth / 2, playFieldHeight - (playFieldHeight / 5));
         walls[0] = new DefenseWall(bricksInWall, (playFieldWidth / 2) - (walls[1].getDimensions().x * 2.0f), playFieldHeight - (playFieldHeight / 5));
         walls[2] = new DefenseWall(bricksInWall, (playFieldWidth / 2) + (walls[1].getDimensions().x * 2.0f), playFieldHeight - (playFieldHeight / 5));
-
-        /*walls[0] = new DefenseWall(bricksInWall, 500.0f, 500.0f);
-        walls[1] = new DefenseWall(bricksInWall, 500.0f, 500.0f);
-        walls[2] = new DefenseWall(bricksInWall, 500.0f, 500.0f);
-
-        walls[0].setPos((playFieldWidth / 2) - (walls[0].getDimensions().x * 2.0f), playFieldHeight - (playFieldHeight / 5));
-        walls[1].setPos(playFieldWidth / 2, playFieldHeight - (playFieldHeight / 5));
-        walls[2].setPos((playFieldWidth / 2) + (walls[2].getDimensions().x * 2.0f), playFieldHeight - (playFieldHeight / 5));*/
     }
 
     @Override

@@ -46,6 +46,10 @@ public abstract class Sprite {
 
     // player hit-box
     private RectF[] hitBoxes = null;
+    /**
+     * Just a flag to reference whether or not to do hit detection.
+     */
+    protected boolean doHitDetection = true;
 
     // pixel/second speed of the player
     protected float speed;
