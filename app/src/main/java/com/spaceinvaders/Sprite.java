@@ -17,10 +17,25 @@ public abstract class Sprite {
     private SpriteImage[] frames = null;
     // index of the current frame of animation
     private int currFrame = 0;
-    // A ratio that represents the amount of <DPI of device> / <DPI of original image>.
-    //
-    private float resolutionRatio = 1.0f;
-
+    /**
+     * The index of the frame array to start an animation. 0 by default.
+     */
+    private int startFrame = 0;
+    /**
+     * The index of the frame array to end an animation. 0 by default.
+     */
+    private int endFrame = 0;
+    /**
+     * The animation will loop between the <code>startFrame</code> index and <code>endFrame</code>
+     * index of this <code>Sprite</code> object when this value is set to <code>true</code>.
+     */
+    protected boolean doAnimationLoop = true;
+    /**
+     * dictates whether or not to draw the frame when the draw method of this
+     * <code>Sprite</code> object is called. Useful to keep "dead" sprites from
+     * being rendered on the screen.
+     */
+    protected boolean doDrawFrame = true;
 
     /**
      * (x, y) makes the top left coordinate of the sprite
@@ -38,8 +53,6 @@ public abstract class Sprite {
     // variable tracks current movement of player
     protected Movement movement = Movement.STOPPED;
 
-    private boolean isResizedForResolution = false;
-
     protected Sprite(SpriteImage image) {
         this.frames[currFrame] = image;
     }
@@ -56,8 +69,8 @@ public abstract class Sprite {
     protected Sprite(SpriteImage image, RectF hitBox) {
         frames = new SpriteImage[1];
         hitBoxes = new RectF[1];
-        this.frames[currFrame] = image;
-        this.hitBoxes[currFrame] = hitBox;
+        this.frames[0] = image;
+        this.hitBoxes[0] = hitBox;
         if(hitBox != null)
             initHitBox(this.hitBoxes[currFrame]);
     }
@@ -76,8 +89,11 @@ public abstract class Sprite {
     protected Sprite(SpriteImage[] frames, RectF[] hitBoxes) {
         this.frames = frames;
 
+        // makes this.hitBoxes array the same length as this.frames array to insure that
+        // the argument hitBoxes array indices match up in a relevant way to the frames.
         this.hitBoxes = new RectF[this.frames.length];
 
+        // Filling the hitBoxes array with relevant values.
         for(int i = 0; i < this.frames.length; i++) {
             if(i < hitBoxes.length) this.hitBoxes[i] = hitBoxes[i];
             else this.hitBoxes[i] = null;
@@ -117,7 +133,7 @@ public abstract class Sprite {
 
 /******************************************************
 * ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
-* Memebers & Super Constructors
+* Memebers & Constructors
 *
 * Getters/Setters
 * v v v v v v v v v v v v v v v v v v v v v v v v v
@@ -132,7 +148,7 @@ public abstract class Sprite {
     }
 
     /**
-     *
+     * This returns the index number of the current frame in the
      * @return <code>int</code> representing the index of the current frame in <code>frames[]</code>.
      */
     public int getCurrFrameIndex() {
@@ -140,25 +156,79 @@ public abstract class Sprite {
     }
 
     /**
-     *
-     * @param frame <code>int</code> - the index of the frame to select.
+     * Set the current frame of animation directly by passing the desired frame's
+     * array index as an argument. Invalid indices will result in failure to
+     * execute, and an error message in the log.
+     * @param index <code>int</code> - the index of the frame to select.
      */
-    public void setCurrFrame(int frame) {
-        if(frame < 0 || frame >= this.frames.length){
-            Log.e("setCurrFrame(" + frame + ")", "Not a valid frame.");
+    public void setCurrFrame(int index) {
+        if(index < 0 || index >= this.frames.length) {
+            Log.e("Sprite.setCurrFrame(" + index + ")", "Not a valid frame index.");
             return;
         }
 
-        currFrame = frame;
+        currFrame = index;
     }
 
     /**
-     * Advances to the next frame of animation. If the current frame is indexed at the end of
-     * <code>frames</code>,
+     * Returns the index of the starting frame for the current animation.
+     * @return
      */
-    public void advanceFrames() {
-        if(currFrame < frames.length - 1) currFrame++;
-        else if(currFrame >= frames.length) currFrame = 0;
+    public int getStartFrame() {
+        return this.startFrame;
+    }
+
+    /**
+     * Returns the index of the ending frame for the current animation.
+     * @return
+     */
+    public int getEndFrame() {
+        return this.endFrame;
+    }
+
+    /**
+     * Set the animation
+     * @param startIndex <code>int</code> - must be valid index.
+     * @param endIndex <code>int</code> - must be valid index and greater than or equal to
+     *                 <code>startIndex</code>
+     */
+    public void setStartAndEndFrames(int startIndex, int endIndex) {
+        if(startIndex < 0 || startIndex >= this.frames.length) {
+            Log.e("Sprite",
+                    "setStartAndEndFrames(" + startIndex + ", " +  endIndex + "):"
+                            + " Not a valid starting index.");
+            return;
+        }
+        else if(endIndex < 0 || endIndex >= this.frames.length) {
+            Log.e("Sprite",
+                    "setStartAndEndFrames(" + startIndex + ", " +  endIndex + "):"
+                            + " Not a valid starting index.");
+            return;
+        }
+        else if(endIndex < startIndex) {
+            Log.e("Sprite",
+                    "setStartAndEndFrames(" + startIndex + ", " + endIndex + "):"
+                            + " Ending index for a frame must be either equal to or greater than the starting frame index.");
+            return;
+        }
+
+        this.startFrame = startIndex;
+        this.endFrame = endIndex;
+    }
+
+    /**
+     * Advances to the next frame of animation. If the <code>doAnimationLoop</code> value of this
+     * <code>Sprite</code> object is true and the current frame index is equal to the value of
+     * <code>endFrame</code>, the animation will be made to loop by setting the current frame
+     * the index value of the starting frame.
+     * <div></div>
+     * If <code>doAnimationLoop</code> is false, this will advance to the next frame only if
+     * the current frame is less than the ending frame.
+     * <code>frames</code>, the animation will loop back to <code>endFrame</code>.
+     */
+    public void nextFrame() {
+        if(doAnimationLoop && currFrame > endFrame) currFrame = startFrame;
+        else if(currFrame < endFrame) currFrame++;
     }
 
     /**
@@ -177,7 +247,7 @@ public abstract class Sprite {
 
 
     /**
-     * @return x-coordinate relative to center this <code>Sprite</code>
+     * @return x-coordinate relative to center of this <code>Sprite</code>'s bitmap.
      */
     public float getX() {
         if(hitBoxes == null || hitBoxes[currFrame] == null) {
@@ -191,7 +261,7 @@ public abstract class Sprite {
     }
 
     /**
-     * @return y-coordinate relative to center of this <code>Sprite</code>
+     * @return y-coordinate relative to center of this <code>Sprite</code>'s bitmap.
      */
     public float getY() {
         if(hitBoxes == null || hitBoxes[currFrame] == null) {
@@ -247,7 +317,7 @@ public abstract class Sprite {
  * ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
  * Getters/Setters
  *
- * Class Methods
+ * Inherited Methods
  * v v v v v v v v v v v v v v v v v v v v v v v v v
  *******************************************************/
 
@@ -263,7 +333,10 @@ public abstract class Sprite {
      * @param paint <code>Paint</code> object used to draw
      */
     public void draw(Canvas canvas, Paint paint, boolean showHitBox) {
-        canvas.drawBitmap(frames[currFrame].getBitmap(), pos.x, pos.y, paint);
+        if(frames[currFrame] != null && doDrawFrame) {
+            canvas.drawBitmap(frames[currFrame].getBitmap(), pos.x, pos.y, paint);
+            nextFrame();
+        }
 
         if(hitBoxes != null || hitBoxes[currFrame] != null && showHitBox == true) {
             int oldColor = paint.getColor();
@@ -273,32 +346,33 @@ public abstract class Sprite {
         }
     }
 
-    private void initHitBox(RectF hitBox) {
-        if (hitBox == null) return;
-        float DPICorrectionRatio = frames[currFrame].getDPIRatio();
-//        DPICorrectionRatio = (float)frames[0].getBitmap().getScaledWidth(640) / (float)frames[0].getBitmap().getWidth(); // TODO remove line
-
-        float w = frames[0].getWidth();
-        float h = frames[0].getHeight();
-
-        hitBox.left = hitBox.left * DPICorrectionRatio;
-        hitBox.top = hitBox.top * DPICorrectionRatio;
-        hitBox.right = hitBox.right * DPICorrectionRatio;
-        hitBox.bottom = hitBox.bottom * DPICorrectionRatio;
-//        hitBox.right = hitBox.left + w;
-//        hitBox.bottom = hitBox.top + h;
-        Log.v("SPRITE DIMENSION", w + "x" + h); // TODO remove line
-    }
-
     /**
      * Set position relative to previous position.
      * @param dx
      * @param dy
      */
-    protected void move(float dx, float dy) {
+    public void move(float dx, float dy) {
         pos.set(pos.x + dx, pos.y + dy);
         if(hitBoxes != null || hitBoxes[currFrame] != null) {
             hitBoxes[currFrame].offset(dx, dy);
         }
+    }
+
+/******************************************************
+ * ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
+ * Inherited Methods
+ *
+ * Private Methods
+ * v v v v v v v v v v v v v v v v v v v v v v v v v
+ *******************************************************/
+
+    private void initHitBox(RectF hitBox) {
+        if (hitBox == null) return;
+        float DPICorrectionRatio = frames[currFrame].getDPIRatio();
+
+        hitBox.left = hitBox.left * DPICorrectionRatio;
+        hitBox.top = hitBox.top * DPICorrectionRatio;
+        hitBox.right = hitBox.right * DPICorrectionRatio;
+        hitBox.bottom = hitBox.bottom * DPICorrectionRatio;
     }
 }

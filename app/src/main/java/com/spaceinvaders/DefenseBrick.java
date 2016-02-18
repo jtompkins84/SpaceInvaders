@@ -8,6 +8,7 @@ import android.graphics.RectF;
 public class DefenseBrick extends Sprite {
     // NOTE: Defense block will be able to be hit 4 times before being destroyed
     private short health;
+    private boolean isDestroyed;
 
     // TODO this is just a placeholder constructor
     public DefenseBrick(SpriteImage[] frames) {
@@ -27,5 +28,12 @@ public class DefenseBrick extends Sprite {
      */
     public float getDPIRatio() {
         return this.getCurrentFrameSpriteImage().getDPIRatio();
+    }
+
+    public void takeDamage() {
+        health--;
+        if(health <= 0) {
+            setCurrFrame(4);
+        }
     }
 }
