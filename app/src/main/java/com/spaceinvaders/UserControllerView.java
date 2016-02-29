@@ -9,8 +9,12 @@ import android.view.SurfaceView;
  */
 public class UserControllerView extends SurfaceView {
 
-    public UserControllerView(Context context) {
+    PlayFieldView playField;
+
+    public UserControllerView(Context context, PlayFieldView playField) {
         super(context);
+
+        this.playField = playField;
 
         this.setBackgroundColor(Color.argb(255, 50, 50, 50));
 

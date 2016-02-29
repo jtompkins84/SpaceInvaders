@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Display;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -26,6 +27,10 @@ public class SpaceInvadersActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if(Resources.initResources(this) == false) {
+            Log.e("SpaceInvadersActivity", "Resource initialization failed!");
+        }
+
         // Get a Display object to access screen details
         Display display = getWindowManager().getDefaultDisplay();
 
@@ -35,11 +40,10 @@ public class SpaceInvadersActivity extends AppCompatActivity {
 
         gamePlayLayout = new RelativeLayout(this);
 
-
-        userControllerView = new UserControllerView(this);
-        userControllerView.setId(1111);
-        playFieldView = new PlayFieldView(this, userControllerView, size.x, size.x);
+        playFieldView = new PlayFieldView(this, size.x, size.x);
         playFieldView.setId(2222);
+        userControllerView = new UserControllerView(this, playFieldView);
+        userControllerView.setId(1111);
 
         // TODO need to credit below code to online source
         // http://stackoverflow.com/questions/5327144/setting-up-relativelayout-in-java-code
