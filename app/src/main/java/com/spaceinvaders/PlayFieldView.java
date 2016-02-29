@@ -3,7 +3,6 @@ package com.spaceinvaders;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,8 +13,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.tutorials.joseph.spaceinvaders.R;
-
 import java.io.IOException;
 
 /**
@@ -23,7 +20,6 @@ import java.io.IOException;
  */
 public class PlayFieldView extends SurfaceView implements Runnable {
     private Thread gameThread = null;
-    private UserControllerView userControllerView;
     private SurfaceHolder ourHolder;
     /**
      * Set to 1.0f by default. DPIRatio is adjusted during resource initialization and is used to
@@ -35,7 +31,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private volatile boolean playing;
 
     // game starts out paused
-    private boolean paused = true;
+    private boolean paused = false;
 
     // need a canvas and paint object
     private Canvas canvas;
@@ -51,13 +47,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private Player player;
 
-    private Projectile projectile;
+    private ProjectileArray projectiles;
+    private int maxPlayerBullets = 10;
 
-    private Projectile[] invadersProjectiles = new Projectile[200];
-    private int nextBullet;
-    private int maxInvaderBullets = 10;
-
-    private Invader[] invaders = new Invader[60];
+    private Invader[] invaders = new Invader[60]; // TODO replace with InvaderArmy class
     private int numInvaders = 0;
 
     private DefenseBrick[][] bricks = new DefenseBrick[3][4];
@@ -84,60 +77,20 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private long lastMenaceTime = System.currentTimeMillis();
 
-    /*
-    *
-    * RESOURCES
-    * v v v v v v v v v
-    */
-    SpriteImage bmp_player;
-    SpriteImage bmp_invader_a01;
-    SpriteImage bmp_invader_a02;
-    SpriteImage bmp_projectile_a;
-    SpriteImage bmp_brick_01;
-    SpriteImage bmp_brick_02;
-    SpriteImage bmp_brick_03;
-    SpriteImage bmp_brick_04;
-    SpriteImage bmp_brick_aa01;
-    SpriteImage bmp_brick_aa02;
-    SpriteImage bmp_brick_aa03;
-    SpriteImage bmp_brick_aa04;
-    SpriteImage bmp_brick_ad01;
-    SpriteImage bmp_brick_ad02;
-    SpriteImage bmp_brick_ad03;
-    SpriteImage bmp_brick_ad04;
-    SpriteImage bmp_brick_cb01;
-    SpriteImage bmp_brick_cb02;
-    SpriteImage bmp_brick_cb03;
-    SpriteImage bmp_brick_cb04;
-    SpriteImage bmp_brick_cc01;
-    SpriteImage bmp_brick_cc02;
-    SpriteImage bmp_brick_cc03;
-    SpriteImage bmp_brick_cc04;
-    SpriteImage[] brick;
-    SpriteImage[] brick_aa;
-    SpriteImage[] brick_ad;
-    SpriteImage[] brick_cb;
-    SpriteImage[] brick_cc;
-
 /*******************************************************************************
  * Constructor
  *
  * @param context super constructor needs reference to this
- * @param userControllerView needed for communication between player controls and game thread
  * @param width <code>int</code> - this view's width in pixels
  * @param height <code>int</code> - this view's height in pixels
  ********************************************************************************/
-    public PlayFieldView(Context context, UserControllerView userControllerView, int width, int height) {
+    public PlayFieldView(Context context, int width, int height) {
         super(context);
 
-        this.userControllerView = userControllerView;
         playFieldWidth = width;
         playFieldHeight = height;
         ourHolder = getHolder();
         paint = new Paint();
-
-        // TODO initialize all resources. Perhaps create seperate method or class for this.
-        initResources();
 
         // TODO this is deprecated and we will most likely change it
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
@@ -174,25 +127,19 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     // Here we will initialize all the game objects
 
     // Make a new player
-        player = new Player(bmp_player, playFieldWidth, playFieldHeight);
+        player = new Player(playFieldWidth, playFieldHeight);
 
-    // Prepare the players projectile
-
-    // Initialize the invadersProjectiles array
+    // Prepare the projectiles
+        projectiles = new ProjectileArray(player, playFieldHeight);
 
     // Build an army of invaders
 
     // Build the defense walls
-        SpriteImage[][][] bricksInWall = new SpriteImage[3][4][4];
-        bricksInWall[0] = new SpriteImage[][] {brick_aa, brick, brick, brick_ad};
-        bricksInWall[1] = new SpriteImage[][] {brick, brick, brick, brick};
-        bricksInWall[2] = new SpriteImage[][] {brick, brick_cb, brick_cc, brick};
-
         playFieldWidth = this.getResources().getDisplayMetrics().widthPixels;
 
-        walls[1] = new DefenseWall(bricksInWall, playFieldWidth / 2, playFieldHeight - (playFieldHeight / 5));
-        walls[0] = new DefenseWall(bricksInWall, (playFieldWidth / 2) - (walls[1].getDimensions().x * 2.0f), playFieldHeight - (playFieldHeight / 5));
-        walls[2] = new DefenseWall(bricksInWall, (playFieldWidth / 2) + (walls[1].getDimensions().x * 2.0f), playFieldHeight - (playFieldHeight / 5));
+        walls[1] = new DefenseWall((playFieldWidth / 2) + (Resources.img_brick_01.getWidth() / 2), playFieldHeight - (playFieldHeight / 5));
+        walls[0] = new DefenseWall((playFieldWidth / 2) - (walls[1].getDimensions().x * 2.0f) + (Resources.img_brick_01.getWidth() / 2), playFieldHeight - (playFieldHeight / 5));
+        walls[2] = new DefenseWall((playFieldWidth / 2) + (walls[1].getDimensions().x * 2.0f) + (Resources.img_brick_01.getWidth() / 2), playFieldHeight - (playFieldHeight / 5));
     }
 
     @Override
@@ -209,20 +156,32 @@ public class PlayFieldView extends SurfaceView implements Runnable {
                 fps = 1000 / timeThisFrame;
             }
 
-            // We will do something here towards the end of the project;
+            // We will do something here towards the end of the project
         }
     }
 
     private void update() {
-        // Did an invader bump into the side of the screen
-        boolean bumped = false;
-
-
         // Has the player lost
         boolean lost = false;
 
+        // update walls and calculate collisions with walls
+        for(DefenseWall w : walls) {
+            if(w != null) {
+                for (Projectile p : projectiles.getProjectiles()) {
+                    if (p != null)
+                        w.doCollisions(p);
+                }
+
+                w.update(fps);
+            }
+        }
+
+
+
         // Move the player
         player.update(fps);
+
+//        player.fire(projectiles); // TODO REMOVE THIS LINE. Only for testing functionality of player firing.
 
         // Update the invaders if visible
 
@@ -233,6 +192,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         if (lost) {
             initializePlayField();
         }
+
+
+        projectiles.update(fps);
+//        projectiles.getProjectiles()[0].update(fps);
 
         // Update the players projectile
 
@@ -262,6 +225,9 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Choose the brush color for the drawing
             paint.setColor(Color.argb(255, 0, 255, 0));
 
+            // Draw the  projectiles if active
+            projectiles.draw(canvas, paint, false);
+
             // Draw the player spaceship
             player.draw(canvas, paint, false);
 
@@ -270,13 +236,9 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Draw the bricks if visible
             for(DefenseWall wall : walls) {
                 if(wall != null) {
-                    for (DefenseBrick[] bricks : wall.getBricks()) {
-                        for (DefenseBrick brick : bricks) brick.draw(canvas, paint, false);
-                    }
+                    wall.draw(canvas, paint, false);
                 }
             }
-
-            // Draw the players projectile if active
 
             // Draw the score and remaining lives
             // Change brush color
@@ -315,7 +277,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
             //Player has touched the screen
             case MotionEvent.ACTION_DOWN:
-
+                player.fire(projectiles);
                 break;
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
@@ -326,50 +288,11 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         return true;
     }
 
-    private boolean initResources() {
-        // Recalculate DPI to a standard size.
-        float dpi = (int)((640.0f / 1440.0f) * getResources().getDisplayMetrics().widthPixels); // Adjust to some ratio of desired DPI of 640
-        getResources().getDisplayMetrics().densityDpi = (int)dpi; // Change Display's DPI to new DPI
+    public void playerFire() {
+        player.fire(projectiles);
+    }
 
-        // Tell rendering how to size bitmaps
-        BitmapFactory.Options opt = new BitmapFactory.Options();
-//        Log.v("PlayFieldView", "DPI Ratio BEFORE: " + opt.inDensity + " / " + dpi + " = " + ((float) opt.inDensity / (float) dpi + " :: dpiScreen = " + dpiScreen));
-        opt.inDensity = 480;
-
-        DPIRatio = dpi / (float)opt.inDensity;
-//        Log.v("PlayFieldView", "DPI Ratio AFTER: " + opt.inDensity + " / " + dpi + " = " + ((float) opt.inDensity / (float) dpi));
-
-        bmp_player = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.player, opt), DPIRatio);
-        Log.v("PlayFieldView", "Width Ratio <SPRITE_WIDTH> / <SCREEN_WIDTH>: " + bmp_player.getBitmap().getWidth() + " / " + playFieldWidth + " = " + ((float)bmp_player.getBitmap().getWidth() / (float)playFieldWidth));
-        bmp_invader_a01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a01, opt), DPIRatio);
-        bmp_invader_a02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.invader_a02, opt), DPIRatio);
-        bmp_projectile_a = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.projectile_a, opt), DPIRatio);
-        bmp_brick_01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_01, opt), DPIRatio);
-        bmp_brick_02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_02, opt), DPIRatio);
-        bmp_brick_03 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_03, opt), DPIRatio);
-        bmp_brick_04 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_04, opt), DPIRatio);
-        bmp_brick_aa01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_aa01, opt), DPIRatio);
-        bmp_brick_aa02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_aa02, opt), DPIRatio);
-        bmp_brick_aa03 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_aa03, opt), DPIRatio);
-        bmp_brick_aa04 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_aa04, opt), DPIRatio);
-        bmp_brick_ad01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_ad01, opt), DPIRatio);
-        bmp_brick_ad02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_ad02, opt), DPIRatio);
-        bmp_brick_ad03 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_ad03, opt), DPIRatio);
-        bmp_brick_ad04 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_ad04, opt), DPIRatio);
-        bmp_brick_cb01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cb01, opt), DPIRatio);
-        bmp_brick_cb02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cb02, opt), DPIRatio);
-        bmp_brick_cb03 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cb03, opt), DPIRatio);
-        bmp_brick_cb04 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cb04, opt), DPIRatio);
-        bmp_brick_cc01 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cc01, opt), DPIRatio);
-        bmp_brick_cc02 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cc02, opt), DPIRatio);
-        bmp_brick_cc03 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cc03, opt), DPIRatio);
-        bmp_brick_cc04 = new SpriteImage(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.def_brick_cc04, opt), DPIRatio);
-        brick = new SpriteImage[] {bmp_brick_01, bmp_brick_02, bmp_brick_03, bmp_brick_04};
-        brick_aa = new SpriteImage[] {bmp_brick_aa01, bmp_brick_aa02, bmp_brick_aa03, bmp_brick_aa04};
-        brick_ad = new SpriteImage[] {bmp_brick_ad01, bmp_brick_ad02, bmp_brick_ad03, bmp_brick_ad04};
-        brick_cb = new SpriteImage[] {bmp_brick_cb01, bmp_brick_cb02, bmp_brick_cb03, bmp_brick_cb04};
-        brick_cc = new SpriteImage[] {bmp_brick_cc01, bmp_brick_cc02, bmp_brick_cc03, bmp_brick_cc04};
-
-        return true;
+    public void playerMovement(Movement direction) {
+        player.setMovementState(direction);
     }
 }

@@ -1,5 +1,6 @@
 package com.spaceinvaders;
 
+import android.graphics.Bitmap;
 import android.graphics.RectF;
 
 /**
@@ -10,10 +11,11 @@ public class DefenseBrick extends Sprite {
     private short health;
     private boolean isDestroyed;
 
-    // TODO this is just a placeholder constructor
-    public DefenseBrick(SpriteImage[] frames) {
-        super(frames, (new RectF[] {new RectF(0.0f, 0.0f, 35.0f, 28.0f)}));
+    public DefenseBrick(Bitmap[] frames) {
+        super(frames, new RectF(0.0f, 0.0f,
+                                35.0f * Resources.DPIRatio, 28.0f * Resources.DPIRatio));
 
+        doAnimationLoop = false;
         health = 4;
     }
 
@@ -22,18 +24,15 @@ public class DefenseBrick extends Sprite {
         // TODO implement update
     }
 
-    /**
-     * Ratio necessary for placing bricks in correct spot.
-     * @return
-     */
-    public float getDPIRatio() {
-        return this.getCurrentFrameSpriteImage().getDPIRatio();
-    }
-
     public void takeDamage() {
         health--;
         if(health <= 0) {
             setCurrFrame(4);
         }
+        setCurrFrame(getCurrFrameIndex() + 1);
+    }
+
+    public short getHealth() {
+        return health;
     }
 }

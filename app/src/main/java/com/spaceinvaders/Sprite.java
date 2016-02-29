@@ -1,5 +1,6 @@
 package com.spaceinvaders;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
@@ -14,7 +15,7 @@ public abstract class Sprite {
     /**
      * Array of images to animate. Should be in sequential order of frames.
      */
-    private SpriteImage[] frames = null;
+    private Bitmap[] frames = null;
     // index of the current frame of animation
     private int currFrame = 0;
     /**
@@ -25,6 +26,14 @@ public abstract class Sprite {
      * The index of the frame array to end an animation. 0 by default.
      */
     private int endFrame = 0;
+    /**
+     * total number of frames to skip in between animation frames.
+     */
+    private short skipFrames = 0;
+    /**
+     * number of frames skipped since last frame not skipped.
+     */
+    private short frameSkipCount = 0;
     /**
      * The animation will loop between the <code>startFrame</code> index and <code>endFrame</code>
      * index of this <code>Sprite</code> object when this value is set to <code>true</code>.
@@ -46,6 +55,7 @@ public abstract class Sprite {
 
     // player hit-box
     private RectF[] hitBoxes = null;
+    protected boolean isCollisionDetected = false;
     /**
      * Just a flag to reference whether or not to do hit detection.
      */
@@ -57,21 +67,21 @@ public abstract class Sprite {
     // variable tracks current movement of player
     protected Movement movement = Movement.STOPPED;
 
-    protected Sprite(SpriteImage image) {
+    protected Sprite(Bitmap image) {
         this.frames[currFrame] = image;
     }
 
-    protected Sprite(SpriteImage[] frames) {
+    protected Sprite(Bitmap[] frames) {
         this.frames = frames;
     }
 
     /**
      * Instantiates a <code>Sprite</code> with a single frame and a single hit-box.
-     * @param image <code>SpriteImage</code>
+     * @param image <code>Bitmap</code>
      * @param hitBox <code>RectF</code>
      */
-    protected Sprite(SpriteImage image, RectF hitBox) {
-        frames = new SpriteImage[1];
+    protected Sprite(Bitmap image, RectF hitBox) {
+        frames = new Bitmap[1];
         hitBoxes = new RectF[1];
         this.frames[0] = image;
         this.hitBoxes[0] = hitBox;
@@ -87,10 +97,10 @@ public abstract class Sprite {
      * <code>frames</code>, then all indices greater than <code>hitBoxes</code>'s length are
      * set to <code>null</code>. This essentially means that any frames without hit-boxes
      * associated with them do not interact with other games entities/sprites.
-     * @param frames <code>SpriteImage[]</code>
+     * @param frames <code>Bitmap[]</code>
      * @param hitBoxes <code>RectF[]</code>
      */
-    protected Sprite(SpriteImage[] frames, RectF[] hitBoxes) {
+    protected Sprite(Bitmap[] frames, RectF[] hitBoxes) {
         this.frames = frames;
 
         // makes this.hitBoxes array the same length as this.frames array to insure that
@@ -114,10 +124,10 @@ public abstract class Sprite {
     /**
      * Instantiates a <code>Sprite</code> with multiple frames of animation. The
      * hit-box will correspond with all the frames of the <code>frames</code> array.
-     * @param frames <code>SpriteImage[]</code>
+     * @param frames <code>Bitmap[]</code>
      * @param hitBox <code>RectF</code>
      */
-    protected Sprite(SpriteImage[] frames, RectF hitBox) {
+    protected Sprite(Bitmap[] frames, RectF hitBox) {
         this.frames = frames;
 
         if(hitBox != null) {
@@ -145,9 +155,9 @@ public abstract class Sprite {
 
     /**
      *
-     * @return the <code>SpriteImage</code> associated with the current frame of animation.
+     * @return the <code>Bitmap</code> associated with the current frame of animation.
      */
-    public SpriteImage getCurrentFrameSpriteImage() {
+    public Bitmap getCurrentFrameSpriteBitmap() {
         return frames[currFrame];
     }
 
@@ -171,7 +181,14 @@ public abstract class Sprite {
             return;
         }
 
+
+
         currFrame = index;
+
+        if(startFrame == endFrame || index < startFrame || index > endFrame) {
+            startFrame = index;
+            endFrame = index;
+        }
     }
 
     /**
@@ -255,13 +272,12 @@ public abstract class Sprite {
      */
     public float getX() {
         if(hitBoxes == null || hitBoxes[currFrame] == null) {
-            float ratio = frames[currFrame].getDPIRatio();
-            float width = frames[currFrame].getBitmap().getWidth();
-            return (pos.x + (width * ratio) / 2);
+            float width = frames[currFrame].getWidth();
+            return (pos.x + (width / 2));
         }
 
-        return pos.x + hitBoxes[currFrame].left
-                + (hitBoxes[currFrame].right - hitBoxes[currFrame].left / 2);
+        return hitBoxes[currFrame].left
+                + ((hitBoxes[currFrame].right - hitBoxes[currFrame].left) / 2);
     }
 
     /**
@@ -269,14 +285,12 @@ public abstract class Sprite {
      */
     public float getY() {
         if(hitBoxes == null || hitBoxes[currFrame] == null) {
-            float ratio = frames[currFrame].getDPIRatio();
-            // TODO resolve after SpriteImage is fixed to use .getScaledWidth()
-//            float width = frames[currFrame].getBitmap().getScaledWidth();
-//            return (pos.x + (width * ratio) / 2);
+            float height = frames[currFrame].getHeight();
+            return (pos.y + (height / 2));
         }
 
-        return pos.y + hitBoxes[currFrame].top
-                + (hitBoxes[currFrame].bottom - hitBoxes[currFrame].top / 2);
+        return hitBoxes[currFrame].top
+                + ((hitBoxes[currFrame].bottom - hitBoxes[currFrame].top) / 2);
     }
 
     public float getHitBoxLength() {
@@ -308,13 +322,22 @@ public abstract class Sprite {
      * @param y
      */
     public void setPosition(float x, float y) {
-        pos.set(x - ((float)frames[currFrame].getWidth() / 2.0f),
+        pos.set(x - ((float) frames[currFrame].getWidth() / 2.0f),
                 y - ((float)frames[currFrame].getHeight() / 2.0f));
 
-        Log.v("Sprite", "Sprite position: (" + pos.x + ", " + pos.y + ")");
+//        Log.v("Sprite", "Sprite position: (" + pos.x + ", " + pos.y + ")"); // TODO REMOVE DEBUG LINE
 
         if(hitBoxes != null || hitBoxes[currFrame] != null)
+            // offset hitbox by position of sprite plus offset of hitbox relative to the sprite
             hitBoxes[currFrame].offsetTo(pos.x + hitBoxes[currFrame].left, pos.y + hitBoxes[currFrame].top);
+    }
+
+    public boolean isCollisionDetected() {
+        return isCollisionDetected;
+    }
+
+    public void setCollisionDetected(boolean isCollisionDetected) {
+        this.isCollisionDetected = isCollisionDetected;
     }
 
 /******************************************************
@@ -338,11 +361,11 @@ public abstract class Sprite {
      */
     public void draw(Canvas canvas, Paint paint, boolean showHitBox) {
         if(frames[currFrame] != null && doDrawFrame) {
-            canvas.drawBitmap(frames[currFrame].getBitmap(), pos.x, pos.y, paint);
+            canvas.drawBitmap(frames[currFrame], pos.x, pos.y, paint);
             nextFrame();
         }
 
-        if(hitBoxes != null || hitBoxes[currFrame] != null && showHitBox == true) {
+        if((hitBoxes != null || hitBoxes[currFrame] != null) && showHitBox == true) {
             int oldColor = paint.getColor();
             paint.setARGB(150, 255, 0, 0);
             canvas.drawRect(hitBoxes[currFrame], paint);
@@ -351,15 +374,25 @@ public abstract class Sprite {
     }
 
     /**
-     * Set position relative to previous position.
-     * @param dx
-     * @param dy
+     * Set position relative to previous position. The <code>Sprite</code> is moved
+     * from its current position by the specified amount.
+     * @param dx <code>float</code> - the amount to move the <code>Sprite</code> along the X-axis
+     * @param dy <code>float</code> - the amount to move the <code>Sprite</code> along the Y-axis
      */
     public void move(float dx, float dy) {
         pos.set(pos.x + dx, pos.y + dy);
         if(hitBoxes != null || hitBoxes[currFrame] != null) {
             hitBoxes[currFrame].offset(dx, dy);
         }
+    }
+
+    /**
+     * TODO --- IF UNUSED, REMOVE THIS METHOD ---
+     * Meant to be overridden by the child class.
+     * @param collidedWith the <code>Sprite</code> object that collided with this one.
+     */
+    public void doCollision(Sprite collidedWith) {
+        // do action based on collision here.
     }
 
 /******************************************************
@@ -372,11 +405,9 @@ public abstract class Sprite {
 
     private void initHitBox(RectF hitBox) {
         if (hitBox == null) return;
-        float DPICorrectionRatio = frames[currFrame].getDPIRatio();
+        float DPICorrectionRatio = Resources.DPIRatio;
 
-        hitBox.left = hitBox.left * DPICorrectionRatio;
-        hitBox.top = hitBox.top * DPICorrectionRatio;
-        hitBox.right = hitBox.right * DPICorrectionRatio;
-        hitBox.bottom = hitBox.bottom * DPICorrectionRatio;
+//        hitBox.right = hitBox.right * DPICorrectionRatio;
+//        hitBox.bottom = hitBox.bottom * DPICorrectionRatio;
     }
 }
