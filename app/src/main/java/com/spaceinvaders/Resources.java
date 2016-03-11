@@ -9,7 +9,7 @@ import com.tutorials.joseph.spaceinvaders.R;
 
 /**
  * Initializes all of the resources and provides access to them from anywhere in
- *  the app.
+ *  the app. Hello World
  */
 public class Resources {
 
