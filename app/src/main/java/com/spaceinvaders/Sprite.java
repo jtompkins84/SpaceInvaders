@@ -7,6 +7,8 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.Log;
 
+import java.sql.Time;
+
 /**
  * Created by Joseph Tompkins on 2/3/2016.
  */
@@ -181,8 +183,6 @@ public abstract class Sprite {
             return;
         }
 
-
-
         currFrame = index;
 
         if(startFrame == endFrame || index < startFrame || index > endFrame) {
@@ -248,8 +248,17 @@ public abstract class Sprite {
      * <code>frames</code>, the animation will loop back to <code>endFrame</code>.
      */
     public void nextFrame() {
-        if(doAnimationLoop && currFrame > endFrame) currFrame = startFrame;
-        else if(currFrame < endFrame) currFrame++;
+        if(doAnimationLoop && currFrame >= endFrame)
+            currFrame = startFrame;
+        else if(currFrame < endFrame)
+            currFrame++;
+    }
+
+    /**
+     * Sets the number of frames skipped between animation frames.
+     */
+    public void setSkipFrames(short skipFrames) {
+        this.skipFrames = skipFrames;
     }
 
     /**
@@ -360,12 +369,16 @@ public abstract class Sprite {
      * @param paint <code>Paint</code> object used to draw
      */
     public void draw(Canvas canvas, Paint paint, boolean showHitBox) {
-        if(frames[currFrame] != null && doDrawFrame) {
+        if (frames[currFrame] != null && doDrawFrame) {
             canvas.drawBitmap(frames[currFrame], pos.x, pos.y, paint);
-            nextFrame();
+            if(frameSkipCount >= skipFrames) {
+                nextFrame();
+                frameSkipCount = 0;
+            }
+            else frameSkipCount++;
         }
 
-        if((hitBoxes != null || hitBoxes[currFrame] != null) && showHitBox == true) {
+        if ((hitBoxes != null || hitBoxes[currFrame] != null) && showHitBox == true) {
             int oldColor = paint.getColor();
             paint.setARGB(150, 255, 0, 0);
             canvas.drawRect(hitBoxes[currFrame], paint);

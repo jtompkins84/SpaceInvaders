@@ -19,6 +19,8 @@ public class Player extends Sprite {
     // x-position of player movement boundaries relative to the screen's resolution
     private float lBoundary, rBoundary;
 
+    private boolean isDead = false;
+
     /**
      * <code><b><i>Player</i></b></code><p>
      * <code>Player</code> contructor.
@@ -29,15 +31,21 @@ public class Player extends Sprite {
         // sets the bitmap image and initializes the size of the hit-box.
         // hit-box values are derived by opening the original image in and image editor
         // and determining the dimension of the hit-box in pixels from there.
-        super(new Bitmap[] {Resources.img_player},
+        super(new Bitmap[]{Resources.img_player, Resources.img_player_death01,
+                        Resources.img_player_death02, Resources.img_player_death03,
+                        Resources.img_player_death04},
                 new RectF(9.0f * Resources.DPIRatio, 21.0f * Resources.DPIRatio,
-                          101.0f * Resources.DPIRatio, 56.0f * Resources.DPIRatio));
+                        101.0f * Resources.DPIRatio, 56.0f * Resources.DPIRatio));
 
         // set position relative to view of the play field
         setPosition(screenWidth / 2.0f, screenHeight - (screenHeight / 12.0f));
 
         // initialize player movement speed
         speed = 350;
+
+        this.setStartAndEndFrames(0, 0);
+        doAnimationLoop = true;
+        this.setSkipFrames((short)10);
 
         // set the boundaries for the player relative to screen resolution
         lBoundary = screenWidth / 24;
@@ -47,7 +55,7 @@ public class Player extends Sprite {
     @Override
     public void update(long fps) {
         RectF hitBox = getHitBox();
-        if(hitBox != null) {
+        if(hitBox != null && isDead != true) {
             if(movement == Movement.RIGHT && hitBox.right < rBoundary) {
                 move(speed / fps, 0.0f);
             }
@@ -64,7 +72,7 @@ public class Player extends Sprite {
      * Otherwise, this returns <code>false</code>.
      */
     public boolean fire(ProjectileArray projArr) {
-        if( projCount < maxProjCount) {
+        if( projCount < maxProjCount && isDead != true) {
             projCount++;
             projArr.addProjectile(getX(), getY(), true);
             return true;

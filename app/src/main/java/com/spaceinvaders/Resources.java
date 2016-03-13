@@ -20,6 +20,10 @@ public class Resources {
     public static float DPIRatio;
 
     public static Bitmap img_player;
+    public static Bitmap img_player_death01;
+    public static Bitmap img_player_death02;
+    public static Bitmap img_player_death03;
+    public static Bitmap img_player_death04;
     public static Bitmap img_invader_a01;
     public static Bitmap img_invader_a02;
     public static Bitmap img_projectile_a;
@@ -72,6 +76,10 @@ public class Resources {
 
         img_player = BitmapFactory.decodeResource(context.getResources(), R.drawable.player, opt);
 //        Log.v("PlayFieldView", "Width Ratio <SPRITE_WIDTH> / <SCREEN_WIDTH>: " + img_player.getBitmap().getWidth() + " / " + playFieldWidth + " = " + ((float)img_player.getBitmap().getWidth() / (float)playFieldWidth));
+        img_player_death01 = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_death01, opt);
+        img_player_death02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_death02, opt);
+        img_player_death03 = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_death03, opt);
+        img_player_death04 = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_death04, opt);
         img_invader_a01 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_a01, opt);
         img_invader_a02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_a02, opt);
         img_projectile_a = BitmapFactory.decodeResource(context.getResources(), R.drawable.projectile_a, opt);
