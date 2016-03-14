@@ -105,15 +105,22 @@ public class DefenseWall {
             for (int i = 0; i < bricksInCol; i++) {
                 for(int j = 0; j < bricksInRow; j++) {
                     if(bricks[i][j] != null) {
-                        if (bricks[i][j].getHitBox().intersect(sprite.getHitBox()) == true && sprite.getClass() == Projectile.class) {
-                        // if brick health is at or below 1, destroy brick
-                            if(bricks[i][j].getHealth() <= 1) bricks[i][j] = null;
-                        // otherwise, damage brick
-                            else bricks[i][j].takeDamage();
-                            ((Projectile)sprite).isDestroyed(true);
-                        // return so that only one block can be damaged per projectile
-                            return;
+                        if(bricks[i][j].getHitBox().intersect(sprite.getHitBox()) == true) {
+                            if (sprite.getClass() == Projectile.class){
+                                // if brick health is at or below 1, destroy brick
+                                if (bricks[i][j].getHealth() <= 1) bricks[i][j] = null;
+                                    // otherwise, damage brick
+                                else bricks[i][j].takeDamage();
+                                ((Projectile) sprite).isDestroyed(true);
+                                // return so that only one block can be damaged per projectile
+                                return;
+                            }
+                            // if anything other than a projectile hits a brick, destroy brick.
+                            else {
+                                bricks[i][j] = null;
+                            }
                         }
+
                     }
                 }
             }
