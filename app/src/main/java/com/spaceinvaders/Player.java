@@ -20,6 +20,8 @@ public class Player extends Sprite {
     private float lBoundary, rBoundary;
 
     private boolean isDead = false;
+    private long deathTime = 0;
+    private boolean doUpdate = true;
 
     /**
      * <code><b><i>Player</i></b></code><p>
@@ -43,8 +45,6 @@ public class Player extends Sprite {
         // initialize player movement speed
         speed = 350;
 
-        this.setStartAndEndFrames(0, 0);
-        doAnimationLoop = true;
         this.setSkipFrames((short)10);
 
         // set the boundaries for the player relative to screen resolution
@@ -55,7 +55,19 @@ public class Player extends Sprite {
     @Override
     public void update(long fps) {
         RectF hitBox = getHitBox();
-        if(hitBox != null && isDead != true) {
+        if(isDead == true) {
+            this.setStartAndEndFrames(1, 4); // set animation frame loop to dead player frames
+            long currTime = System.currentTimeMillis();
+            if(deathTime == 0) deathTime = currTime; // set initial time of death.
+
+            // check to see if death period is done.
+            if(currTime - deathTime >= 2000) {
+                isDead = false;
+                this.setStartAndEndFrames(0, 0); // reset frame to living player
+                deathTime = 0;
+            }
+        }
+        if(hitBox != null && doUpdate == true) {
             if(movement == Movement.RIGHT && hitBox.right < rBoundary) {
                 move(speed / fps, 0.0f);
             }
@@ -66,7 +78,6 @@ public class Player extends Sprite {
     }
 
     /**
-     *
      * @return When the projectile count of the player is less than the max projectile count,
      * <code>projCount</code> will increment by 1 and <code>true</code> is returned.
      * Otherwise, this returns <code>false</code>.
@@ -86,6 +97,41 @@ public class Player extends Sprite {
      */
     public void decrementProjectileCount() {
         if(projCount > 0) projCount--;
+    }
+
+    /**
+     * Does player death cycle.
+     */
+    public void doDeath() {
+        isDead = true;
+        doUpdate = false;
+    }
+
+    /**
+     * Checks for collision between hitBoxes of sprites. <code>Projectile</code>s that originate
+     * from the player do not trigger a collision event.
+     * @param sprite the <code>Sprite</code> to check for collision.
+     * @return <code>true</code> collision detected
+     */
+    public boolean checkCollision(Sprite sprite) {
+        if(sprite != null && !isDead &&
+                sprite.getHitBox().intersect(getHitBox())) {
+            if(sprite.getClass() == Projectile.class) {
+                Projectile projectile = (Projectile)sprite;
+
+                // if projectile isn't from the player, ignore collision and return false
+                if(!projectile.isFromPlayer()) doDeath();
+                else return false;
+
+                return true;
+            }
+            else {
+                sprite = null;
+                doDeath();
+            }
+        }
+
+        return false;
     }
 
 /****************************************
@@ -126,5 +172,25 @@ public class Player extends Sprite {
      */
     public short getMaxProjectileCount() {
         return maxProjCount;
+    }
+
+    public boolean isDead() {
+        return isDead;
+    }
+
+    /**
+     *
+     * @return <code>true</code> if the player is allowed to move.
+     */
+    public boolean doUpdate() {
+        return doUpdate;
+    }
+
+    /**
+     * Set <code>false</code> to prevent player from moving.
+     * @param bool
+     */
+    public void doUpdate(boolean bool) {
+        doUpdate = bool;
     }
 }

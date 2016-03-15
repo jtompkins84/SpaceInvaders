@@ -47,6 +47,9 @@ public class Resources {
     public static Bitmap img_brick_cc02;
     public static Bitmap img_brick_cc03;
     public static Bitmap img_brick_cc04;
+    public static Bitmap img_countdown_1;
+    public static Bitmap img_countdown_2;
+    public static Bitmap img_countdown_3;
 
 /******************************************************
  * ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
@@ -103,6 +106,9 @@ public class Resources {
         img_brick_cc03 = BitmapFactory.decodeResource(context.getResources(), R.drawable.def_brick_cc03, opt);
         img_brick_cc02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.def_brick_cc02, opt);
         img_brick_cc04 = BitmapFactory.decodeResource(context.getResources(), R.drawable.def_brick_cc04, opt);
+        img_countdown_1 = BitmapFactory.decodeResource(context.getResources(), R.drawable.countdown_1, opt);
+        img_countdown_2 = BitmapFactory.decodeResource(context.getResources(), R.drawable.countdown_2, opt);
+        img_countdown_3 = BitmapFactory.decodeResource(context.getResources(), R.drawable.countdown_3, opt);
 
         brick = new Bitmap[] {img_brick_01, img_brick_02, img_brick_03, img_brick_04};
         brick_aa = new Bitmap[] {img_brick_aa01, img_brick_aa02, img_brick_aa03, img_brick_aa04};
