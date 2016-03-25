@@ -6,6 +6,8 @@ import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
@@ -32,6 +34,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     // game starts out paused
     private boolean paused = false;
+    // changes state of run() to do the resume countdown.
+    private boolean resuming = false;
 
     // need a canvas and paint object
     private Canvas canvas;
@@ -46,9 +50,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private float playFieldHeight;
 
     private Player player;
+    private long startTime = -1;
 
     private ProjectileArray projectiles;
-    private int maxPlayerBullets = 10;
+    private int maxPlayerBullets = 10; // TODO not used, should eventually remove
 
     private Invader[] invaders = new Invader[60]; // TODO replace with InvaderArmy class
     private int numInvaders = 0;
@@ -76,6 +81,9 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private boolean uhOrOh;
 
     private long lastMenaceTime = System.currentTimeMillis();
+    private short countdownNumber = -1;
+
+    private PointF playerFireButton;
 
 /*******************************************************************************
  * Constructor
@@ -125,6 +133,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private void initializePlayField() {
     // Here we will initialize all the game objects
+        playerFireButton = new PointF();
 
     // Make a new player
         player = new Player(playFieldWidth, playFieldHeight);
@@ -146,8 +155,14 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     public void run() {
         while (playing) {
             long startFrameTime = System.currentTimeMillis();
-            if (!paused) {
+            if(resuming) doResumeCountdown();
+            else if(!paused && player != null && player.doUpdate()) {
                 update();
+            }
+            else if (!paused && player != null && !player.doUpdate()) {
+                // while player
+                player.update(fps);
+                doPlayerDeath();
             }
 
             draw();
@@ -170,6 +185,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
                 for (Projectile p : projectiles.getProjectiles()) {
                     if (p != null)
                         w.doCollisions(p);
+                    if (p != null && p.isFromPlayer() == false && player.checkCollision(p))
+                        return; // skip the rest of the update process for player death.
                 }
 
                 w.update(fps);
@@ -180,8 +197,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
         // Move the player
         player.update(fps);
-
-//        player.fire(projectiles); // TODO REMOVE THIS LINE. Only for testing functionality of player firing.
 
         // Update the invaders if visible
 
@@ -240,11 +255,44 @@ public class PlayFieldView extends SurfaceView implements Runnable {
                 }
             }
 
+            //Draw countdown numbers, if countdown is active
+            switch (countdownNumber) {
+                case 3:
+                    canvas.drawBitmap(Resources.img_countdown_3,
+                            (playFieldWidth / 2) - (Resources.img_countdown_3.getWidth() / 2),
+                            (playFieldHeight / 2) - (Resources.img_countdown_3.getHeight() / 2),
+                            paint);
+                    break;
+                case 2:
+                    canvas.drawBitmap(Resources.img_countdown_2,
+                            (playFieldWidth / 2) - (Resources.img_countdown_2.getWidth() / 2),
+                            (playFieldHeight / 2) - (Resources.img_countdown_2.getHeight() / 2),
+                            paint);
+                    break;
+                case 1:
+                    canvas.drawBitmap(Resources.img_countdown_1,
+                            (playFieldWidth / 2) - (Resources.img_countdown_1.getWidth() / 2),
+                            (playFieldHeight / 2) - (Resources.img_countdown_1.getHeight() / 2),
+                            paint);
+                    break;
+                default:
+                    break;
+            }
+
             // Draw the score and remaining lives
             // Change brush color
             paint.setColor(Color.argb(255, 0, 255, 0));
             paint.setTextSize(40 * DPIRatio);
             canvas.drawText("Score: " + score + "  Lives: " + lives, 10, 50, paint);
+
+            // Draw Player controls
+            paint.setAntiAlias(true);
+            paint.setColor(Color.argb(255, 0, 180, 0));
+            canvas.drawCircle(315, this.getBottom() - 485,
+                    100, paint);
+            paint.setColor(Color.argb(255, 0, 255, 0));
+            canvas.drawCircle(300, this.getBottom() - 500,
+                    100, paint);
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
@@ -254,6 +302,12 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     // IF SpaceInvadersActivity is paused/stopped
     public void pause() {
         playing = false;
+
+        // Resets timer to allow doResumeCountdown() to start from top of countdown.
+        // This insures that if the device is put into a "sleep" state, the resume countdown
+        // will always provide a 3 second countdown, even if the game is paused during the countdown.
+        startTime = -1;
+
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -267,6 +321,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         playing = true;
         gameThread = new Thread(this);
         gameThread.start();
+
+        resuming = true; // sets the state to resume
     }
 
     // The SurfaceView class implements onTouchListner
@@ -277,7 +333,9 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
             //Player has touched the screen
             case MotionEvent.ACTION_DOWN:
-                player.fire(projectiles);
+//                player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
+                projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
+//                if(!resuming) resuming = true;
                 break;
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
@@ -294,5 +352,57 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     public void playerMovement(Movement direction) {
         player.setMovementState(direction);
+    }
+
+    /**
+     * The first call to this method decrements <code>lives</code> by 1,
+     * initializes a death cycle timer, removes all projectiles from the play field, and
+     * stops the player from being able to fire or move as well as prevents the rest of
+     * the <code>Sprite</code> objects from updating.
+     * <div></div>
+     * Each consecutive call after displays the countdown numbers and once the timer reaches
+     * 5 seconds, player movement is returned and the playfield resumes normal updates.
+     */
+    private void doPlayerDeath() {
+
+        long currTime = System.currentTimeMillis();
+        if(player.isDead() && startTime == -1) {
+            startTime = currTime;
+            player.doUpdate(false);
+            lives--;
+            projectiles.removeAllProjectiles();
+            countdownNumber = 3;
+        }
+
+        long timeDif = currTime - startTime;
+        if(timeDif >= 3000 && timeDif < 4000) countdownNumber = 2;
+        else if(timeDif >= 4000 && timeDif < 5000) countdownNumber = 1;
+        else if(timeDif >= 5000) {
+            countdownNumber = -1;
+            startTime = -1;
+            player.doUpdate(true);
+        }
+    }
+
+    /**
+     * Does a 3 second countdown before allowing the game thread to resume updating.
+     */
+    private void doResumeCountdown() {
+        long currTime = System.currentTimeMillis();
+        long timeDif = 0;
+        timeDif = currTime - startTime;
+        if(startTime == -1) {
+            startTime = currTime;
+            countdownNumber = 3;
+            return;
+        }
+
+        if(timeDif >= 1000 && timeDif < 2000) countdownNumber = 2;
+        else if(timeDif >= 2000 && timeDif < 3000) countdownNumber = 1;
+        else if(timeDif >= 3000) {
+            countdownNumber = -1;
+            startTime = -1;
+            resuming = false;
+        }
     }
 }

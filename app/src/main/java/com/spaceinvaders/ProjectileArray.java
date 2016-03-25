@@ -113,4 +113,13 @@ public class ProjectileArray {
     public Projectile[] getProjectiles() {
         return projectiles;
     }
+
+    /**
+     * Causes all projectiles to be removed, making them simply disappear.
+     */
+    public void removeAllProjectiles() {
+        for(int i = 0; i < projectiles.length; i++) {
+            if(projectiles[i] != null) projectiles[i] = null;
+        }
+    }
 }
