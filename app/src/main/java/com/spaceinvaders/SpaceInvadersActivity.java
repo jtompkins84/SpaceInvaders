@@ -54,11 +54,11 @@ public class SpaceInvadersActivity extends AppCompatActivity {
 
         q.addRule(RelativeLayout.ALIGN_PARENT_TOP);
         playFieldView.setLayoutParams(q);
-        gamePlayLayout.addView(playFieldView, size.x, size.x);
+        gamePlayLayout.addView(playFieldView, size.x, size.y);
 
         p.addRule(RelativeLayout.BELOW, playFieldView.getId());
-        userControllerView.setLayoutParams(p);
-        gamePlayLayout.addView(userControllerView);
+//        userControllerView.setLayoutParams(p);
+//        gamePlayLayout.addView(userControllerView);
 
         setContentView(gamePlayLayout);
     }
