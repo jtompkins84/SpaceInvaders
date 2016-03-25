@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
@@ -83,7 +82,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private long lastMenaceTime = System.currentTimeMillis();
     private short countdownNumber = -1;
 
-    private PointF playerFireButton;
+    private PointF playerFireButtonPos;
 
 /*******************************************************************************
  * Constructor
@@ -133,7 +132,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private void initializePlayField() {
     // Here we will initialize all the game objects
-        playerFireButton = new PointF();
+        float radius = playFieldWidth / 16;
+        playerFireButtonPos = new PointF(radius * 3.0f, this.getBottom() - (6.5f * radius));
 
     // Make a new player
         player = new Player(playFieldWidth, playFieldHeight);
@@ -258,10 +258,12 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             //Draw countdown numbers, if countdown is active
             switch (countdownNumber) {
                 case 3:
-                    canvas.drawBitmap(Resources.img_countdown_3,
-                            (playFieldWidth / 2) - (Resources.img_countdown_3.getWidth() / 2),
-                            (playFieldHeight / 2) - (Resources.img_countdown_3.getHeight() / 2),
-                            paint);
+                    if(!player.isDead()) {
+                        canvas.drawBitmap(Resources.img_countdown_3,
+                                (playFieldWidth / 2) - (Resources.img_countdown_3.getWidth() / 2),
+                                (playFieldHeight / 2) - (Resources.img_countdown_3.getHeight() / 2),
+                                paint);
+                    }
                     break;
                 case 2:
                     canvas.drawBitmap(Resources.img_countdown_2,
@@ -288,11 +290,12 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Draw Player controls
             paint.setAntiAlias(true);
             paint.setColor(Color.argb(255, 0, 180, 0));
-            canvas.drawCircle(315, this.getBottom() - 485,
-                    100, paint);
+            float radius = playFieldWidth / 16;
+            canvas.drawCircle(playerFireButtonPos.x * 3.15f,
+                    this.getBottom() - (playerFireButtonPos.y * 6.35f), radius, paint);
             paint.setColor(Color.argb(255, 0, 255, 0));
-            canvas.drawCircle(300, this.getBottom() - 500,
-                    100, paint);
+            canvas.drawCircle(playerFireButtonPos.x * 3.0f,
+                    this.getBottom() - (6.5f * playerFireButtonPos.y), radius, paint);
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
