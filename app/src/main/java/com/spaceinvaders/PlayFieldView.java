@@ -6,6 +6,8 @@ import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
@@ -81,6 +83,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private long lastMenaceTime = System.currentTimeMillis();
     private short countdownNumber = -1;
 
+    private PointF playerFireButton;
+
 /*******************************************************************************
  * Constructor
  *
@@ -129,6 +133,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private void initializePlayField() {
     // Here we will initialize all the game objects
+        playerFireButton = new PointF();
 
     // Make a new player
         player = new Player(playFieldWidth, playFieldHeight);
@@ -280,6 +285,15 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             paint.setTextSize(40 * DPIRatio);
             canvas.drawText("Score: " + score + "  Lives: " + lives, 10, 50, paint);
 
+            // Draw Player controls
+            paint.setAntiAlias(true);
+            paint.setColor(Color.argb(255, 0, 180, 0));
+            canvas.drawCircle(315, this.getBottom() - 485,
+                    100, paint);
+            paint.setColor(Color.argb(255, 0, 255, 0));
+            canvas.drawCircle(300, this.getBottom() - 500,
+                    100, paint);
+
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
         }
@@ -319,9 +333,9 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
             //Player has touched the screen
             case MotionEvent.ACTION_DOWN:
-                player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
-//                projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
-                if(!resuming) resuming = true;
+//                player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
+                projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
+//                if(!resuming) resuming = true;
                 break;
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
