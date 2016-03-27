@@ -288,11 +288,14 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Draw Player controls
             paint.setAntiAlias(true);
             paint.setColor(Color.argb(255, 0, 180, 0));
-            canvas.drawCircle(315, this.getBottom() - 485,
-                    100, paint);
+            canvas.drawCircle(315, this.getBottom() - 485, 120, paint);
+            canvas.drawCircle(playFieldWidth - 315, this.getBottom() - 485, 120, paint);
+            canvas.drawCircle(playFieldWidth - 620, this.getBottom() - 485, 120, paint);
+
             paint.setColor(Color.argb(255, 0, 255, 0));
-            canvas.drawCircle(300, this.getBottom() - 500,
-                    100, paint);
+            canvas.drawCircle(300, this.getBottom() - 500, 120, paint);
+            canvas.drawCircle(playFieldWidth - 300, this.getBottom() - 500, 120, paint);
+            canvas.drawCircle(playFieldWidth - 635, this.getBottom() - 500, 120, paint);
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
@@ -333,13 +336,31 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
             //Player has touched the screen
             case MotionEvent.ACTION_DOWN:
-//                player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
-                projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
-//                if(!resuming) resuming = true;
+                if (motionEvent.getX() > 180 && motionEvent.getX() < 420 && motionEvent.getY() >
+                        (this.getBottom() - 500) - 120 && motionEvent.getY() < (this.getBottom() - 500) + 120)
+                {
+                    player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
+ //                   projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
+ //                   if(!resuming) resuming = true;
+                }
+
+                if (motionEvent.getX() > (playFieldWidth - 635) - 120 && motionEvent.getX() < (playFieldWidth - 635) + 120
+                        && motionEvent.getY() > (this.getBottom() - 500) - 120 && motionEvent.getY() < (this.getBottom() - 500) + 120)
+                {
+                    player.setMovementState(Movement.LEFT);
+                }
+
+                if (motionEvent.getX() > (playFieldWidth - 300) - 120 && motionEvent.getX() < (playFieldWidth - 300) + 120
+                        && motionEvent.getY() > (this.getBottom() - 500) - 120 && motionEvent.getY() < (this.getBottom() - 500) + 120)
+                {
+                    player.setMovementState(Movement.RIGHT);
+                }
+
                 break;
+
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
-
+                player.setMovementState(Movement.STOPPED);
                 break;
         }
 
