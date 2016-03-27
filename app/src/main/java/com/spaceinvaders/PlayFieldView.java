@@ -361,6 +361,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
                 player.setMovementState(Movement.STOPPED);
+                
                 break;
         }
 
