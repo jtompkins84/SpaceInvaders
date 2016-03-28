@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
@@ -178,21 +177,38 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private void update() {
         // Has the player lost
         boolean lost = false;
+        // calculate projectile collisions
+        for (Projectile p : projectiles.getProjectiles()) {
+            if (p != null) {
+                if (p.isFromPlayer() == false && player.checkCollision(p))
+                    return; // skip the rest of the update process for player death.
 
-        // update walls and calculate collisions with walls
-        for(DefenseWall w : walls) {
-            if(w != null) {
-                for (Projectile p : projectiles.getProjectiles()) {
-                    if (p != null)
-                        w.doCollisions(p);
-                    if (p != null && p.isFromPlayer() == false && player.checkCollision(p))
-                        return; // skip the rest of the update process for player death.
+                else if(p.isFromPlayer() == true) {
+                    // TODO do InvaderArmy collisions
+                    /* Invader class has checkCollision(Sprite) method that returns a boolean.
+                     * If it returns true use "continue" keyword to skip to the next iteration of
+                     * this for-loop so that collision check on the defense walls can be skipped
+                     * and save a little bit of processing time.
+                     *
+                     * Also, the InvaderArmy class should implement a doCollisions method similar
+                     * to the DefenseWall doCollision method, where it first checks to see
+                     * if the Sprite object passed as a parameter is even close enough to the
+                     * InvaderArmy object to do a collision check. If it isn't within a certain
+                     * distance, there the collision calculations can be skipped to avoid
+                     * additional processing.
+                     */
                 }
 
-                w.update(fps);
+                for (DefenseWall w : walls) {
+                    if(w != null) w.doCollisions(p);
+                }
             }
         }
 
+        // update walls
+        for (DefenseWall w : walls) {
+            if(w != null) w.update(fps);
+        }
 
 
         // Move the player

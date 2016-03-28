@@ -128,4 +128,12 @@ public class Invader extends Sprite {
     public float getHeight() {
         return height;
     }
+
+    public void fireProjectile(ProjectileArray projectiles) {
+        projectiles.addProjectile(getX(), getY(), false);
+    }
+
+    public void dropPowerup() {
+        // TODO implement after power-ups are implemented
+    }
 }
