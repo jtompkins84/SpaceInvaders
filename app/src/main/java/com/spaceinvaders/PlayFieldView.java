@@ -179,52 +179,49 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         // Has the player lost
         boolean lost = false;
 
-        // update walls and calculate collisions with walls
-        for(DefenseWall w : walls) {
-            if(w != null) {
-                for (Projectile p : projectiles.getProjectiles()) {
-                    if (p != null)
-                        w.doCollisions(p);
-                    if (p != null && p.isFromPlayer() == false && player.checkCollision(p))
-                        return; // skip the rest of the update process for player death.
+        // calculate projectile collisions
+        for (Projectile p : projectiles.getProjectiles()) {
+            if (p != null) {
+                if (p.isFromPlayer() == false && player.checkCollision(p))
+                    return; // skip the rest of the update process for player death.
+
+                else if(p.isFromPlayer() == true) {
+                    // TODO do InvaderArmy collisions
+                    /* Invader class has checkCollision(Sprite) method that returns a boolean.
+                     * If it returns true use "continue" keyword to skip to the next iteration of
+                     * this for-loop so that collision check on the defense walls can be skipped
+                     * and save a little bit of processing time.
+                     *
+                     * Also, the InvaderArmy class should implement a doCollisions method similar
+                     * to the DefenseWall doCollision method, where it first checks to see
+                     * if the Sprite object passed as a parameter is even close enough to the
+                     * InvaderArmy object to do a collision check. If it isn't within a certain
+                     * distance, there the collision calculations can be skipped to avoid
+                     * additional processing.
+                     */
                 }
 
-                w.update(fps);
+                for (DefenseWall w : walls) {
+                    if(w != null) w.doCollisions(p);
+                }
             }
         }
 
-
+        // update walls
+        for (DefenseWall w : walls) {
+            if(w != null) w.update(fps);
+        }
 
         // Move the player
         player.update(fps);
 
-        // Update the invaders if visible
-
-        // Update all the invaders bullets if active
-
-        // Did and invader bump into the edge of the screen
+        // Update the invaders
 
         if (lost) {
             initializePlayField();
         }
 
-
         projectiles.update(fps);
-//        projectiles.getProjectiles()[0].update(fps);
-
-        // Update the players projectile
-
-        // Has the player's projectile hit the top of the screen
-
-        // Has an invaders' projectile hit the bottom of the screen
-
-        // Has the player's projectile hit and invader
-
-        // Has an alien projectile hit a shelter brick
-
-        // Has the player projectile hit a shelter brick
-
-        // Has an invader projectile hit the player ship
     }
 
     private void draw() {
@@ -328,21 +325,39 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         resuming = true; // sets the state to resume
     }
 
+
+
     // The SurfaceView class implements onTouchListner
     // So we can override this method and detect screen touches
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
 
-            //Player has touched the screen
+            // ACTION_MOVE use this for the "joystick"
+            case MotionEvent.ACTION_MOVE:
+                if(motionEvent.getX() > (this.getWidth() / 2 )
+                        && motionEvent.getX() < (this.getWidth() - (this.getWidth() / 4 )) ) {
+                    player.setMovementState(Movement.LEFT);
+                }
+                else if(motionEvent.getX() > (this.getWidth() - (this.getWidth() / 4 )) ) {
+                    player.setMovementState(Movement.RIGHT);
+                }
             case MotionEvent.ACTION_DOWN:
-//                player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
-                projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
-//                if(!resuming) resuming = true;
+                // if player presses fire button.
+                if(motionEvent.getX() < (this.getWidth() / 2 )) {
+                    player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
+                }
+//                projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
+                break;
+            // ACTION_POINTER_DOWN is for MULTI-TOUCH. If there is an issue
+            case MotionEvent.ACTION_POINTER_DOWN:
+                if(motionEvent.getX() < (this.getWidth() / 2 )) {
+                    player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
+                }
                 break;
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
-
+                player.setMovementState(Movement.STOPPED);
                 break;
         }
 

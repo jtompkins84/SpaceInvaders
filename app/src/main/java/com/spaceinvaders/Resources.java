@@ -26,6 +26,15 @@ public class Resources {
     public static Bitmap img_player_death04;
     public static Bitmap img_invader_a01;
     public static Bitmap img_invader_a02;
+    public static Bitmap img_invader_b01;
+    public static Bitmap img_invader_b02;
+    public static Bitmap img_invader_c01;
+    public static Bitmap img_invader_c02;
+    public static Bitmap img_invader_death01;
+    public static Bitmap img_invader_death02;
+    public static Bitmap img_invader_death03;
+    public static Bitmap img_invader_death04;
+    public static Bitmap img_invader_death05;
     public static Bitmap img_projectile_a;
     public static Bitmap img_brick_01;
     public static Bitmap img_brick_02;
@@ -50,6 +59,7 @@ public class Resources {
     public static Bitmap img_countdown_1;
     public static Bitmap img_countdown_2;
     public static Bitmap img_countdown_3;
+    public static Bitmap img_blank;
 
 /******************************************************
  * ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
@@ -85,6 +95,15 @@ public class Resources {
         img_player_death04 = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_death04, opt);
         img_invader_a01 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_a01, opt);
         img_invader_a02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_a02, opt);
+        img_invader_b01 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_b01, opt);
+        img_invader_b02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_b02, opt);
+        img_invader_c01 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_c01, opt);
+        img_invader_c02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_c02, opt);
+        img_invader_death01 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_death01, opt);
+        img_invader_death02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_death02, opt);
+        img_invader_death03 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_death03, opt);
+        img_invader_death04 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_death04, opt);
+        img_invader_death05 = BitmapFactory.decodeResource(context.getResources(), R.drawable.invader_death05, opt);
         img_projectile_a = BitmapFactory.decodeResource(context.getResources(), R.drawable.projectile_a, opt);
         img_brick_01 = BitmapFactory.decodeResource(context.getResources(), R.drawable.def_brick_01, opt);
         img_brick_02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.def_brick_02, opt);
@@ -109,6 +128,7 @@ public class Resources {
         img_countdown_1 = BitmapFactory.decodeResource(context.getResources(), R.drawable.countdown_1, opt);
         img_countdown_2 = BitmapFactory.decodeResource(context.getResources(), R.drawable.countdown_2, opt);
         img_countdown_3 = BitmapFactory.decodeResource(context.getResources(), R.drawable.countdown_3, opt);
+        img_blank = BitmapFactory.decodeResource(context.getResources(), R.drawable.blank, opt);
 
         brick = new Bitmap[] {img_brick_01, img_brick_02, img_brick_03, img_brick_04};
         brick_aa = new Bitmap[] {img_brick_aa01, img_brick_aa02, img_brick_aa03, img_brick_aa04};
