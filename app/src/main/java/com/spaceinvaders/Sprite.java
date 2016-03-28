@@ -7,8 +7,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.Log;
 
-import java.sql.Time;
-
 /**
  * Created by Joseph Tompkins on 2/3/2016.
  */
@@ -47,6 +45,7 @@ public abstract class Sprite {
      * being rendered on the screen.
      */
     protected boolean doDrawFrame = true;
+    protected boolean doAnimate = true;
 
     /**
      * (x, y) makes the top left coordinate of the sprite
@@ -192,6 +191,22 @@ public abstract class Sprite {
     }
 
     /**
+     * Sets the frame image of the <code>frames</code> array at the <code>index</code>.
+     * @param index must be valid index of <code>frames</code> array of this <code>Sprite</code>
+     * @param image
+     */
+    protected void setFrameImage(int index, Bitmap image) {
+        if(index < 0 || index >= this.frames.length) {
+            Log.e("Sprite.setFrameImage(" + index + ")", "Not a valid frame index.");
+            return;
+        }
+
+        frames[index] = image;
+
+        return;
+    }
+
+    /**
      * Returns the index of the starting frame for the current animation.
      * @return
      */
@@ -259,6 +274,24 @@ public abstract class Sprite {
      */
     public void setSkipFrames(short skipFrames) {
         this.skipFrames = skipFrames;
+    }
+
+    /**
+     * Sets the hit-box at the index specified. <code>hitBoxes[]</code> is a private attribute
+     * of the <code>Sprite</code> class, and its length is the same as the length of the
+     * <code>frames[]</code> attribute <i>(also a private attribute of <code>Sprite</code>)</i>.
+     *
+     * @param index must be a valid index of <code>hitBoxes</code> array of this <code>Sprite</code>
+     * @param hitBox
+     */
+    protected void setHitBox(int index, RectF hitBox) {
+        if(index < 0 || index >= this.hitBoxes.length) {
+            Log.e("Sprite.setHitBox(" + index + ")", "Not a valid hit-box index.");
+            return;
+        }
+
+        hitBoxes[index] = hitBox;
+        return;
     }
 
     /**
@@ -370,12 +403,17 @@ public abstract class Sprite {
      */
     public void draw(Canvas canvas, Paint paint, boolean showHitBox) {
         if (frames[currFrame] != null && doDrawFrame) {
-            canvas.drawBitmap(frames[currFrame], pos.x, pos.y, paint);
-            if(frameSkipCount >= skipFrames) {
-                nextFrame();
-                frameSkipCount = 0;
+
+            canvas.drawBitmap(frames[currFrame], pos.x, pos.y, paint); // does draw to canvas
+
+            // when doAnimate is true, the animation progresses frame to next frame.
+            if(doAnimate) {
+                if (frameSkipCount >= skipFrames) {
+                    nextFrame();
+                    frameSkipCount = 0;
+                }
+                else frameSkipCount++;
             }
-            else frameSkipCount++;
         }
 
         if ((hitBoxes != null || hitBoxes[currFrame] != null) && showHitBox == true) {
@@ -404,8 +442,11 @@ public abstract class Sprite {
      * Meant to be overridden by the child class.
      * @param collidedWith the <code>Sprite</code> object that collided with this one.
      */
-    public void doCollision(Sprite collidedWith) {
-        // do action based on collision here.
+    public boolean doCollision(Sprite collidedWith) {
+        if(hitBoxes[currFrame].contains(collidedWith.getHitBox()))
+            return true;
+
+        return false;
     }
 
 /******************************************************

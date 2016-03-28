@@ -119,9 +119,8 @@ public class Player extends Sprite {
             if(sprite.getClass() == Projectile.class) {
                 Projectile projectile = (Projectile)sprite;
 
-                // if projectile isn't from the player, ignore collision and return false
                 if(!projectile.isFromPlayer()) doDeath();
-                else return false;
+                else return false; // if projectile isn't from the player, ignore collision and return false
 
                 return true;
             }
