@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
@@ -82,7 +83,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private long lastMenaceTime = System.currentTimeMillis();
     private short countdownNumber = -1;
 
-    private PointF playerFireButtonPos;
+    private PointF playerFireButton;
 
 /*******************************************************************************
  * Constructor
@@ -132,8 +133,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private void initializePlayField() {
     // Here we will initialize all the game objects
-        float radius = playFieldWidth / 16;
-        playerFireButtonPos = new PointF(radius * 3.0f, this.getBottom() - (6.5f * radius));
+        playerFireButton = new PointF();
 
     // Make a new player
         player = new Player(playFieldWidth, playFieldHeight);
@@ -179,49 +179,52 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         // Has the player lost
         boolean lost = false;
 
-        // calculate projectile collisions
-        for (Projectile p : projectiles.getProjectiles()) {
-            if (p != null) {
-                if (p.isFromPlayer() == false && player.checkCollision(p))
-                    return; // skip the rest of the update process for player death.
-
-                else if(p.isFromPlayer() == true) {
-                    // TODO do InvaderArmy collisions
-                    /* Invader class has checkCollision(Sprite) method that returns a boolean.
-                     * If it returns true use "continue" keyword to skip to the next iteration of
-                     * this for-loop so that collision check on the defense walls can be skipped
-                     * and save a little bit of processing time.
-                     *
-                     * Also, the InvaderArmy class should implement a doCollisions method similar
-                     * to the DefenseWall doCollision method, where it first checks to see
-                     * if the Sprite object passed as a parameter is even close enough to the
-                     * InvaderArmy object to do a collision check. If it isn't within a certain
-                     * distance, there the collision calculations can be skipped to avoid
-                     * additional processing.
-                     */
+        // update walls and calculate collisions with walls
+        for(DefenseWall w : walls) {
+            if(w != null) {
+                for (Projectile p : projectiles.getProjectiles()) {
+                    if (p != null)
+                        w.doCollisions(p);
+                    if (p != null && p.isFromPlayer() == false && player.checkCollision(p))
+                        return; // skip the rest of the update process for player death.
                 }
 
-                for (DefenseWall w : walls) {
-                    if(w != null) w.doCollisions(p);
-                }
+                w.update(fps);
             }
         }
 
-        // update walls
-        for (DefenseWall w : walls) {
-            if(w != null) w.update(fps);
-        }
+
 
         // Move the player
         player.update(fps);
 
-        // Update the invaders
+        // Update the invaders if visible
+
+        // Update all the invaders bullets if active
+
+        // Did and invader bump into the edge of the screen
 
         if (lost) {
             initializePlayField();
         }
 
+
         projectiles.update(fps);
+//        projectiles.getProjectiles()[0].update(fps);
+
+        // Update the players projectile
+
+        // Has the player's projectile hit the top of the screen
+
+        // Has an invaders' projectile hit the bottom of the screen
+
+        // Has the player's projectile hit and invader
+
+        // Has an alien projectile hit a shelter brick
+
+        // Has the player projectile hit a shelter brick
+
+        // Has an invader projectile hit the player ship
     }
 
     private void draw() {
@@ -255,12 +258,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             //Draw countdown numbers, if countdown is active
             switch (countdownNumber) {
                 case 3:
-                    if(!player.isDead()) {
-                        canvas.drawBitmap(Resources.img_countdown_3,
-                                (playFieldWidth / 2) - (Resources.img_countdown_3.getWidth() / 2),
-                                (playFieldHeight / 2) - (Resources.img_countdown_3.getHeight() / 2),
-                                paint);
-                    }
+                    canvas.drawBitmap(Resources.img_countdown_3,
+                            (playFieldWidth / 2) - (Resources.img_countdown_3.getWidth() / 2),
+                            (playFieldHeight / 2) - (Resources.img_countdown_3.getHeight() / 2),
+                            paint);
                     break;
                 case 2:
                     canvas.drawBitmap(Resources.img_countdown_2,
@@ -287,12 +288,14 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Draw Player controls
             paint.setAntiAlias(true);
             paint.setColor(Color.argb(255, 0, 180, 0));
-            float radius = playFieldWidth / 16;
-            canvas.drawCircle(playerFireButtonPos.x * 3.15f,
-                    this.getBottom() - (playerFireButtonPos.y * 6.35f), radius, paint);
+            canvas.drawCircle(315, this.getBottom() - 485, 120, paint);
+            canvas.drawCircle(playFieldWidth - 315, this.getBottom() - 485, 120, paint);
+            canvas.drawCircle(playFieldWidth - 620, this.getBottom() - 485, 120, paint);
+
             paint.setColor(Color.argb(255, 0, 255, 0));
-            canvas.drawCircle(playerFireButtonPos.x * 3.0f,
-                    this.getBottom() - (6.5f * playerFireButtonPos.y), radius, paint);
+            canvas.drawCircle(300, this.getBottom() - 500, 120, paint);
+            canvas.drawCircle(playFieldWidth - 300, this.getBottom() - 500, 120, paint);
+            canvas.drawCircle(playFieldWidth - 635, this.getBottom() - 500, 120, paint);
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
@@ -325,8 +328,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         resuming = true; // sets the state to resume
     }
 
-
-
     // The SurfaceView class implements onTouchListner
     // So we can override this method and detect screen touches
     @Override
@@ -339,8 +340,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
                         (this.getBottom() - 500) - 120 && motionEvent.getY() < (this.getBottom() - 500) + 120)
                 {
                     player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
-//                    projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
-//                    if(!resuming) resuming = true;
+ //                   projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
+ //                   if(!resuming) resuming = true;
                 }
 
                 if (motionEvent.getX() > (playFieldWidth - 635) - 120 && motionEvent.getX() < (playFieldWidth - 635) + 120
@@ -360,7 +361,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
                 player.setMovementState(Movement.STOPPED);
-
+                
                 break;
         }
 
