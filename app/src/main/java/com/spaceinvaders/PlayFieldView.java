@@ -333,31 +333,34 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     public boolean onTouchEvent(MotionEvent motionEvent) {
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
 
-            // ACTION_MOVE use this for the "joystick"
-            case MotionEvent.ACTION_MOVE:
-                if(motionEvent.getX() > (this.getWidth() / 2 )
-                        && motionEvent.getX() < (this.getWidth() - (this.getWidth() / 4 )) ) {
+            //Player has touched the screen
+            case MotionEvent.ACTION_DOWN:
+                if (motionEvent.getX() > 180 && motionEvent.getX() < 420 && motionEvent.getY() >
+                        (this.getBottom() - 500) - 120 && motionEvent.getY() < (this.getBottom() - 500) + 120)
+                {
+                    player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
+//                    projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
+//                    if(!resuming) resuming = true;
+                }
+
+                if (motionEvent.getX() > (playFieldWidth - 635) - 120 && motionEvent.getX() < (playFieldWidth - 635) + 120
+                        && motionEvent.getY() > (this.getBottom() - 500) - 120 && motionEvent.getY() < (this.getBottom() - 500) + 120)
+                {
                     player.setMovementState(Movement.LEFT);
                 }
-                else if(motionEvent.getX() > (this.getWidth() - (this.getWidth() / 4 )) ) {
+
+                if (motionEvent.getX() > (playFieldWidth - 300) - 120 && motionEvent.getX() < (playFieldWidth - 300) + 120
+                        && motionEvent.getY() > (this.getBottom() - 500) - 120 && motionEvent.getY() < (this.getBottom() - 500) + 120)
+                {
                     player.setMovementState(Movement.RIGHT);
                 }
-            case MotionEvent.ACTION_DOWN:
-                // if player presses fire button.
-                if(motionEvent.getX() < (this.getWidth() / 2 )) {
-                    player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
-                }
-//                projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
+
                 break;
-            // ACTION_POINTER_DOWN is for MULTI-TOUCH. If there is an issue
-            case MotionEvent.ACTION_POINTER_DOWN:
-                if(motionEvent.getX() < (this.getWidth() / 2 )) {
-                    player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
-                }
-                break;
+
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
                 player.setMovementState(Movement.STOPPED);
+
                 break;
         }
 
