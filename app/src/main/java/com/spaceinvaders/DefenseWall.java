@@ -140,7 +140,7 @@ public class DefenseWall {
     }
 
     private boolean withinProximity(Sprite sprite) {
-        if(Math.abs(sprite.getX() - center.x) < (width * 0.5f) && Math.abs(sprite.getY() - center.y) < (height * 0.5f))
+        if(Math.abs(sprite.getX() - center.x) < (width * 1.0f) && Math.abs(sprite.getY() - center.y) < (height * 1.0f))
             return true;
 
         return false;

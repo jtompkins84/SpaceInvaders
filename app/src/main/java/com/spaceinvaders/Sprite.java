@@ -136,7 +136,7 @@ public abstract class Sprite {
 
             // set all hit-boxes in the array equal to 'hitBox' argument
             for(int i = 0; i < this.frames.length; i++) {
-                hitBoxes[i] = hitBox;
+                hitBoxes[i] = new RectF(hitBox);
             }
 
             // Initialize hit-boxes
@@ -369,9 +369,13 @@ public abstract class Sprite {
 
 //        Log.v("Sprite", "Sprite position: (" + pos.x + ", " + pos.y + ")"); // TODO REMOVE DEBUG LINE
 
-        if(hitBoxes != null || hitBoxes[currFrame] != null)
+        if(hitBoxes != null || hitBoxes[currFrame] != null) {
             // offset hitbox by position of sprite plus offset of hitbox relative to the sprite
-            hitBoxes[currFrame].offsetTo(pos.x + hitBoxes[currFrame].left, pos.y + hitBoxes[currFrame].top);
+            for (RectF hb : hitBoxes) {
+                if(hb != null)
+                    hb.offsetTo(pos.x + hb.left, pos.y + hb.top);
+            }
+        }
     }
 
     public boolean isCollisionDetected() {
