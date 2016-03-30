@@ -17,7 +17,7 @@ public class Invader extends Sprite {
      * @param yPos
      * @param invader_type
      */
-    public Invader(float xPos, float yPos, short invader_type) {
+    public Invader(float xPos, float yPos, char invader_type) {
         super(new Bitmap[] {null, null, Resources.img_invader_death01, Resources.img_invader_death02,
                 Resources.img_invader_death03, Resources.img_invader_death04, Resources.img_invader_death05, Resources.img_blank},
                 new RectF[] {null, null, null, null, null, null, null, null});
@@ -25,19 +25,19 @@ public class Invader extends Sprite {
         float dpiRatio = Resources.DPIRatio;
         // set invader type to have the correct frames
         switch (invader_type) {
-            case 0:
+            case 'a':
                 setFrameImage(0, Resources.img_invader_a01);
                 setFrameImage(1, Resources.img_invader_a02);
                 setHitBox(0, new RectF(7.0f * dpiRatio, 13.0f * dpiRatio, 98.0f * dpiRatio, 79.0f * dpiRatio));
                 setHitBox(1, new RectF(7.0f * dpiRatio, 13.0f * dpiRatio, 98.0f * dpiRatio, 78.0f * dpiRatio));
                 break;
-            case 1:
+            case 'b':
                 setFrameImage(0, Resources.img_invader_b01);
                 setFrameImage(1, Resources.img_invader_b02);
                 setHitBox(0, new RectF(25.0f * dpiRatio, 17.0f * dpiRatio, 81.0f * dpiRatio, 73.0f * dpiRatio));
                 setHitBox(1, new RectF(25.0f * dpiRatio, 17.0f * dpiRatio, 81.0f * dpiRatio, 73.0f * dpiRatio));
                 break;
-            case 2:
+            case 'c':
                 setFrameImage(0, Resources.img_invader_c01);
                 setFrameImage(1, Resources.img_invader_c02);
                 setHitBox(0, new RectF(28.0f * dpiRatio, 28.0f * dpiRatio, 77.0f * dpiRatio, 70.0f * dpiRatio));

@@ -54,8 +54,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private ProjectileArray projectiles;
     private int maxPlayerBullets = 10; // TODO not used, should eventually remove
 
-    private Invader[] invaders = new Invader[60]; // TODO replace with InvaderArmy class
-    private int numInvaders = 0;
+    private Invader[][] invaders = new Invader[6][5]; // TODO replace with InvaderArmy class
 
     private DefenseBrick[][] bricks = new DefenseBrick[3][4];
     private DefenseWall[] walls = new DefenseWall[4];
@@ -95,7 +94,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         super(context);
 
         playFieldWidth = width;
-        playFieldHeight = height;
+        playFieldHeight = height + (height * 0.25f);
         ourHolder = getHolder();
         paint = new Paint();
 
@@ -141,6 +140,26 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         projectiles = new ProjectileArray(player, playFieldHeight);
 
     // Build an army of invaders
+        float horzSpacing = Resources.img_invader_a01.getWidth()* 1.33f; // the amount to horizontally space invaders apart from each other
+        float vertSpacing = Resources.img_invader_a01.getHeight(); // the amount to vertical space invaders apart from each other
+        float xCoord = playFieldWidth - (horzSpacing * 5.0f); // left most coordinate of the invader army
+        float yCoord = vertSpacing * 3.0f; // top most coordinate of the invader army
+
+    // initialize invader army from top to bottom
+    // TODO temporary code. InvaderArmy class needs to be implemented.
+    for(int i = 0; i < invaders.length; i++) {
+        for(int j = 0; j < invaders[0].length; j++) {
+            if(i < 2) {
+                invaders[i][j] = new Invader(xCoord + (horzSpacing * j), yCoord + (vertSpacing * i), 'c');
+            }
+            else if(i >= 2 && i < 4) {
+                invaders[i][j] = new Invader(xCoord + (horzSpacing * j), yCoord + (vertSpacing * i), 'b');
+            }
+            else {
+                invaders[i][j] = new Invader(xCoord + (horzSpacing * j), yCoord + (vertSpacing * i), 'a');
+            }
+        }
+    }
 
     // Build the defense walls
         playFieldWidth = this.getResources().getDisplayMetrics().widthPixels;
@@ -263,6 +282,11 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             player.draw(canvas, paint, false);
 
             // Draw the invaders
+            for(int i = 0; i < invaders.length; i++) {
+                for(int j = 0; j < invaders[0].length; j++) {
+                    invaders[i][j].draw(canvas, paint, false);
+                }
+            }
 
             // Draw the bricks if visible
             for(DefenseWall wall : walls) {
@@ -274,18 +298,21 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             //Draw countdown numbers, if countdown is active
             switch (countdownNumber) {
                 case 3:
+                    canvas.drawColor(Color.argb(127, 0, 0, 0));
                     canvas.drawBitmap(Resources.img_countdown_3,
                             (playFieldWidth / 2) - (Resources.img_countdown_3.getWidth() / 2),
                             (playFieldHeight / 2) - (Resources.img_countdown_3.getHeight() / 2),
                             paint);
                     break;
                 case 2:
+                    canvas.drawColor(Color.argb(127, 0, 0, 0));
                     canvas.drawBitmap(Resources.img_countdown_2,
                             (playFieldWidth / 2) - (Resources.img_countdown_2.getWidth() / 2),
                             (playFieldHeight / 2) - (Resources.img_countdown_2.getHeight() / 2),
                             paint);
                     break;
                 case 1:
+                    canvas.drawColor(Color.argb(127, 0, 0, 0));
                     canvas.drawBitmap(Resources.img_countdown_1,
                             (playFieldWidth / 2) - (Resources.img_countdown_1.getWidth() / 2),
                             (playFieldHeight / 2) - (Resources.img_countdown_1.getHeight() / 2),
