@@ -1,13 +1,17 @@
 package com.spaceinvaders;
 
+import android.support.v4.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+
+import com.tutorials.joseph.spaceinvaders.R;
 
 @SuppressWarnings("ALL")
 public class SpaceInvadersActivity extends AppCompatActivity {
@@ -77,4 +81,14 @@ public class SpaceInvadersActivity extends AppCompatActivity {
         playFieldView.pause();
     }
 
+    @Override
+    public void onBackPressed() {
+        Fragment pauseMenu = new PauseMenu();
+        if(pauseMenu != null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.pause_menu, pauseMenu);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }
+    }
 }
