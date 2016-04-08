@@ -371,6 +371,16 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         resuming = true; // sets the state to resume
     }
 
+    public void resumeNoCountdown() {
+        playing = true;
+        countdownNumber = -1;
+        startTime = -1;
+        resuming = false;
+
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
+
     // The SurfaceView class implements onTouchListner
     // So we can override this method and detect screen touches
     @Override
