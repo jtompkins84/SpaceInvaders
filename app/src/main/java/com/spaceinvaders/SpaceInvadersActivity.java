@@ -54,18 +54,6 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
 
         pauseMenu = new PauseMenu();
 
-//        // TODO need to credit below code to online source
-//        // http://stackoverflow.com/questions/5327144/setting-up-relativelayout-in-java-code
-//        RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-//                ViewGroup.LayoutParams.WRAP_CONTENT);
-//        RelativeLayout.LayoutParams q = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-//                ViewGroup.LayoutParams.WRAP_CONTENT);
-//
-//        q.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-//        playFieldView.setLayoutParams(q);
-//        gamePlayLayout.addView(playFieldView, size.x, size.y);
-
-
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER;

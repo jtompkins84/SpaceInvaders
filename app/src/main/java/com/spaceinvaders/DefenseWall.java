@@ -82,6 +82,10 @@ public class DefenseWall {
         }
     }
 
+    public PointF getPos() {
+        return pos;
+    }
+
     public void update(long fps) {
         for(int i = 0; i < bricksInCol; i++) {
             for(int j = 0; j < bricksInRow; j++) {

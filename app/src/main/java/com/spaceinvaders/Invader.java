@@ -7,6 +7,8 @@ public class Invader extends Sprite {
 
     private boolean isHit = false;
     private boolean isDead = false;
+    private boolean isScoreTallied = false;
+    private char invaderType;
 
     private float width;
     private float height;
@@ -23,6 +25,7 @@ public class Invader extends Sprite {
                 new RectF[] {null, null, null, null, null, null, null, null});
 
         float dpiRatio = Resources.DPIRatio;
+        invaderType = invader_type;
         // set invader type to have the correct frames
         switch (invader_type) {
             case 'a':
@@ -51,7 +54,7 @@ public class Invader extends Sprite {
                 break;
         }
 
-        this.setSkipFrames((short) 10);
+        this.setSkipFrames((short) 5);
         doAnimate = false;
         setPosition(xPos, yPos);
         setStartAndEndFrames(0, 1);
@@ -65,24 +68,27 @@ public class Invader extends Sprite {
             isDead = true;
             return;
         }
-        else if(isHit && getCurrFrameIndex() < 2) {
+        else if(isHit && getCurrFrameIndex() < 3) {
             setStartAndEndFrames(2, 7);
             doAnimationLoop = false; // do not loop animation.
             doAnimate = true; // do animate the death sequence.
             return;
         }
         else if(!isHit) {
+            float moveX = width / 2;
+            float moveY = height / 2;
+
             switch (movement) {
                 case LEFT:
-                    move(-width, 0.0f);
+                    move(-moveX, 0.0f);
                     nextFrame();
                     break;
                 case RIGHT:
-                    move(width, 0.0f);
+                    move(moveX, 0.0f);
                     nextFrame();
                     break;
                 case DOWN:
-                    move(0.0f, height);
+                    move(0.0f, moveY);
                     nextFrame();
                     break;
                 case STOPPED:
@@ -91,15 +97,29 @@ public class Invader extends Sprite {
         }
     }
 
-    public boolean checkCollision(Sprite sprite) {
+    public boolean doCollision(Sprite sprite) {
         if(sprite != null
                 && sprite.getHitBox() != null && getHitBox() != null
-                && sprite.getHitBox().contains(getHitBox())) {
+                && sprite.getHitBox().intersect(getHitBox())) {
 
-            if(sprite.getClass() == Player.class) {
+            if(sprite.getClass() == DefenseBrick.class) {
+                sprite = null;
+                return true;
+            }
+            else if(sprite.getClass() == Projectile.class) {
+                Projectile p = (Projectile) sprite;
+
+                if(p.isFromPlayer()) {
+                    p.isDestroyed(true);
+                    isHit = true;
+                }
+                else return false;
+            }
+            else if(sprite.getClass() == Player.class) {
                 doDrawFrame = false;
                 setCurrFrame(7); // frame at index 7 is blank
                 isDead = true; // should trigger
+                return true;
             }
         }
         return false;
@@ -129,11 +149,34 @@ public class Invader extends Sprite {
         return height;
     }
 
+    public char getType() {
+        return invaderType;
+    }
+
+    /**
+     * Creates a non-player projectile from the position of this invader.
+     * @param projectiles the relevant <code>ProjectileArray</code> to add a new projectile to
+     */
     public void fireProjectile(ProjectileArray projectiles) {
         projectiles.addProjectile(getX(), getY(), false);
     }
 
+    /**
+     * TODO still need to implement power-ups
+     */
     public void dropPowerup() {
         // TODO implement after power-ups are implemented
+    }
+
+    public boolean isHit() {
+        return isHit;
+    }
+
+    public boolean isScoreTallied() {
+        return isScoreTallied;
+    }
+
+    public void isScoreTallied(boolean b) {
+        isScoreTallied = b;
     }
 }

@@ -52,13 +52,11 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private long startTime = -1;
 
     private ProjectileArray projectiles;
-    private int maxPlayerBullets = 10; // TODO not used, should eventually remove
 
-    private Invader[][] invaders = new Invader[6][5]; // TODO replace with InvaderArmy class
+    private InvaderArmy invaderArmy;
 
     private DefenseBrick[][] bricks = new DefenseBrick[3][4];
     private DefenseWall[] walls = new DefenseWall[4];
-    private int numBricks;
 
     private SoundPool soundPool;
     private int playerExplodeID = -1;
@@ -74,11 +72,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     // Lives
     private int lives = 3;
 
-    private long menaceInterval = 1000;
-
     private boolean uhOrOh;
 
-    private long lastMenaceTime = System.currentTimeMillis();
     private short countdownNumber = -1;
 
     private PointF playerFireButton;
@@ -140,26 +135,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         projectiles = new ProjectileArray(player, playFieldHeight);
 
     // Build an army of invaders
-        float horzSpacing = Resources.img_invader_a01.getWidth()* 1.33f; // the amount to horizontally space invaders apart from each other
-        float vertSpacing = Resources.img_invader_a01.getHeight(); // the amount to vertical space invaders apart from each other
-        float xCoord = playFieldWidth - (horzSpacing * 5.0f); // left most coordinate of the invader army
-        float yCoord = vertSpacing * 3.0f; // top most coordinate of the invader army
-
-    // initialize invader army from top to bottom
-    // TODO temporary code. InvaderArmy class needs to be implemented.
-    for(int i = 0; i < invaders.length; i++) {
-        for(int j = 0; j < invaders[0].length; j++) {
-            if(i < 2) {
-                invaders[i][j] = new Invader(xCoord + (horzSpacing * j), yCoord + (vertSpacing * i), 'c');
-            }
-            else if(i >= 2 && i < 4) {
-                invaders[i][j] = new Invader(xCoord + (horzSpacing * j), yCoord + (vertSpacing * i), 'b');
-            }
-            else {
-                invaders[i][j] = new Invader(xCoord + (horzSpacing * j), yCoord + (vertSpacing * i), 'a');
-            }
-        }
-    }
+        invaderArmy = new InvaderArmy(playFieldWidth, playFieldHeight, projectiles, this);
 
     // Build the defense walls
         playFieldWidth = this.getResources().getDisplayMetrics().widthPixels;
@@ -203,19 +179,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
                     return; // skip the rest of the update process for player death.
 
                 else if(p.isFromPlayer() == true) {
-                    // TODO do InvaderArmy collisions
-                    /* Invader class has checkCollision(Sprite) method that returns a boolean.
-                     * If it returns true use "continue" keyword to skip to the next iteration of
-                     * this for-loop so that collision check on the defense walls can be skipped
-                     * and save a little bit of processing time.
-                     *
-                     * Also, the InvaderArmy class should implement a doCollisions method similar
-                     * to the DefenseWall doCollision method, where it first checks to see
-                     * if the Sprite object passed as a parameter is even close enough to the
-                     * InvaderArmy object to do a collision check. If it isn't within a certain
-                     * distance, there the collision calculations can be skipped to avoid
-                     * additional processing.
-                     */
+                    invaderArmy.doCollision(p);
                 }
 
                 for (DefenseWall w : walls) {
@@ -233,7 +197,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         // Move the player
         player.update(fps);
 
-        // Update the invaders if visible
+        // Update the invaders
+        invaderArmy.update(fps);
 
         // Update all the invaders bullets if active
 
@@ -282,11 +247,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             player.draw(canvas, paint, false);
 
             // Draw the invaders
-            for(int i = 0; i < invaders.length; i++) {
-                for(int j = 0; j < invaders[0].length; j++) {
-                    invaders[i][j].draw(canvas, paint, false);
-                }
-            }
+            invaderArmy.draw(canvas, paint, false);
 
             // Draw the bricks if visible
             for(DefenseWall wall : walls) {
@@ -331,14 +292,24 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Draw Player controls
             paint.setAntiAlias(true);
             paint.setColor(Color.argb(255, 0, 180, 0));
-            canvas.drawCircle(315, this.getBottom() - 485, 120, paint);
-            canvas.drawCircle(playFieldWidth - 315, this.getBottom() - 485, 120, paint);
-            canvas.drawCircle(playFieldWidth - 620, this.getBottom() - 485, 120, paint);
+            canvas.drawCircle(playFieldWidth / 5, this.getBottom() - playFieldHeight / 4, playFieldWidth / 11, paint);
+            /*
+            canvas.drawCircle(playFieldWidth - (playFieldWidth/2 - playFieldWidth/15), this.getBottom() - playFieldHeight/4, playFieldWidth/11, paint);
+            canvas.drawCircle(playFieldWidth - playFieldWidth/5, this.getBottom() - playFieldHeight/4, playFieldWidth/11, paint);
+            */
+            canvas.drawCircle((playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/100, (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
+            canvas.drawCircle(playFieldWidth - (playFieldWidth/5 - playFieldWidth/100), (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
+            canvas.drawRect((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100, ((this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100) - playFieldWidth / 11,
+                    playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100), ((this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100) + playFieldWidth / 11, paint);
 
             paint.setColor(Color.argb(255, 0, 255, 0));
-            canvas.drawCircle(300, this.getBottom() - 500, 120, paint);
-            canvas.drawCircle(playFieldWidth - 300, this.getBottom() - 500, 120, paint);
-            canvas.drawCircle(playFieldWidth - 635, this.getBottom() - 500, 120, paint);
+            canvas.drawCircle(playFieldWidth / 5/* - playFieldWidth / 100*/, (this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100, playFieldWidth / 11, paint);
+            /*
+            canvas.drawCircle((playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/100, (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
+            canvas.drawCircle(playFieldWidth - (playFieldWidth/5 - playFieldWidth/100), (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
+            */
+            canvas.drawCircle((((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100) + (playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100)))/2,
+                    (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11 - playFieldWidth/100, paint);
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
@@ -381,33 +352,37 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         gameThread.start();
     }
 
-    // The SurfaceView class implements onTouchListner
-    // So we can override this method and detect screen touches
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
 
-            //Player has touched the screen
             case MotionEvent.ACTION_DOWN:
-                if (motionEvent.getX() > 180 && motionEvent.getX() < 420 && motionEvent.getY() >
-                        (this.getBottom() - 500) - 120 && motionEvent.getY() < (this.getBottom() - 500) + 120)
+                if (motionEvent.getX() > (playFieldWidth/5 - playFieldWidth/100) - playFieldWidth/11
+                        && motionEvent.getX() < (playFieldWidth/5 - playFieldWidth/100) + playFieldWidth/11
+                        && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
+                        && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
                 {
                     player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
  //                   projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
  //                   if(!resuming) resuming = true;
                 }
 
-                if (motionEvent.getX() > (playFieldWidth - 635) - 120 && motionEvent.getX() < (playFieldWidth - 635) + 120
-                        && motionEvent.getY() > (this.getBottom() - 500) - 120 && motionEvent.getY() < (this.getBottom() - 500) + 120)
+                if (motionEvent.getX() > ((playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/100) - playFieldWidth/11
+                        && motionEvent.getX() < (((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100) + (playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100)))/2
+                        && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
+                        && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
                 {
                     player.setMovementState(Movement.LEFT);
                 }
 
-                if (motionEvent.getX() > (playFieldWidth - 300) - 120 && motionEvent.getX() < (playFieldWidth - 300) + 120
-                        && motionEvent.getY() > (this.getBottom() - 500) - 120 && motionEvent.getY() < (this.getBottom() - 500) + 120)
+                if (motionEvent.getX() > (((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100) + (playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100)))/2
+                        && motionEvent.getX() < (playFieldWidth - (playFieldWidth/5 - playFieldWidth/100)) + playFieldWidth/11
+                        && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
+                        && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
                 {
                     player.setMovementState(Movement.RIGHT);
                 }
+
 
                 break;
 
@@ -421,12 +396,25 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         return true;
     }
 
+    // Need to implement the ability to drag the drawn circle.
+
+    /*
+    public boolean onDragEvent(DragEvent dragEvent) {
+
+        return true;
+    }
+    */
+
     public void playerFire() {
         player.fire(projectiles);
     }
 
     public void playerMovement(Movement direction) {
         player.setMovementState(direction);
+    }
+
+    public void addToPlayerScore(int plusScore) {
+        score += plusScore;
     }
 
     /**
