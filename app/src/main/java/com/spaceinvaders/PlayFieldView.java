@@ -10,7 +10,6 @@ import android.graphics.PointF;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -53,13 +52,11 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private long startTime = -1;
 
     private ProjectileArray projectiles;
-    private int maxPlayerBullets = 10; // TODO not used, should eventually remove
 
-    private Invader[][] invaders = new Invader[6][5]; // TODO replace with InvaderArmy class
+    private InvaderArmy invaderArmy;
 
     private DefenseBrick[][] bricks = new DefenseBrick[3][4];
     private DefenseWall[] walls = new DefenseWall[4];
-    private int numBricks;
 
     private SoundPool soundPool;
     private int playerExplodeID = -1;
@@ -75,11 +72,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     // Lives
     private int lives = 3;
 
-    private long menaceInterval = 1000;
-
     private boolean uhOrOh;
 
-    private long lastMenaceTime = System.currentTimeMillis();
     private short countdownNumber = -1;
 
     private PointF playerFireButton;
@@ -141,26 +135,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         projectiles = new ProjectileArray(player, playFieldHeight);
 
     // Build an army of invaders
-        float horzSpacing = Resources.img_invader_a01.getWidth()* 1.33f; // the amount to horizontally space invaders apart from each other
-        float vertSpacing = Resources.img_invader_a01.getHeight(); // the amount to vertical space invaders apart from each other
-        float xCoord = playFieldWidth - (horzSpacing * 5.0f); // left most coordinate of the invader army
-        float yCoord = vertSpacing * 3.0f; // top most coordinate of the invader army
-
-    // initialize invader army from top to bottom
-    // TODO temporary code. InvaderArmy class needs to be implemented.
-    for(int i = 0; i < invaders.length; i++) {
-        for(int j = 0; j < invaders[0].length; j++) {
-            if(i < 2) {
-                invaders[i][j] = new Invader(xCoord + (horzSpacing * j), yCoord + (vertSpacing * i), 'c');
-            }
-            else if(i >= 2 && i < 4) {
-                invaders[i][j] = new Invader(xCoord + (horzSpacing * j), yCoord + (vertSpacing * i), 'b');
-            }
-            else {
-                invaders[i][j] = new Invader(xCoord + (horzSpacing * j), yCoord + (vertSpacing * i), 'a');
-            }
-        }
-    }
+        invaderArmy = new InvaderArmy(playFieldWidth, playFieldHeight, projectiles, this);
 
     // Build the defense walls
         playFieldWidth = this.getResources().getDisplayMetrics().widthPixels;
@@ -204,19 +179,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
                     return; // skip the rest of the update process for player death.
 
                 else if(p.isFromPlayer() == true) {
-                    // TODO do InvaderArmy collisions
-                    /* Invader class has checkCollision(Sprite) method that returns a boolean.
-                     * If it returns true use "continue" keyword to skip to the next iteration of
-                     * this for-loop so that collision check on the defense walls can be skipped
-                     * and save a little bit of processing time.
-                     *
-                     * Also, the InvaderArmy class should implement a doCollisions method similar
-                     * to the DefenseWall doCollision method, where it first checks to see
-                     * if the Sprite object passed as a parameter is even close enough to the
-                     * InvaderArmy object to do a collision check. If it isn't within a certain
-                     * distance, there the collision calculations can be skipped to avoid
-                     * additional processing.
-                     */
+                    invaderArmy.doCollision(p);
                 }
 
                 for (DefenseWall w : walls) {
@@ -234,7 +197,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         // Move the player
         player.update(fps);
 
-        // Update the invaders if visible
+        // Update the invaders
+        invaderArmy.update(fps);
 
         // Update all the invaders bullets if active
 
@@ -283,11 +247,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             player.draw(canvas, paint, false);
 
             // Draw the invaders
-            for(int i = 0; i < invaders.length; i++) {
-                for(int j = 0; j < invaders[0].length; j++) {
-                    invaders[i][j].draw(canvas, paint, false);
-                }
-            }
+            invaderArmy.draw(canvas, paint, false);
 
             // Draw the bricks if visible
             for(DefenseWall wall : walls) {
@@ -451,6 +411,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     public void playerMovement(Movement direction) {
         player.setMovementState(direction);
+    }
+
+    public void addToPlayerScore(int plusScore) {
+        score += plusScore;
     }
 
     /**

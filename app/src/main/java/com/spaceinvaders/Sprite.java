@@ -249,6 +249,7 @@ public abstract class Sprite {
         }
 
         this.startFrame = startIndex;
+        this.currFrame = startIndex;
         this.endFrame = endIndex;
     }
 
@@ -323,6 +324,15 @@ public abstract class Sprite {
     }
 
     /**
+     * This returns the raw x coordinate in pixels. Most likely
+     * the left most x position of this sprite's current frame
+     * @return the raw x coordinate in pixels
+     */
+    public float getRawX() {
+        return pos.x;
+    }
+
+    /**
      * @return y-coordinate relative to center of this <code>Sprite</code>'s bitmap.
      */
     public float getY() {
@@ -333,6 +343,15 @@ public abstract class Sprite {
 
         return hitBoxes[currFrame].top
                 + ((hitBoxes[currFrame].bottom - hitBoxes[currFrame].top) / 2);
+    }
+
+    /**
+     * This returns the raw y coordinate in pixels. Most likely
+     * the top most y position of this sprite's current frame
+     * @return the raw y coordinate in pixels
+     */
+    public float getRawY() {
+        return pos.y;
     }
 
     public float getHitBoxLength() {
@@ -366,8 +385,6 @@ public abstract class Sprite {
     public void setPosition(float x, float y) {
         pos.set(x - ((float) frames[currFrame].getWidth() / 2.0f),
                 y - ((float)frames[currFrame].getHeight() / 2.0f));
-
-//        Log.v("Sprite", "Sprite position: (" + pos.x + ", " + pos.y + ")"); // TODO REMOVE DEBUG LINE
 
         if(hitBoxes != null || hitBoxes[currFrame] != null) {
             // offset hitbox by position of sprite plus offset of hitbox relative to the sprite
@@ -420,7 +437,7 @@ public abstract class Sprite {
             }
         }
 
-        if ((hitBoxes != null || hitBoxes[currFrame] != null) && showHitBox == true) {
+        if ((hitBoxes != null && hitBoxes[currFrame] != null) && showHitBox == true) {
             int oldColor = paint.getColor();
             paint.setARGB(150, 255, 0, 0);
             canvas.drawRect(hitBoxes[currFrame], paint);
@@ -436,8 +453,12 @@ public abstract class Sprite {
      */
     public void move(float dx, float dy) {
         pos.set(pos.x + dx, pos.y + dy);
-        if(hitBoxes != null || hitBoxes[currFrame] != null) {
-            hitBoxes[currFrame].offset(dx, dy);
+        if(hitBoxes != null) {
+            for(RectF hb : hitBoxes) {
+                if(hb != null) {
+                    hb.offset(dx, dy);
+                }
+            }
         }
     }
 
