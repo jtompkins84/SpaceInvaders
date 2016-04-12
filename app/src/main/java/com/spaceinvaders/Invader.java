@@ -129,10 +129,17 @@ public class Invader extends Sprite {
         return height;
     }
 
+    /**
+     * Creates a non-player projectile from the position of this invader.
+     * @param projectiles the relevant <code>ProjectileArray</code> to add a new projectile to
+     */
     public void fireProjectile(ProjectileArray projectiles) {
         projectiles.addProjectile(getX(), getY(), false);
     }
 
+    /**
+     * TODO still need to implement power-ups
+     */
     public void dropPowerup() {
         // TODO implement after power-ups are implemented
     }

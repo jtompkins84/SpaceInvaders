@@ -392,13 +392,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         gameThread.start();
     }
 
-    // The SurfaceView class implements onTouchListner
-    // So we can override this method and detect screen touches
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
 
-            //Player has touched the screen
             case MotionEvent.ACTION_DOWN:
                 if (motionEvent.getX() > (playFieldWidth/5 - playFieldWidth/100) - playFieldWidth/11
                         && motionEvent.getX() < (playFieldWidth/5 - playFieldWidth/100) + playFieldWidth/11
