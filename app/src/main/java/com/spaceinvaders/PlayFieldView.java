@@ -6,28 +6,22 @@ import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PointF;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import java.io.IOException;
 
 /**
  * Created by Joseph on 2/5/2016.
  */
-public class PlayFieldView extends SurfaceView implements Runnable {
+public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouchListener {
     private Thread gameThread = null;
     private SurfaceHolder ourHolder;
-    /**
-     * Set to 1.0f by default. DPIRatio is adjusted during resource initialization and is used to
-     * scale dimensions & coordinates to the correct proportions so that
-     * the play field looks the same no matter what device it is displayed on.
-     */
-    float DPIRatio = 1.0f;
 
     private volatile boolean playing;
 
@@ -55,7 +49,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private InvaderArmy invaderArmy;
 
-    private DefenseBrick[][] bricks = new DefenseBrick[3][4];
     private DefenseWall[] walls = new DefenseWall[4];
 
     private SoundPool soundPool;
@@ -66,17 +59,14 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private int uhID = -1;
     private int ohID = -1;
 
-    // The score
+
     private int score = 0;
 
-    // Lives
     private int lives = 3;
 
     private boolean uhOrOh;
 
     private short countdownNumber = -1;
-
-    private PointF playerFireButton;
 
 /*******************************************************************************
  * Constructor
@@ -85,7 +75,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
  * @param width <code>int</code> - this view's width in pixels
  * @param height <code>int</code> - this view's height in pixels
  ********************************************************************************/
-    public PlayFieldView(Context context, int width, int height) {
+    public PlayFieldView(Context context, float width, float height) {
         super(context);
 
         playFieldWidth = width;
@@ -95,6 +85,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
         // TODO this is deprecated and we will most likely change it
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+
+
 
         try {
             AssetManager assetManager = context.getAssets();
@@ -125,9 +117,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     }
 
     private void initializePlayField() {
-    // Here we will initialize all the game objects
-        playerFireButton = new PointF();
-
     // Make a new player
         player = new Player(playFieldWidth, playFieldHeight);
 
@@ -286,7 +275,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Draw the score and remaining lives
             // Change brush color
             paint.setColor(Color.argb(255, 0, 255, 0));
-            paint.setTextSize(40 * DPIRatio);
+            paint.setTextSize(40 * Resources.DPIRatio);
             canvas.drawText("Score: " + score + "  Lives: " + lives, 10, 50, paint);
 
             // Draw Player controls
@@ -467,5 +456,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             startTime = -1;
             resuming = false;
         }
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        return false;
     }
 }
