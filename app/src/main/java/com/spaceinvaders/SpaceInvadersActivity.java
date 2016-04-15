@@ -11,7 +11,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import com.tutorials.joseph.spaceinvaders.R;
 
@@ -54,7 +53,7 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
 
         pauseMenu = new PauseMenu();
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER;
         playFieldView.setLayoutParams(params);
