@@ -332,24 +332,34 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             // Draw Player controls
             paint.setAntiAlias(true);
             paint.setColor(Color.argb(255, 0, 180, 0));
+
             canvas.drawCircle(playFieldWidth / 5, this.getBottom() - playFieldHeight / 4, playFieldWidth / 11, paint);
-            /*
+
             canvas.drawCircle(playFieldWidth - (playFieldWidth/2 - playFieldWidth/15), this.getBottom() - playFieldHeight/4, playFieldWidth/11, paint);
             canvas.drawCircle(playFieldWidth - playFieldWidth/5, this.getBottom() - playFieldHeight/4, playFieldWidth/11, paint);
-            */
+
+
+            //Slider
+            /*
             canvas.drawCircle((playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/100, (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
             canvas.drawCircle(playFieldWidth - (playFieldWidth/5 - playFieldWidth/100), (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
             canvas.drawRect((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100, ((this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100) - playFieldWidth / 11,
                     playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100), ((this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100) + playFieldWidth / 11, paint);
+            */
 
             paint.setColor(Color.argb(255, 0, 255, 0));
-            canvas.drawCircle(playFieldWidth / 5/* - playFieldWidth / 100*/, (this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100, playFieldWidth / 11, paint);
+
+            canvas.drawCircle(playFieldWidth / 5, (this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100, playFieldWidth / 11, paint);
+
+            canvas.drawCircle(playFieldWidth - (playFieldWidth/2 - playFieldWidth/15), (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
+            canvas.drawCircle(playFieldWidth - playFieldWidth/5, (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
+
+
+            //Joystick Circle
             /*
-            canvas.drawCircle((playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/100, (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
-            canvas.drawCircle(playFieldWidth - (playFieldWidth/5 - playFieldWidth/100), (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
-            */
             canvas.drawCircle((((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100) + (playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100)))/2,
                     (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11 - playFieldWidth/100, paint);
+            */
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
@@ -400,8 +410,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
             //Player has touched the screen
             case MotionEvent.ACTION_DOWN:
-                if (motionEvent.getX() > (playFieldWidth/5 - playFieldWidth/100) - playFieldWidth/11
-                        && motionEvent.getX() < (playFieldWidth/5 - playFieldWidth/100) + playFieldWidth/11
+                if (motionEvent.getX() > playFieldWidth/5 - playFieldWidth/11
+                        && motionEvent.getX() < playFieldWidth/5 + playFieldWidth/11
                         && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
                         && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
                 {
@@ -410,16 +420,16 @@ public class PlayFieldView extends SurfaceView implements Runnable {
  //                   if(!resuming) resuming = true;
                 }
 
-                if (motionEvent.getX() > ((playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/100) - playFieldWidth/11
-                        && motionEvent.getX() < (((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100) + (playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100)))/2
+                if (motionEvent.getX() > (playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/11
+                        && motionEvent.getX() < (playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) + playFieldWidth/11
                         && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
                         && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
                 {
                     player.setMovementState(Movement.LEFT);
                 }
 
-                if (motionEvent.getX() > (((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100) + (playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100)))/2
-                        && motionEvent.getX() < (playFieldWidth - (playFieldWidth/5 - playFieldWidth/100)) + playFieldWidth/11
+                if (motionEvent.getX() > (playFieldWidth - playFieldWidth/5) - playFieldWidth/11
+                        && motionEvent.getX() < (playFieldWidth - playFieldWidth/5) + playFieldWidth/11
                         && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
                         && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
                 {
