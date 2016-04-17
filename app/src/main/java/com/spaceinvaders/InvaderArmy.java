@@ -17,6 +17,7 @@ public class InvaderArmy {
     private float armyWidth, armyHeight, invaderWidth, invaderHeight;
     private int rows = 6;
     private int cols = 5;
+    private int counter = 0;//counter needed to help catch boundaries for the invaderArmy
     /**
      * spacing in between each invader.
      */
@@ -94,12 +95,41 @@ public class InvaderArmy {
             for (int j = 0; j < cols; j++) {
                 if (invaders[i][j] != null) {
 
-                    if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
+                    if (System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
                         // inside here, do detection of boundaries
-                        invaders[i][j].setMovementState(Movement.LEFT);
-                        armyMovement = Movement.LEFT; // for each if statement, make sure to change
-                                                      // this to the correct movement.
-                                                      // updateArmyPosition uses this value.
+
+                        //armyPos.x will always be less than playFieldWidth so added counter for more control
+                        //the || portion helps catch the invaderArmy when it moves to the right and resets the if statement to allow left movement again
+                        if(armyPos.x  < playFieldWidth && counter == 0 || (armyPos.x + armyWidth > playFieldWidth) ){
+
+                            if(counter > 1){
+
+                                counter = 0;
+                            }
+
+                            invaders[i][j].setMovementState(Movement.LEFT);
+                            armyMovement = Movement.LEFT; // for each if statement, make sure to change
+                                                          // this to the correct movement.
+                                                          // updateArmyPosition uses this value.
+                        }
+
+
+                        /*
+                            Once armyPos.x moves about the playField to the left, if armyPos.x is less than invaderWidth
+                            then invaderArmy will move to the right and increment the counter by one to avoid moving left and getting
+                            stuck in a back and forth movement loop
+                        */
+                        if(armyPos.x < invaderWidth || counter >= 1){
+
+                                counter++;
+                                invaders[i][j].setMovementState(Movement.RIGHT);
+                                armyMovement = Movement.RIGHT;
+
+
+
+                        }
+
+
                     }
 
                     // This has to be here in this order so that the invaders move.
