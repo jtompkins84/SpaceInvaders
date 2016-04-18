@@ -19,6 +19,9 @@ public class Resources {
 
     public static float DPIRatio;
 
+    public enum Difficulty {NORMAL, HARD};
+    public static Difficulty difficulty = Difficulty.NORMAL;
+
     public static Bitmap img_player;
     public static Bitmap img_player_death01;
     public static Bitmap img_player_death02;
