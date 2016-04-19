@@ -89,11 +89,10 @@ public class InvaderArmy {
                 - At the end, just run invaders[i][j].update( fps ), and that takes care of the
                         actual movement.
          */
-
         boolean doMove = false;
         // This is here to update the time that the invaders last moved and the position
         // of the army. Needs to happen after updating every invader in the army.
-        if(System.currentTimeMillis() - lastMoveTime >= 200) {
+        if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
             lastMoveTime = System.currentTimeMillis();
             doMove = true;
         }
@@ -113,16 +112,25 @@ public class InvaderArmy {
 
                         // detection for right boundary
                         if( (armyPos.x + armyWidth)  > (playFieldWidth - invaderWidth) ){
+                            /* TODO add class member boolean doMoveDown = false
+                            * TODO make if( doMoveDown ) armyMovement = DOWN
+                            * TODO else armMovement LEFT
+                            */
                             armyMovement = Movement.LEFT; // for each if statement, make sure to change
                                                           // this to the correct movement.
                                                           // updateArmyPosition uses this value.
                         }
                         // detection for left boundary
                         else if(armyPos.x < invaderWidth) {
-                                armyMovement = Movement.RIGHT;
+                            /* TODO make if( doMoveDown ) armyMovement = DOWN
+                            * TODO else armMovement RIGHT
+                            */
+                            armyMovement = Movement.RIGHT;
                         }
+                        else // TODO doMoveDown = true! This way, if the army isn't at a boundary,
+                            // TODO the army knows to move down when it reaches one
 
-                        // The armyMovement now determines the movement state of the invaders
+                        // The armyMovement now determines the movement state of the each invader
                         invaders[i][j].setMovementState(armyMovement);
                     }
 
@@ -140,6 +148,7 @@ public class InvaderArmy {
         // hit detection will get all screwy when the army starts
         // to move down.
         if(doMove) {
+            if(armyMovement != Movement.DOWN)
             updateArmyPosition();
         }
         /**
@@ -258,6 +267,7 @@ public class InvaderArmy {
                 invaders[rowIndex][i].doCollision(sprite);
 
                 if(invaders[rowIndex][i].isHit() && !invaders[rowIndex][i].isScoreTallied()) {
+                    invaders[rowIndex][i].dropPowerup();
 
                     switch (invaders[rowIndex][i].getType()) {
                         case 'a':
