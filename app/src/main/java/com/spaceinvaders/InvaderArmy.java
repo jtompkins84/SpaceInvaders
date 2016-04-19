@@ -93,7 +93,7 @@ public class InvaderArmy {
         boolean doMove = false;
         // This is here to update the time that the invaders last moved and the position
         // of the army. Needs to happen after updating every invader in the army.
-        if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
+        if(System.currentTimeMillis() - lastMoveTime >= 200) {
             lastMoveTime = System.currentTimeMillis();
             doMove = true;
         }
@@ -167,7 +167,7 @@ public class InvaderArmy {
     }
 
     private void buildArmy() {
-        float xCoord = playFieldWidth - (xSpacing * 5.0f); // left most coordinate of the invader army
+        float xCoord = playFieldWidth - (xSpacing * 4.625f); // left most coordinate of the invader army
         float yCoord = ySpacing * 3.0f; // top most coordinate of the invader army
         setPosition(xCoord, yCoord);
 
@@ -193,7 +193,7 @@ public class InvaderArmy {
         invaderXMovementIncrement = invaders[0][0].getxMoveIncrement();
         invaderYMovementIncrement = invaders[0][0].getyMoveIncrement();
 
-        armyWidth = xSpacing * cols;
+        armyWidth = xSpacing * (cols - 1);
         armyHeight = ySpacing * rows;
         armyCenter = new PointF(armyWidth / 2, armyHeight / 2);
         armyMovement = Movement.LEFT;
