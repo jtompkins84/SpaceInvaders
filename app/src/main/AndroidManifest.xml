@@ -22,6 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name="com.spaceinvaders.SpaceInvadersActivity"></activity>
+        <activity android:name="com.spaceinvaders.OptionsMenuActivity"></activity>
     </application>
 
 </manifest>

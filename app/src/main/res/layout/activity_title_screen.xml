@@ -3,6 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/activity_title_screen"
     android:background="#000000"
     android:gravity="top|center"
     android:weightSum="1">
@@ -21,6 +22,13 @@
     <ImageButton
         android:id="@+id/title_start_button"
         android:src="@drawable/start_button"
+        android:background="@null"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageButton
+        android:id="@+id/options_button"
+        android:src="@drawable/options_button"
         android:background="@null"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
