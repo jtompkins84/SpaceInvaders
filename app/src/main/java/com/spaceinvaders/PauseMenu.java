@@ -19,8 +19,6 @@ public class PauseMenu extends Fragment{
     private View pauseMenuView;
     private Button resumeButton;
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

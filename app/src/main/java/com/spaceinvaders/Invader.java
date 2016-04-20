@@ -12,6 +12,8 @@ public class Invader extends Sprite {
 
     private float width;
     private float height;
+    private float xMoveIncrement;
+    private float yMoveIncrement;
 
     /**
      *
@@ -60,6 +62,8 @@ public class Invader extends Sprite {
         setStartAndEndFrames(0, 1);
         width = Resources.img_invader_a01.getWidth();
         height = Resources.img_invader_a01.getHeight();
+        xMoveIncrement = width / 2;
+        yMoveIncrement = height / 2;
     }
 
     @Override
@@ -75,20 +79,18 @@ public class Invader extends Sprite {
             return;
         }
         else if(!isHit) {
-            float moveX = width / 2;
-            float moveY = height / 2;
 
             switch (movement) {
                 case LEFT:
-                    move(-moveX, 0.0f);
+                    move(-xMoveIncrement, 0.0f);
                     nextFrame();
                     break;
                 case RIGHT:
-                    move(moveX, 0.0f);
+                    move(xMoveIncrement, 0.0f);
                     nextFrame();
                     break;
                 case DOWN:
-                    move(0.0f, moveY);
+                    move(0.0f, yMoveIncrement);
                     nextFrame();
                     break;
                 case STOPPED:
@@ -178,5 +180,21 @@ public class Invader extends Sprite {
 
     public void isScoreTallied(boolean b) {
         isScoreTallied = b;
+    }
+
+    /**
+     * The amount that the invader moves along the x axis in one movement increment.
+     * @return
+     */
+    public float getxMoveIncrement() {
+        return xMoveIncrement;
+    }
+
+    /**
+     * The amount that the invader moves along the y axis in one movement increment.
+     * @return
+     */
+    public float getyMoveIncrement() {
+        return yMoveIncrement;
     }
 }

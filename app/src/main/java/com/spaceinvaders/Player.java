@@ -23,6 +23,14 @@ public class Player extends Sprite {
     private long deathTime = 0;
     private boolean doUpdate = true;
 
+    private long lastTime = 0l;
+
+    private boolean hasShield;
+    private boolean hasSpecial;
+    private boolean hasRapid;
+    private short rapidCounter = 0;
+    private short rapidMaxSeconds = 15;
+
     /**
      * <code><b><i>Player</i></b></code><p>
      * <code>Player</code> contructor.
@@ -191,5 +199,50 @@ public class Player extends Sprite {
      */
     public void doUpdate(boolean bool) {
         doUpdate = bool;
+    }
+
+    /**
+     * The boolean value that determines whether or not the play has the shield powerup.
+     * @return
+     */
+    public boolean hasShield() {
+        return this.hasShield;
+    }
+
+    /**
+     * The boolean value that determines whether or not the play has the shield powerup.
+     * @param hasShield
+     */
+    public void hasShield(boolean hasShield) {
+        this.hasShield = hasShield;
+    }
+
+    /**
+     * The boolean value that determines whether or not the play has the special shot powerup.
+     * @return
+     */
+    public boolean hasSpecial() {
+        return hasSpecial;
+    }
+
+    /**
+     * The boolean value that determines whether or not the play has the special shot powerup.
+     * @param hasSpecial
+     */
+    public void hasSpecial(boolean hasSpecial) {
+        this.hasSpecial = hasSpecial;
+    }
+
+    /**
+     * The boolean value that determines whether or not the play has the special shot powerup.
+     * @return
+     */
+    public boolean hasRapid() {
+        return hasRapid;
+    }
+
+    public void hasRapid(boolean hasRapid) {
+        this.hasRapid = hasRapid;
+        rapidCounter = 0;
     }
 }

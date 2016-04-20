@@ -3,6 +3,7 @@ package com.spaceinvaders;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.util.Log;
 
 public class InvaderArmy {
     private Invader[][] invaders;
@@ -15,8 +16,11 @@ public class InvaderArmy {
     private PointF armyCenter;
     private Movement armyMovement = Movement.LEFT;
     private float armyWidth, armyHeight, invaderWidth, invaderHeight;
+    private float invaderXMovementIncrement;
+    private float invaderYMovementIncrement;
     private int rows = 6;
     private int cols = 5;
+    private int counter = 0;//counter needed to help catch boundaries for the invaderArmy
     /**
      * spacing in between each invader.
      */
@@ -85,7 +89,13 @@ public class InvaderArmy {
                 - At the end, just run invaders[i][j].update( fps ), and that takes care of the
                         actual movement.
          */
-
+        boolean doMove = false;
+        // This is here to update the time that the invaders last moved and the position
+        // of the army. Needs to happen after updating every invader in the army.
+        if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
+            lastMoveTime = System.currentTimeMillis();
+            doMove = true;
+        }
         // FEEL FREE TO RE-WRITE THIS CODE.
         // This is just here to test a few things.
         // it still needs to implement boundary detection, as mentioned above, as well as
@@ -94,12 +104,34 @@ public class InvaderArmy {
             for (int j = 0; j < cols; j++) {
                 if (invaders[i][j] != null) {
 
-                    if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
+                    if(doMove) {
                         // inside here, do detection of boundaries
-                        invaders[i][j].setMovementState(Movement.LEFT);
-                        armyMovement = Movement.LEFT; // for each if statement, make sure to change
-                                                      // this to the correct movement.
-                                                      // updateArmyPosition uses this value.
+
+                        // this is only back and for code. you will have to come up with a way
+                        // make them move down once at the edge
+
+                        // detection for right boundary
+                        if( (armyPos.x + armyWidth)  > (playFieldWidth - invaderWidth) ){
+                            /* TODO add class member boolean doMoveDown = false
+                            * TODO make if( doMoveDown ) armyMovement = DOWN
+                            * TODO else armMovement LEFT
+                            */
+                            armyMovement = Movement.LEFT; // for each if statement, make sure to change
+                                                          // this to the correct movement.
+                                                          // updateArmyPosition uses this value.
+                        }
+                        // detection for left boundary
+                        else if(armyPos.x < invaderWidth) {
+                            /* TODO make if( doMoveDown ) armyMovement = DOWN
+                            * TODO else armMovement RIGHT
+                            */
+                            armyMovement = Movement.RIGHT;
+                        }
+                        else // TODO doMoveDown = true! This way, if the army isn't at a boundary,
+                            // TODO the army knows to move down when it reaches one
+
+                        // The armyMovement now determines the movement state of the each invader
+                        invaders[i][j].setMovementState(armyMovement);
                     }
 
                     // This has to be here in this order so that the invaders move.
@@ -112,15 +144,13 @@ public class InvaderArmy {
             }
         }
 
-        // This is here to update the time that the invaders last moved and the position
-        // of the army. Needs to happen after updating every invader in the army.
-        if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
-            lastMoveTime = System.currentTimeMillis();
-            updateArmyPosition(); // This has to be here to keep track of the army, otherwise
-                                  // hit detection will get all screwy when the army starts
-                                  // to move down.
+        // This has to be here to keep track of the army, otherwise
+        // hit detection will get all screwy when the army starts
+        // to move down.
+        if(doMove) {
+            if(armyMovement != Movement.DOWN)
+            updateArmyPosition();
         }
-
         /**
          * Also, you might make a class attribute boolean value to indicate that the invader army has reached
          * the bottom of the playfield. At some point, in order to end the game, the game loop
@@ -146,7 +176,7 @@ public class InvaderArmy {
     }
 
     private void buildArmy() {
-        float xCoord = playFieldWidth - (xSpacing * 5.0f); // left most coordinate of the invader army
+        float xCoord = playFieldWidth - (xSpacing * 4.625f); // left most coordinate of the invader army
         float yCoord = ySpacing * 3.0f; // top most coordinate of the invader army
         setPosition(xCoord, yCoord);
 
@@ -169,24 +199,30 @@ public class InvaderArmy {
 
         invaderWidth = invaders[0][0].getWidth();
         invaderHeight = invaders[0][0].getHeight();
+        invaderXMovementIncrement = invaders[0][0].getxMoveIncrement();
+        invaderYMovementIncrement = invaders[0][0].getyMoveIncrement();
 
-        armyWidth = xSpacing * cols;
+        armyWidth = xSpacing * (cols - 1);
         armyHeight = ySpacing * rows;
         armyCenter = new PointF(armyWidth / 2, armyHeight / 2);
+        armyMovement = Movement.LEFT;
     }
 
     private void updateArmyPosition() {
 
         if(armyPos != null) {
+
+            Log.v("AI movement: ", "armyPos.x = " + armyPos.x + " :: invaderWidth = " + invaderWidth);
+
             switch (armyMovement) {
                 case LEFT:
-                    armyPos.x = armyPos.x - invaderWidth;
+                    armyPos.x = armyPos.x - invaderXMovementIncrement;
                     break;
                 case RIGHT:
-                    armyPos.x = armyPos.x + invaderWidth;
+                    armyPos.x = armyPos.x + invaderXMovementIncrement;
                     break;
                 case DOWN:
-                    armyPos.y = armyPos.y + invaderHeight;
+                    armyPos.y = armyPos.y + invaderYMovementIncrement;
                     break;
                 default:
                     break;
@@ -231,6 +267,7 @@ public class InvaderArmy {
                 invaders[rowIndex][i].doCollision(sprite);
 
                 if(invaders[rowIndex][i].isHit() && !invaders[rowIndex][i].isScoreTallied()) {
+                    invaders[rowIndex][i].dropPowerup();
 
                     switch (invaders[rowIndex][i].getType()) {
                         case 'a':
