@@ -12,14 +12,11 @@ import com.tutorials.joseph.spaceinvaders.R;
  *  the app. Hello World
  */
 public class Resources {
-    public enum Difficulty {NORMAL, HARD};
-
     private static Resources resources = null;
     private static Context context;
     private static boolean initSuccussful = false;
 
     public static float DPIRatio;
-    public static Difficulty difficulty = Difficulty.NORMAL;
 
     public enum Difficulty {NORMAL, HARD};
     public static Difficulty difficulty = Difficulty.NORMAL;
