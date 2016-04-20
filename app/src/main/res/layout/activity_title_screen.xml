@@ -4,7 +4,6 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/activity_title_screen"
     android:background="#000000"
     android:gravity="top|center"
     android:weightSum="1">
