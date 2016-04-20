@@ -22,6 +22,8 @@ public class Resources {
     public enum Difficulty {NORMAL, HARD};
     public static Difficulty difficulty = Difficulty.NORMAL;
 
+    static int player_final_score = 0;
+
     public static Bitmap img_player;
     public static Bitmap img_player_death01;
     public static Bitmap img_player_death02;

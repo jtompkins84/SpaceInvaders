@@ -49,5 +49,4 @@ public class TitleScreenActivity extends AppCompatActivity implements View.OnCli
     public void onBackPressed() {
         finish();
     }
-
 }
