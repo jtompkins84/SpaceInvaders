@@ -12,7 +12,6 @@ import com.tutorials.joseph.spaceinvaders.R;
  *  the app. Hello World
  */
 public class Resources {
-
     private static Resources resources = null;
     private static Context context;
     private static boolean initSuccussful = false;
