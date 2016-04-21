@@ -90,11 +90,13 @@ public class InvaderArmy {
                         actual movement.
          */
         boolean doMove = false;
+        boolean doMoveDown = true;
         // This is here to update the time that the invaders last moved and the position
         // of the army. Needs to happen after updating every invader in the army.
         if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
             lastMoveTime = System.currentTimeMillis();
             doMove = true;
+
         }
         // FEEL FREE TO RE-WRITE THIS CODE.
         // This is just here to test a few things.
@@ -116,22 +118,40 @@ public class InvaderArmy {
                             * TODO make if( doMoveDown ) armyMovement = DOWN
                             * TODO else armMovement LEFT
                             */
-                            armyMovement = Movement.LEFT; // for each if statement, make sure to change
-                                                          // this to the correct movement.
-                                                          // updateArmyPosition uses this value.
+
+                            if(doMoveDown) {
+                                armyMovement = Movement.DOWN;
+                                doMoveDown = false;
+
+                            }
+                            else
+                                armyMovement = Movement.LEFT; // for each if statement, make sure to change
+                                                              // this to the correct movement.
+                                                              // updateArmyPosition uses this value.
+
+
                         }
                         // detection for left boundary
                         else if(armyPos.x < invaderWidth) {
                             /* TODO make if( doMoveDown ) armyMovement = DOWN
                             * TODO else armMovement RIGHT
                             */
-                            armyMovement = Movement.RIGHT;
+
+                            if(doMoveDown) {
+                                armyMovement = Movement.DOWN;
+                                doMoveDown = false;
+                            }
+                            else
+                                armyMovement = Movement.RIGHT;
                         }
-                        else // TODO doMoveDown = true! This way, if the army isn't at a boundary,
+                        else {
+                            doMoveDown = true;
+                            // TODO doMoveDown = true! This way, if the army isn't at a boundary,
                             // TODO the army knows to move down when it reaches one
 
-                        // The armyMovement now determines the movement state of the each invader
-                        invaders[i][j].setMovementState(armyMovement);
+                            // The armyMovement now determines the movement state of the each invader
+                            invaders[i][j].setMovementState(armyMovement);
+                        }
                     }
 
                     // This has to be here in this order so that the invaders move.
