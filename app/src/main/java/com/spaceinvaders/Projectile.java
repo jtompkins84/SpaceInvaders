@@ -3,9 +3,9 @@ package com.spaceinvaders;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
-/**
- * Created by Joseph on 1/31/2016.
- */
+import static com.spaceinvaders.Resources.*;
+
+
 public class Projectile extends Sprite {
     public enum Type {PLAYER, PLAYER_SPECIAL, INVADER, LASER, POWERUP};
 
@@ -22,9 +22,9 @@ public class Projectile extends Sprite {
     @Deprecated
     public Projectile(float posX, float posY, boolean isFromPlayer) {
         // TODO add other projectile images/animations
-        super(new Bitmap[] {Resources.img_projectile_a},
-                new RectF(9.0f * Resources.DPIRatio, 9.0f * Resources.DPIRatio,
-                        14.0f * Resources.DPIRatio, 31.0f * Resources.DPIRatio));
+        super(new Bitmap[] {img_projectile_a},
+                new RectF(9.0f * DPIRatio, 9.0f * DPIRatio,
+                        14.0f * DPIRatio, 31.0f * DPIRatio));
 
         speed = 450;
         setPosition(posX, posY);
@@ -55,21 +55,33 @@ public class Projectile extends Sprite {
 
         switch (mType) {
             case PLAYER:
-//                frames = new Bitmap[] {null}; // TODO replace with correct frames
-//                hitBoxes = new RectF[] {null}; // TODO replace with correct frames
+                frames = new Bitmap[] {img_projectile_a};
+                hitBoxes = new RectF[] {new RectF(9.0f * DPIRatio, 9.0f * DPIRatio,
+                        14.0f * DPIRatio, 31.0f * DPIRatio)};
+
                 speed = 450;
                 isFromPlayer(true);
                 break;
             case INVADER:
-//                frames = new Bitmap[] {null}; // TODO replace with correct frames
-//                hitBoxes = new RectF[] {null}; // TODO replace with correct frames
+                frames = new Bitmap[] {img_projectile_a}; // TODO replace with correct frames
+                hitBoxes = new RectF[] {new RectF(9.0f * DPIRatio, 9.0f * DPIRatio,
+                        14.0f * DPIRatio, 31.0f * DPIRatio)}; // TODO replace with correct frames
+
                 speed = 450;
                 isFromPlayer(false);
                 break;
             case PLAYER_SPECIAL:
-//                frames = new Bitmap[] {null}; // TODO replace with correct frames
-//                hitBoxes = new RectF[] {null}; // TODO replace with correct frames
-//                speed = 450; // TODO replace with correct speed
+                frames = new Bitmap[] {
+                        null,
+                        img_player_laser,
+                        img_player_laser};
+                hitBoxes = new RectF[] {
+                        null,
+                        new RectF(10.0f * DPIRatio, 0.0f * DPIRatio,
+                        14.0f * DPIRatio, 1500.0f * DPIRatio),
+                        null};
+                isFromPlayer = true;
+                speed = 0;
                 break;
             case LASER:
 //                frames = new Bitmap[] {null}; // TODO replace with correct frames
@@ -80,7 +92,6 @@ public class Projectile extends Sprite {
             case POWERUP:
 //                frames = new Bitmap[] {null}; // TODO replace with correct frames
 //                hitBoxes = new RectF[] {null}; // TODO replace with correct frames
-                isFromPlayer = true;
                 speed = 175;
                 break;
         }

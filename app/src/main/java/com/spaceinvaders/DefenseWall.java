@@ -5,6 +5,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 
+import com.spaceinvaders.game_entities.PlayerLaserShot;
+
 /**
  * Created by Joseph on 2/6/2016.
  */
@@ -105,30 +107,48 @@ public class DefenseWall {
     }
 
     public void doCollisions(Sprite sprite) {
-        if(sprite != null && withinProximity(sprite) ) {
-            for (int i = 0; i < bricksInCol; i++) {
-                for(int j = 0; j < bricksInRow; j++) {
-                    if(bricks[i][j] != null) {
-                        if(bricks[i][j].getHitBox().intersect(sprite.getHitBox()) == true) {
-                            if (sprite.getClass() == Projectile.class){
+        if(sprite != null) {
+            if (sprite instanceof PlayerLaserShot && withinXRange(sprite)) {
+                for (int i = 0; i < bricksInCol; i++) {
+                    for (int j = 0; j < bricksInRow; j++) {
+                        if (bricks[i][j] != null && sprite.getHitBox() != null) {
+                            if (bricks[i][j].getHitBox().intersect(sprite.getHitBox()) == true) {
                                 // if brick health is at or below 1, destroy brick
                                 if (bricks[i][j].getHealth() <= 1) bricks[i][j] = null;
-                                    // otherwise, damage brick
+                                // otherwise, damage brick
                                 else bricks[i][j].takeDamage();
-                                ((Projectile) sprite).isDestroyed(true);
-                                // return so that only one block can be damaged per projectile
-                                return;
-                            }
-                            // if anything other than a projectile hits a brick, destroy brick.
-                            else {
-                                bricks[i][j] = null;
                             }
                         }
+                    }
+                }
+            }
+            // if not a laser projectile
+            else if (withinProximity(sprite)) {
+                for (int i = 0; i < bricksInCol; i++) {
+                    for (int j = 0; j < bricksInRow; j++) {
+                        if (bricks[i][j] != null) {
+                            if (bricks[i][j].getHitBox().intersect(sprite.getHitBox()) == true) {
+                                if (sprite.getClass() == Projectile.class) {
+                                    // if brick health is at or below 1, destroy brick
+                                    if (bricks[i][j].getHealth() <= 1) bricks[i][j] = null;
+                                        // otherwise, damage brick
+                                    else bricks[i][j].takeDamage();
+                                    ((Projectile) sprite).isDestroyed(true);
+                                    // return so that only one block can be damaged per projectile
+                                    return;
+                                }
+                                // if anything other than a projectile hits a brick, destroy brick.
+                                else {
+                                    bricks[i][j] = null;
+                                }
+                            }
 
+                        }
                     }
                 }
             }
         }
+
     }
 
     /**
@@ -148,5 +168,12 @@ public class DefenseWall {
             return true;
 
         return false;
+    }
+
+    private boolean withinXRange(Sprite sprite) {
+        if(Math.abs(sprite.getX() - center.x) < width)
+            return true;
+
+        else return false;
     }
 }
