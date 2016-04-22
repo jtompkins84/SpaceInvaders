@@ -9,7 +9,7 @@ import com.spaceinvaders.Resources;
 
 public class PlayerLaserShot extends Projectile {
     private PlayerLaserCharge laserCharge;
-    private short maxUpdateCount = 20;
+    private short maxUpdateCount = 200;
     private short updateCount = 0;
     private boolean isCharged = false;
 
@@ -34,13 +34,12 @@ public class PlayerLaserShot extends Projectile {
     @Override
     public void update(long fps) {
         if(laserCharge.isFullCharge() && !isCharged) {
-            setStartAndEndFrames(1, 2);
             isCharged = true;
         }
 
         if(isCharged) {
             if(updateCount % 8 == 0) setCurrFrame(1);
-            else setCurrFrame(2);
+            else setCurrFrame(1);
 
             updateCount++;
         }

@@ -2,6 +2,9 @@ package com.spaceinvaders;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;
+import android.util.Log;
+
+import com.spaceinvaders.game_entities.PlayerLaserShot;
 
 public class Invader extends Sprite {
 
@@ -100,30 +103,40 @@ public class Invader extends Sprite {
     }
 
     public boolean doCollision(Sprite sprite) {
-        if(sprite != null
-                && sprite.getHitBox() != null && getHitBox() != null
-                && sprite.getHitBox().intersect(getHitBox())) {
+        if(sprite != null) {
+            if (sprite.getClass() == PlayerLaserShot.class
+                    && sprite.getHitBox() != null) {
+                float laserX = sprite.getX();
 
-            if(sprite.getClass() == DefenseBrick.class) {
-                sprite = null;
-                return true;
-            }
-            else if(sprite.getClass() == Projectile.class) {
-                Projectile p = (Projectile) sprite;
-
-                if(p.isFromPlayer()) {
-                    p.isDestroyed(true);
+                if(laserX >= getHitBox().left && laserX <= getHitBox().right) {
+                    Log.v("Invader", "Laser HIT!");
                     isHit = true;
+                    return true;
                 }
-                else return false;
             }
-            else if(sprite.getClass() == Player.class) {
-                doDrawFrame = false;
-                setCurrFrame(7); // frame at index 7 is blank
-                isDead = true; // should trigger
-                return true;
+
+            if (sprite.getHitBox() != null && getHitBox() != null
+                    && sprite.getHitBox().intersect(getHitBox())) {
+                if (sprite.getClass() == DefenseBrick.class) {
+                    return true;
+                }
+                else if (sprite instanceof Projectile) {
+                    Projectile p = (Projectile) sprite;
+
+                    if (p.isFromPlayer()) {
+                        p.isDestroyed(true);
+                        isHit = true;
+                    } else return false;
+                }
+                else if (sprite.getClass() == Player.class) {
+                    doDrawFrame = false;
+                    setCurrFrame(7); // frame at index 7 is blank
+                    isDead = true; // should trigger
+                    return true;
+                }
             }
         }
+
         return false;
     }
 

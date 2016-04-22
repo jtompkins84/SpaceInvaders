@@ -5,6 +5,8 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.util.Log;
 
+import com.spaceinvaders.game_entities.PlayerLaserShot;
+
 public class InvaderArmy {
     private Invader[][] invaders;
     private ProjectileArray projectiles;
@@ -34,6 +36,8 @@ public class InvaderArmy {
 
     private long lastMoveTime = System.currentTimeMillis();
     private long timeBetweenMoves = 1500l;
+
+    boolean doMoveDown = false;
 
     public InvaderArmy(float playFieldWidth, float playFieldHeight, ProjectileArray projectiles, PlayFieldView playFieldView) {
         this.playFieldWidth = playFieldWidth;
@@ -90,14 +94,44 @@ public class InvaderArmy {
                         actual movement.
          */
         boolean doMove = false;
-        boolean doMoveDown = true;
         // This is here to update the time that the invaders last moved and the position
         // of the army. Needs to happen after updating every invader in the army.
         if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
             lastMoveTime = System.currentTimeMillis();
             doMove = true;
-
         }
+
+        if(doMove) {
+            // inside here, do detection of boundaries
+
+            // this is only back and for code. you will have to come up with a way
+            // make them move down once at the edge
+
+            // detection for right boundary
+            if( (armyPos.x + armyWidth) > (playFieldWidth - invaderWidth) ){
+                if(doMoveDown) {
+                    armyMovement = Movement.DOWN;
+                    doMoveDown = false;
+                }
+                else
+                    armyMovement = Movement.LEFT; // for each if statement, make sure to change
+                // this to the correct movement.
+                // updateArmyPosition uses this value.
+
+
+            }
+            // detection for left boundary
+            else if(armyPos.x < invaderWidth) {
+                if(doMoveDown) {
+                    armyMovement = Movement.DOWN;
+                    doMoveDown = false;
+                }
+                else
+                    armyMovement = Movement.RIGHT;
+            }
+            else doMoveDown = true;
+        }
+
         // FEEL FREE TO RE-WRITE THIS CODE.
         // This is just here to test a few things.
         // it still needs to implement boundary detection, as mentioned above, as well as
@@ -106,53 +140,7 @@ public class InvaderArmy {
             for (int j = 0; j < cols; j++) {
                 if (invaders[i][j] != null) {
 
-                    if(doMove) {
-                        // inside here, do detection of boundaries
-
-                        // this is only back and for code. you will have to come up with a way
-                        // make them move down once at the edge
-
-                        // detection for right boundary
-                        if( (armyPos.x + armyWidth)  > (playFieldWidth - invaderWidth) ){
-                            /* TODO add class member boolean doMoveDown = false
-                            * TODO make if( doMoveDown ) armyMovement = DOWN
-                            * TODO else armMovement LEFT
-                            */
-
-                            if(doMoveDown) {
-                                armyMovement = Movement.DOWN;
-                                doMoveDown = false;
-
-                            }
-                            else
-                                armyMovement = Movement.LEFT; // for each if statement, make sure to change
-                                                              // this to the correct movement.
-                                                              // updateArmyPosition uses this value.
-
-
-                        }
-                        // detection for left boundary
-                        else if(armyPos.x < invaderWidth) {
-                            /* TODO make if( doMoveDown ) armyMovement = DOWN
-                            * TODO else armMovement RIGHT
-                            */
-
-                            if(doMoveDown) {
-                                armyMovement = Movement.DOWN;
-                                doMoveDown = false;
-                            }
-                            else
-                                armyMovement = Movement.RIGHT;
-                        }
-                        else {
-                            doMoveDown = true;
-                            // TODO doMoveDown = true! This way, if the army isn't at a boundary,
-                            // TODO the army knows to move down when it reaches one
-
-                            // The armyMovement now determines the movement state of the each invader
-                            invaders[i][j].setMovementState(armyMovement);
-                        }
-                    }
+                    if(doMove) invaders[i][j].setMovementState(armyMovement);
 
                     // This has to be here in this order so that the invaders move.
                     // Write it after the movement is changed to stop STOPPED, and nothing happens.
@@ -231,9 +219,6 @@ public class InvaderArmy {
     private void updateArmyPosition() {
 
         if(armyPos != null) {
-
-            Log.v("AI movement: ", "armyPos.x = " + armyPos.x + " :: invaderWidth = " + invaderWidth);
-
             switch (armyMovement) {
                 case LEFT:
                     armyPos.x = armyPos.x - invaderXMovementIncrement;
@@ -279,6 +264,40 @@ public class InvaderArmy {
     }
 
     public void doCollision(Sprite sprite) {
+
+        if(sprite instanceof PlayerLaserShot) {
+            int colIndex = getColumnProximity(sprite);
+
+            // if getColumnProximity returned a valid index
+            if(colIndex > -1) {
+                for (int i = 0; i < rows; i++) {
+                    invaders[i][colIndex].doCollision(sprite);
+
+                    if (invaders[i][colIndex].isHit() && !invaders[i][colIndex].isScoreTallied()) {
+                        invaders[i][colIndex].dropPowerup();
+
+                        switch (invaders[i][colIndex].getType()) {
+                            case 'a':
+                                gameThread.addToPlayerScore(10);
+                                break;
+                            case 'b':
+                                gameThread.addToPlayerScore(20);
+                                break;
+                            case 'c':
+                                gameThread.addToPlayerScore(20);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        invaders[i][colIndex].isScoreTallied(true);
+                    }
+                }
+            }
+
+            return;
+        }
+
         int rowIndex = getRowProximity(sprite);
 
         // if getRowProximity returned a valid index
@@ -306,6 +325,8 @@ public class InvaderArmy {
                     invaders[rowIndex][i].isScoreTallied(true);
                 }
             }
+
+            return;
         }
     }
 
@@ -349,6 +370,27 @@ public class InvaderArmy {
                     // of one of the rows of the invader army
                     return row;
                 }
+            }
+        }
+        return -1;
+    }
+
+    private int getColumnProximity(Sprite sprite) {
+        float colWidth = armyWidth / cols;
+
+        for(int i = 0, col = cols - 1 ; i < cols; i++, col--) {
+
+
+            if( sprite.getX() >= armyPos.x + (colWidth * i)
+                    && sprite.getX() < armyPos.x + (colWidth * (i + 1)) ) {
+
+                Log.d(this.getClass().toString(), "laserX = " + sprite.getX()
+                        + " :: leftColBoundary = " + (armyPos.x + (colWidth * i))
+                        + " :: rightColBoundary = " + (armyPos.x + (colWidth * (i + 1))));
+
+                // the above if statement passes when the sprite is within range
+                // of one of the rows of the invader army
+                return col;
             }
         }
         return -1;

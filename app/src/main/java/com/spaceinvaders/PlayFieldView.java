@@ -217,7 +217,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             paint.setColor(Color.argb(255, 0, 255, 0));
 
             // Draw the  projectiles if active
-            projectiles.draw(canvas, paint, false);
+            projectiles.draw(canvas, paint, true);
 
             // Draw the player spaceship
             player.draw(canvas, paint, false);
