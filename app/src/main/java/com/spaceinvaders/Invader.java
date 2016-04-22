@@ -2,7 +2,6 @@ package com.spaceinvaders;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;
-import android.util.Log;
 
 import com.spaceinvaders.game_entities.PlayerLaserShot;
 
@@ -104,29 +103,33 @@ public class Invader extends Sprite {
 
     public boolean doCollision(Sprite sprite) {
         if(sprite != null) {
-            if (sprite.getClass() == PlayerLaserShot.class
-                    && sprite.getHitBox() != null) {
-                float laserX = sprite.getX();
-
-                if(laserX >= getHitBox().left && laserX <= getHitBox().right) {
-                    Log.v("Invader", "Laser HIT!");
-                    isHit = true;
-                    return true;
-                }
-            }
 
             if (sprite.getHitBox() != null && getHitBox() != null
                     && sprite.getHitBox().intersect(getHitBox())) {
-                if (sprite.getClass() == DefenseBrick.class) {
-                    return true;
-                }
-                else if (sprite instanceof Projectile) {
-                    Projectile p = (Projectile) sprite;
 
-                    if (p.isFromPlayer()) {
-                        p.isDestroyed(true);
-                        isHit = true;
-                    } else return false;
+                if (sprite instanceof Projectile) {
+
+                    if (!(sprite instanceof PlayerLaserShot)) {
+
+                        Projectile p = (Projectile) sprite;
+
+                        if (p.isFromPlayer()) {
+                            p.isDestroyed(true);
+                            isHit = true;
+                        } else return false;
+                    } else {
+                        PlayerLaserShot laser = ((PlayerLaserShot) sprite);
+                        if (sprite.getHitBox() != null && !isHit && laser.getHitBox() != null) {
+                            laser.repairHitBox(); // fixes a weird bug. not sure why its necessary.
+                            isHit = true;
+                            return true;
+                        }
+
+                        return false;
+                    }
+                }
+                else if (sprite.getClass() == DefenseBrick.class) {
+                    return true;
                 }
                 else if (sprite.getClass() == Player.class) {
                     doDrawFrame = false;

@@ -223,7 +223,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             player.draw(canvas, paint, false);
 
             // Draw the invaders
-            invaderArmy.draw(canvas, paint, false);
+            invaderArmy.draw(canvas, paint, true);
 
             // Draw the bricks if visible
             for(DefenseWall wall : walls) {
