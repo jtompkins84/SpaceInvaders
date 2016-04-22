@@ -1,7 +1,7 @@
 package com.spaceinvaders;
 
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -11,7 +11,6 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.tutorials.joseph.spaceinvaders.R;
@@ -62,6 +61,8 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
         gamePlayLayout.addView(playFieldView);
 
         setContentView(gamePlayLayout);
+
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     @Override

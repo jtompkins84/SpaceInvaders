@@ -366,7 +366,7 @@ public class InvaderArmy {
             float armyBottomY = armyPos.y + armyHeight;
             float armyRowHeight = ySpacing;
 
-            Log.d(this.getClass().toString(), "armyBottomY = " + ySpacing
+            Log.d(this.getClass().toString(), "armyBottomY = " + armyBottomY
                     + " :: bottomInvader " + (invaders[rows - 1][0].getRawY() + invaderHeight) );
 
             for(int i = 0, row = rows - 1 ; i < rows; i++, row--) {
@@ -384,13 +384,14 @@ public class InvaderArmy {
 
     private int getColumnProximity(Sprite sprite) {
         float colWidth = xSpacing;
+        float armyXPos = armyPos.x - (invaderWidth / 2);
 
         for(int i = 0, col = 0 ; i < cols; i++, col++) {
-            if( sprite.getX() >= armyPos.x + (colWidth * i)
-                    && sprite.getX() <= armyPos.x + (colWidth * (i + 1)) ) {
+            if( sprite.getX() >= armyXPos + (colWidth * i)
+                    && sprite.getX() <= armyXPos + (colWidth * (i + 1)) ) {
 
-                // the above if statement passes when the sprite is within range
-                // of one of the rows of the invader army
+                // the above if statement passes when the sprite is within x-range
+                // of one of the columns of the invader army
                 return col;
             }
         }

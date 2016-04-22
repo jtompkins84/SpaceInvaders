@@ -16,9 +16,6 @@ import android.view.View;
 
 import java.io.IOException;
 
-/**
- * Created by Joseph on 2/5/2016.
- */
 public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouchListener {
     private Thread gameThread = null;
     private SurfaceHolder ourHolder;
@@ -217,13 +214,13 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             paint.setColor(Color.argb(255, 0, 255, 0));
 
             // Draw the  projectiles if active
-            projectiles.draw(canvas, paint, true);
+            projectiles.draw(canvas, paint, false);
 
             // Draw the player spaceship
             player.draw(canvas, paint, false);
 
             // Draw the invaders
-            invaderArmy.draw(canvas, paint, true);
+            invaderArmy.draw(canvas, paint, false);
 
             // Draw the bricks if visible
             for(DefenseWall wall : walls) {
