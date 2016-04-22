@@ -93,10 +93,8 @@ public class Player extends Sprite {
         RectF hitBox = getHitBox();
 
         if(isDead) {
-            this.setStartAndEndFrames(1, 4); // set animation frame loop to dead player frames
             long currTime = System.currentTimeMillis();
             if(deathTime == 0) deathTime = currTime; // set initial time of death.
-
 
 
             // check to see if death period is done.
@@ -202,6 +200,8 @@ public class Player extends Sprite {
      */
     public void doDeath() {
         removePowerups();
+        this.setStartAndEndFrames(1, 4); // set animation frame loop to dead player frames
+        doAnimationLoop = true;
         isDead = true;
         doUpdate = false;
     }
@@ -221,19 +221,23 @@ public class Player extends Sprite {
                 Projectile.Type projType = projectile.getProjectileType();
                 if(projType == Projectile.Type.PLAYER || projType == Projectile.Type.PLAYER_SPECIAL)
                     return false; // if projectile is from the player, ignore collision and return false
-                else if(projType == Projectile.Type.POWERUP) // TODO caste as a PowerUp object
-//                    ((PowerUp) projectile).getPowerUpType();
+                else if(projType == Projectile.Type.POWERUP)
+                {} // TODO caste as a PowerUp object{}
 
-                if(hasShield) {
-                    if(projType == Projectile.Type.INVADER
-                            || projType == Projectile.Type.LASER) {
-                        hasShield = false;
+                if(!projectile.isFromPlayer() && !projectile.isDestroyed()) {
+                    if (hasShield) {
+                        {
+                            hasShield = false;
+                            projectile.isDestroyed(true);
+                        }
+                        return true;
+                    }
+                    else {
+                        doDeath();
+
+                        return true;
                     }
                 }
-                else if(projType == Projectile.Type.INVADER
-                        || projType == Projectile.Type.LASER) doDeath();
-
-                return true;
             }
             else {
                 doDeath();
@@ -347,6 +351,7 @@ public class Player extends Sprite {
      * Sets all the conditions for rapid fire.
      */
     public void startRapidFire() {
+
         hasRapid = true;
         rapidCounter = rapidMaxSeconds;
     }

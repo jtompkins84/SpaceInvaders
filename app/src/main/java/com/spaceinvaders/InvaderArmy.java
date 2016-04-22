@@ -24,7 +24,9 @@ public class InvaderArmy {
     private float invaderYMovementIncrement;
     private int rows = 6;
     private int cols = 5;
-    private int counter = 0;//counter needed to help catch boundaries for the invaderArmy
+    private int scoreA = 10;
+    private int scoreB = 20;
+    private int scoreC = 30;
     /**
      * spacing in between each invader.
      */
@@ -38,10 +40,12 @@ public class InvaderArmy {
 
     private long lastMoveTime = System.currentTimeMillis();
     private long timeBetweenMoves = 1500l;
+    private long timeBtwnMovesMin = 200l;
+    private long timeDecrement = 0;
 
     boolean doMoveDown = false;
     boolean doFire = false;
-    int randFireChance = 8;
+    int randFireChance = 6;
 
     public InvaderArmy(float playFieldWidth, float playFieldHeight, ProjectileArray projectiles, PlayFieldView playFieldView) {
         this.playFieldWidth = playFieldWidth;
@@ -50,7 +54,11 @@ public class InvaderArmy {
         this.gameThread = playFieldView;
 
         if(Resources.difficulty == Resources.Difficulty.HARD) {
-            randFireChance = 1;
+            randFireChance = 2;
+            timeBetweenMoves = 1000;
+            scoreA *= 2;
+            scoreB *= 2;
+            scoreC *= 2;
         }
 
         invaders = new Invader[rows][cols];
@@ -58,49 +66,12 @@ public class InvaderArmy {
         xSpacing = Resources.img_invader_a01.getWidth()* 1.125f; // the amount to horizontally space invaders apart from each other
         ySpacing = Resources.img_invader_a01.getHeight(); // the amount to vertical space invaders apart from each other
 
+        timeDecrement = (timeBetweenMoves - timeBtwnMovesMin) / (rows * cols);
+
         buildArmy();
     }
 
     public void update(long fps) {
-        /*
-            This is where AI is implemented in a nested loop.
-            The things the army needs to do:
-
-            - check if invaders[i][j] is null, if not:
-
-                - check invaders[i][j].isDead(), if it is, set that invader to null. This
-                        should be first perhaps, but do a random chance for power-up drop, invaders[i][j].dropPowerup,
-                        and then do a "break;" to skip this iteration over the loop.
-
-                        Also, 'invadersLeft--' (increment this value down)
-
-                - check if army has gotten too close to the edge of a boundary on the screen.
-
-                        If it has, move down once OR If 'armyMovement' is
-                        already equal to Movement.Down, change it to move away from whatever edge
-                        its close to.
-                        It might be useful to set new private
-                        class attributes to track if it should move LEFT or RIGHT next, after
-                        it moves down.
-
-                        Set attribute armyMovement to new correct value.
-
-                        Use invaders[i][j].setMovementState( armyMovement ) to change the
-                        direction of movement for each invader.
-
-                        Leave the actual movement of the invader to the call to invaders[i][j].update( fps )
-                        at the end of this loop.
-
-                - do invader fire projectiles. This is where you'll need to implement the random
-                        chance for a projectile to fire. Add whatever class attributes you think
-                        are necessary.
-
-                        Pass the "projectiles" class attribute
-                        to invaders[i][j].fire( projectiles ) when an invader is supposed to fire.
-
-                - At the end, just run invaders[i][j].update( fps ), and that takes care of the
-                        actual movement.
-         */
         boolean doMove = false;
         int fireRow = 0, fireCol = 0;
         // This is here to update the time that the invaders last moved and the position
@@ -119,8 +90,8 @@ public class InvaderArmy {
                 doFire = true;
 
                 do {
-                    fireRow = Math.abs( random.nextInt() % rows );
-                    fireCol = Math.abs ( random.nextInt() % cols );
+                    fireRow = random.nextInt(rows);
+                    fireCol = random.nextInt(cols);
 
                     Log.v(getClass().toString(), "fireRow = " + fireRow + " :: fireCol = " + fireCol);
                 }while(invaders[fireRow][fireCol].isHit());
@@ -156,10 +127,7 @@ public class InvaderArmy {
             else doMoveDown = true;
         }
 
-        // FEEL FREE TO RE-WRITE THIS CODE.
-        // This is just here to test a few things.
-        // it still needs to implement boundary detection, as mentioned above, as well as
-        // projectile firing, etc.
+
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 if (invaders[i][j] != null) {
@@ -168,8 +136,6 @@ public class InvaderArmy {
                         invaders[i][j].setMovementState(armyMovement);
                     }
 
-                    // This has to be here in this order so that the invaders move.
-                    // Write it after the movement is changed to stop STOPPED, and nothing happens.
                     invaders[i][j].update(fps);
 
                     // This has to be here to keep the invaders from moving more than they are meant to.
@@ -306,16 +272,17 @@ public class InvaderArmy {
 
                         if (invaders[i][colIndex].isHit() && !invaders[i][colIndex].isScoreTallied()) {
                             invaders[i][colIndex].dropPowerup();
+                            timeBetweenMoves -= timeDecrement;
 
                             switch (invaders[i][colIndex].getType()) {
                                 case 'a':
-                                    gameThread.addToPlayerScore(10);
+                                    gameThread.addToPlayerScore(scoreA);
                                     break;
                                 case 'b':
-                                    gameThread.addToPlayerScore(20);
+                                    gameThread.addToPlayerScore(scoreB);
                                     break;
                                 case 'c':
-                                    gameThread.addToPlayerScore(20);
+                                    gameThread.addToPlayerScore(scoreC);
                                     break;
                                 default:
                                     break;
@@ -339,16 +306,17 @@ public class InvaderArmy {
 
                     if (invaders[rowIndex][i].isHit() && !invaders[rowIndex][i].isScoreTallied()) {
                         invaders[rowIndex][i].dropPowerup();
+                        timeBetweenMoves -= timeDecrement;
 
                         switch (invaders[rowIndex][i].getType()) {
                             case 'a':
-                                gameThread.addToPlayerScore(10);
+                                gameThread.addToPlayerScore(scoreA);
                                 break;
                             case 'b':
-                                gameThread.addToPlayerScore(20);
+                                gameThread.addToPlayerScore(scoreB);
                                 break;
                             case 'c':
-                                gameThread.addToPlayerScore(20);
+                                gameThread.addToPlayerScore(scoreC);
                                 break;
                             default:
                                 break;

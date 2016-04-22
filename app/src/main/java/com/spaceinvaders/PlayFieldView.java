@@ -6,6 +6,7 @@ import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
@@ -21,6 +22,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
     private SurfaceHolder ourHolder;
 
     private volatile boolean playing;
+    RectF controlPanel;
 
     // game starts out paused
     private boolean paused = false;
@@ -80,10 +82,12 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         ourHolder = getHolder();
         paint = new Paint();
 
+        controlPanel = new RectF(0, playFieldHeight,
+                playFieldWidth, playFieldHeight *2);
+
+
         // TODO this is deprecated and we will most likely change it
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-
-
 
         try {
             AssetManager assetManager = context.getAssets();
@@ -134,6 +138,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
     @Override
     public void run() {
+
         while (playing) {
             long startFrameTime = System.currentTimeMillis();
             if(resuming) doResumeCountdown();
@@ -141,7 +146,6 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
                 update();
             }
             else if (!paused && player != null && !player.doUpdate()) {
-                // while player
                 player.update(fps);
                 doPlayerDeath();
             }
@@ -264,8 +268,11 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
             // Draw Player controls
             paint.setAntiAlias(true);
-            paint.setColor(Color.argb(255, 0, 180, 0));
 
+            paint.setColor(Color.argb(255, 10, 10, 10));
+            canvas.drawRect(controlPanel, paint);
+
+            paint.setColor(Color.argb(255, 0, 180, 0));
             canvas.drawCircle(playFieldWidth / 5, this.getBottom() - playFieldHeight / 4, playFieldWidth / 11, paint);
 
             canvas.drawCircle(playFieldWidth - (playFieldWidth/2 - playFieldWidth/15), this.getBottom() - playFieldHeight/4, playFieldWidth/11, paint);
@@ -410,6 +417,8 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
      * 5 seconds, player movement is returned and the playfield resumes normal updates.
      */
     private void doPlayerDeath() {
+        if(lives == 0) {
+        }
 
         long currTime = System.currentTimeMillis();
         if(player.isDead() && startTime == -1) {
@@ -417,11 +426,11 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             player.doUpdate(false);
             lives--;
             projectiles.removeAllProjectiles();
-            countdownNumber = 3;
         }
 
         long timeDif = currTime - startTime;
-        if(timeDif >= 3000 && timeDif < 4000) countdownNumber = 2;
+        if(timeDif >= 2000 && timeDif < 3000) countdownNumber =3;
+        else if(timeDif >= 3000 && timeDif < 4000) countdownNumber = 2;
         else if(timeDif >= 4000 && timeDif < 5000) countdownNumber = 1;
         else if(timeDif >= 5000) {
             countdownNumber = -1;
