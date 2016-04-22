@@ -11,7 +11,7 @@ import static com.spaceinvaders.Resources.DPIRatio;
 
 public class PlayerLaserShot extends Projectile {
     private PlayerLaserCharge laserCharge;
-    private short maxUpdateCount = 200;
+    private short maxUpdateCount = 20;
     private short updateCount = 0;
     private boolean isCharged = false;
 
