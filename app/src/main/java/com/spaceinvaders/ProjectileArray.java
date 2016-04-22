@@ -21,7 +21,7 @@ public class ProjectileArray {
      */
     public ProjectileArray(Player p, float playFieldHeight) {
         this.playFieldHeight = playFieldHeight;
-        projectiles = new Projectile[64];
+        projectiles = new Projectile[32];
 
         for(int i = 0; i < projectiles.length; i++) projectiles[i] = null;
 

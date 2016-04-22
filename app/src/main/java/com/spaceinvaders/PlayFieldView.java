@@ -16,9 +16,6 @@ import android.view.View;
 
 import java.io.IOException;
 
-/**
- * Created by Joseph on 2/5/2016.
- */
 public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouchListener {
     private Thread gameThread = null;
     private SurfaceHolder ourHolder;

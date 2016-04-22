@@ -3,6 +3,8 @@ package com.spaceinvaders;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
+import com.spaceinvaders.game_entities.PlayerLaserShot;
+
 public class Invader extends Sprite {
 
     private boolean isHit = false;
@@ -100,30 +102,44 @@ public class Invader extends Sprite {
     }
 
     public boolean doCollision(Sprite sprite) {
-        if(sprite != null
-                && sprite.getHitBox() != null && getHitBox() != null
-                && sprite.getHitBox().intersect(getHitBox())) {
+        if(sprite != null) {
 
-            if(sprite.getClass() == DefenseBrick.class) {
-                sprite = null;
-                return true;
-            }
-            else if(sprite.getClass() == Projectile.class) {
-                Projectile p = (Projectile) sprite;
+            if (sprite.getHitBox() != null && getHitBox() != null
+                    && sprite.getHitBox().intersect(getHitBox())) {
 
-                if(p.isFromPlayer()) {
-                    p.isDestroyed(true);
-                    isHit = true;
+                if (sprite instanceof Projectile) {
+
+                    if (!(sprite instanceof PlayerLaserShot)) {
+
+                        Projectile p = (Projectile) sprite;
+
+                        if (p.isFromPlayer()) {
+                            p.isDestroyed(true);
+                            isHit = true;
+                        } else return false;
+                    } else {
+                        PlayerLaserShot laser = ((PlayerLaserShot) sprite);
+                        if (sprite.getHitBox() != null && !isHit && laser.getHitBox() != null) {
+                            laser.repairHitBox(); // fixes a weird bug. not sure why its necessary.
+                            isHit = true;
+                            return true;
+                        }
+
+                        return false;
+                    }
                 }
-                else return false;
-            }
-            else if(sprite.getClass() == Player.class) {
-                doDrawFrame = false;
-                setCurrFrame(7); // frame at index 7 is blank
-                isDead = true; // should trigger
-                return true;
+                else if (sprite.getClass() == DefenseBrick.class) {
+                    return true;
+                }
+                else if (sprite.getClass() == Player.class) {
+                    doDrawFrame = false;
+                    setCurrFrame(7); // frame at index 7 is blank
+                    isDead = true; // should trigger
+                    return true;
+                }
             }
         }
+
         return false;
     }
 
