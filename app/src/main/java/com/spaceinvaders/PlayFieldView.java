@@ -85,6 +85,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         controlPanel = new RectF(0, playFieldHeight,
                 playFieldWidth, playFieldHeight *2);
 
+
         // TODO this is deprecated and we will most likely change it
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
 
@@ -416,6 +417,8 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
      * 5 seconds, player movement is returned and the playfield resumes normal updates.
      */
     private void doPlayerDeath() {
+        if(lives == 0) {
+        }
 
         long currTime = System.currentTimeMillis();
         if(player.isDead() && startTime == -1) {
