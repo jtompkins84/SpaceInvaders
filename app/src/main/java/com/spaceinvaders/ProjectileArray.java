@@ -107,6 +107,36 @@ public class ProjectileArray {
     }
 
     /**
+     * Adds a <code>Projectile</code> to the array of the specified type.
+     */
+    public void addProjectile(float posX, float posY, Projectile.Type type) {
+        if(projectiles != null) {
+            for(int i = 0; i < projectiles.length; i++) {
+                if(projectiles[i] == null) {
+                    projectiles[i] = new Projectile(posX, posY, type);
+                    activeProjectileCount++;
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a <code>Projectile</code> to the array of the specified type.
+     */
+    public void addProjectile(Projectile p) {
+        if(projectiles != null) {
+            for(int i = 0; i < projectiles.length; i++) {
+                if(projectiles[i] == null) {
+                    projectiles[i] = p;
+                    activeProjectileCount++;
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
      * Get the array of <code>Projectile</code>s
      * @return <code>Projectile[]</code>
      */

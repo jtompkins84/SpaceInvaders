@@ -17,7 +17,7 @@ abstract class Particle  {
     /**
      * Array of images to animate. Should be in sequential order of frames.
      */
-    private Bitmap[] frames = null;
+    protected Bitmap[] frames = null;
     // index of the current frame of animation
     private int currFrame = 0;
     /**
@@ -114,6 +114,14 @@ abstract class Particle  {
             startFrame = index;
             endFrame = index;
         }
+    }
+
+    /**
+     *
+     * @return Returns the array index value of the current frame of animation.
+     */
+    public int getCurrFrame() {
+        return currFrame;
     }
 
     /**
@@ -260,6 +268,14 @@ abstract class Particle  {
         }
     }
 
+    public void setPosX(float x) {
+        setPosition(x , pos.y);
+    }
+
+    public void setPosY(float y) {
+        setPosition(pos.x, y);
+    }
+
     /**
      * Set position relative to previous position. The <code>Sprite</code> is moved
      * from its current position by the specified amount.
@@ -281,7 +297,7 @@ abstract class Particle  {
      * @param canvas <code>Canvas</code> object to draw to
      * @param paint <code>Paint</code> object used to draw
      */
-    public void draw(Canvas canvas, Paint paint, boolean showHitBox) {
+    public void draw(Canvas canvas, Paint paint) {
         if (frames[currFrame] != null && doDrawFrame) {
 
             canvas.drawBitmap(frames[currFrame], pos.x, pos.y, paint); // does draw to canvas

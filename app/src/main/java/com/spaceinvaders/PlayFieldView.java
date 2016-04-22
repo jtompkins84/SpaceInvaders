@@ -119,6 +119,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
     private void initializePlayField() {
     // Make a new player
         player = new Player(playFieldWidth, playFieldHeight);
+        player.startRapidFire();
 
     // Prepare the projectiles
         projectiles = new ProjectileArray(player, playFieldHeight);
@@ -200,20 +201,6 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
         projectiles.update(fps);
 //        projectiles.getProjectiles()[0].update(fps);
-
-        // Update the players projectile
-
-        // Has the player's projectile hit the top of the screen
-
-        // Has an invaders' projectile hit the bottom of the screen
-
-        // Has the player's projectile hit and invader
-
-        // Has an alien projectile hit a shelter brick
-
-        // Has the player projectile hit a shelter brick
-
-        // Has an invader projectile hit the player ship
     }
 
     private void draw() {

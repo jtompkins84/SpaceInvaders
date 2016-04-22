@@ -52,7 +52,7 @@ public abstract class Sprite {
      */
     // The "position" of the Sprite. Should never need to be manipulated directly. Sets itself
     // to the center of the hit-box.
-    private PointF pos = new PointF();
+    protected PointF pos = new PointF();
 
     // player hit-box
     protected RectF[] hitBoxes = null;
@@ -386,7 +386,7 @@ public abstract class Sprite {
         pos.set(x - ((float) frames[currFrame].getWidth() / 2.0f),
                 y - ((float)frames[currFrame].getHeight() / 2.0f));
 
-        if(hitBoxes != null || hitBoxes[currFrame] != null) {
+        if(hitBoxes != null) {
             // offset hitbox by position of sprite plus offset of hitbox relative to the sprite
             for (RectF hb : hitBoxes) {
                 if(hb != null)
