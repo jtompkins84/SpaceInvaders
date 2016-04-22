@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.spaceinvaders.game_entities.PlayerLaserShot;
 
+import java.util.Random;
+
 public class InvaderArmy {
     private Invader[][] invaders;
     private ProjectileArray projectiles;
@@ -38,12 +40,18 @@ public class InvaderArmy {
     private long timeBetweenMoves = 1500l;
 
     boolean doMoveDown = false;
+    boolean doFire = false;
+    int randFireChance = 8;
 
     public InvaderArmy(float playFieldWidth, float playFieldHeight, ProjectileArray projectiles, PlayFieldView playFieldView) {
         this.playFieldWidth = playFieldWidth;
         this.playFieldHeight = playFieldHeight;
         this.projectiles = projectiles;
         this.gameThread = playFieldView;
+
+        if(Resources.difficulty == Resources.Difficulty.HARD) {
+            randFireChance = 1;
+        }
 
         invaders = new Invader[rows][cols];
         invadersLeft = rows * cols;
@@ -94,6 +102,7 @@ public class InvaderArmy {
                         actual movement.
          */
         boolean doMove = false;
+        int fireRow = 0, fireCol = 0;
         // This is here to update the time that the invaders last moved and the position
         // of the army. Needs to happen after updating every invader in the army.
         if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
@@ -103,6 +112,19 @@ public class InvaderArmy {
 
         if(doMove) {
             // inside here, do detection of boundaries
+            Random random = new Random();
+            int randFireResult = Math.abs( random.nextInt() % randFireChance );
+
+            if(randFireResult == 0){
+                doFire = true;
+
+                do {
+                    fireRow = Math.abs( random.nextInt() % rows );
+                    fireCol = Math.abs ( random.nextInt() % cols );
+
+                    Log.v(getClass().toString(), "fireRow = " + fireRow + " :: fireCol = " + fireCol);
+                }while(invaders[fireRow][fireCol].isHit());
+            }
 
             // this is only back and for code. you will have to come up with a way
             // make them move down once at the edge
@@ -142,7 +164,9 @@ public class InvaderArmy {
             for (int j = 0; j < cols; j++) {
                 if (invaders[i][j] != null) {
 
-                    if(doMove) invaders[i][j].setMovementState(armyMovement);
+                    if(doMove) {
+                        invaders[i][j].setMovementState(armyMovement);
+                    }
 
                     // This has to be here in this order so that the invaders move.
                     // Write it after the movement is changed to stop STOPPED, and nothing happens.
@@ -152,6 +176,11 @@ public class InvaderArmy {
                     invaders[i][j].setMovementState(Movement.STOPPED);
                 }
             }
+        }
+
+        if(doFire){
+            invaders[fireRow][fireCol].fireProjectile(projectiles);
+            doFire = false;
         }
 
         // This has to be here to keep track of the army, otherwise
@@ -365,9 +394,6 @@ public class InvaderArmy {
             float y = sprite.getRawY();
             float armyBottomY = armyPos.y + armyHeight;
             float armyRowHeight = ySpacing;
-
-            Log.d(this.getClass().toString(), "armyBottomY = " + armyBottomY
-                    + " :: bottomInvader " + (invaders[rows - 1][0].getRawY() + invaderHeight) );
 
             for(int i = 0, row = rows - 1 ; i < rows; i++, row--) {
                 if(y <= (armyBottomY - (armyRowHeight * i))
