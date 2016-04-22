@@ -3,11 +3,13 @@ package com.spaceinvaders;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
-/**
- * Created by Joseph on 1/31/2016.
- */
-public class Projectile extends Sprite {
+import static com.spaceinvaders.Resources.*;
 
+
+public class Projectile extends Sprite {
+    public enum Type {PLAYER, PLAYER_SPECIAL, INVADER, LASER, POWERUP};
+
+    protected Type mType = Type.PLAYER;
     private boolean isFromPlayer = false;
     private boolean isDestroyed = false;
 
@@ -17,23 +19,84 @@ public class Projectile extends Sprite {
      * @param posY <code>float</code> Y-position
      * @param isFromPlayer <code>boolean</code>
      */
+    @Deprecated
     public Projectile(float posX, float posY, boolean isFromPlayer) {
         // TODO add other projectile images/animations
-        super(new Bitmap[] {Resources.img_projectile_a},
-                new RectF(9.0f * Resources.DPIRatio, 9.0f * Resources.DPIRatio,
-                        14.0f * Resources.DPIRatio, 31.0f * Resources.DPIRatio));
+        super(new Bitmap[] {img_projectile_a},
+                new RectF(9.0f * DPIRatio, 9.0f * DPIRatio,
+                        14.0f * DPIRatio, 31.0f * DPIRatio));
 
         speed = 450;
         setPosition(posX, posY);
 
         if(isFromPlayer) {
+            mType = Type.PLAYER;
             isFromPlayer(true);
             movement = Movement.UP;
         }
         else {
+            mType = Type.INVADER;
             isFromPlayer(false);
             movement = Movement.DOWN;
         }
+    }
+
+    /**
+     * Create an instance of a <code>Projectile</code> of the specified type at the specified
+     * location.
+     * @param posX
+     * @param posY
+     * @param type
+     */
+    public Projectile(float posX, float posY, Projectile.Type type) {
+        super(new Bitmap[1], new RectF[1]);
+
+        mType = type;
+
+        switch (mType) {
+            case PLAYER:
+                frames = new Bitmap[] {img_projectile_a};
+                hitBoxes = new RectF[] {new RectF(9.0f * DPIRatio, 9.0f * DPIRatio,
+                        14.0f * DPIRatio, 31.0f * DPIRatio)};
+
+                speed = 450;
+                isFromPlayer(true);
+                break;
+            case INVADER:
+                frames = new Bitmap[] {img_projectile_a}; // TODO replace with correct frames
+                hitBoxes = new RectF[] {new RectF(9.0f * DPIRatio, 9.0f * DPIRatio,
+                        14.0f * DPIRatio, 31.0f * DPIRatio)}; // TODO replace with correct frames
+
+                speed = 450;
+                isFromPlayer(false);
+                break;
+            case PLAYER_SPECIAL:
+                frames = new Bitmap[] {
+                        null,
+                        img_player_laser,
+                        img_player_laser};
+                hitBoxes = new RectF[] {
+                        null,
+                        new RectF(10.0f * DPIRatio, 0.0f * DPIRatio,
+                        14.0f * DPIRatio, 1500.0f * DPIRatio),
+                        null};
+                isFromPlayer = true;
+                speed = 0;
+                break;
+            case LASER:
+//                frames = new Bitmap[] {null}; // TODO replace with correct frames
+//                hitBoxes = new RectF[] {null}; // TODO replace with correct frames
+                isFromPlayer = false;
+                speed = 0;
+                break;
+            case POWERUP:
+//                frames = new Bitmap[] {null}; // TODO replace with correct frames
+//                hitBoxes = new RectF[] {null}; // TODO replace with correct frames
+                speed = 175;
+                break;
+        }
+
+        setPosition(posX, posY);
     }
 
     @Override
@@ -46,10 +109,16 @@ public class Projectile extends Sprite {
         }
     }
 
+    public Projectile.Type getProjectileType() {
+        return mType;
+    }
+
     public void isFromPlayer(boolean b) {
-        isFromPlayer = b;
-        if(isFromPlayer) movement = Movement.UP;
-        else movement = Movement.DOWN;
+        if(mType == Type.PLAYER || mType == Type.INVADER) {
+            isFromPlayer = b;
+            if (isFromPlayer) movement = Movement.UP;
+            else movement = Movement.DOWN;
+        }
     }
 
     public boolean isFromPlayer() {

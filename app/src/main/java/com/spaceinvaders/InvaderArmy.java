@@ -3,6 +3,9 @@ package com.spaceinvaders;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.util.Log;
+
+import com.spaceinvaders.game_entities.PlayerLaserShot;
 
 public class InvaderArmy {
     private Invader[][] invaders;
@@ -15,8 +18,11 @@ public class InvaderArmy {
     private PointF armyCenter;
     private Movement armyMovement = Movement.LEFT;
     private float armyWidth, armyHeight, invaderWidth, invaderHeight;
+    private float invaderXMovementIncrement;
+    private float invaderYMovementIncrement;
     private int rows = 6;
     private int cols = 5;
+    private int counter = 0;//counter needed to help catch boundaries for the invaderArmy
     /**
      * spacing in between each invader.
      */
@@ -30,6 +36,8 @@ public class InvaderArmy {
 
     private long lastMoveTime = System.currentTimeMillis();
     private long timeBetweenMoves = 1500l;
+
+    boolean doMoveDown = false;
 
     public InvaderArmy(float playFieldWidth, float playFieldHeight, ProjectileArray projectiles, PlayFieldView playFieldView) {
         this.playFieldWidth = playFieldWidth;
@@ -85,6 +93,46 @@ public class InvaderArmy {
                 - At the end, just run invaders[i][j].update( fps ), and that takes care of the
                         actual movement.
          */
+        boolean doMove = false;
+        // This is here to update the time that the invaders last moved and the position
+        // of the army. Needs to happen after updating every invader in the army.
+        if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
+            lastMoveTime = System.currentTimeMillis();
+            doMove = true;
+        }
+
+        if(doMove) {
+            // inside here, do detection of boundaries
+
+            // this is only back and for code. you will have to come up with a way
+            // make them move down once at the edge
+
+            // detection for right boundary
+            if( (armyPos.x + armyWidth) > (playFieldWidth - invaderWidth) ){
+                if(doMoveDown) {
+                    armyMovement = Movement.DOWN;
+                    updateArmyPosition();
+                    doMoveDown = false;
+                }
+                else
+                    armyMovement = Movement.LEFT; // for each if statement, make sure to change
+                // this to the correct movement.
+                // updateArmyPosition uses this value.
+
+
+            }
+            // detection for left boundary
+            else if(armyPos.x < invaderWidth) {
+                if(doMoveDown) {
+                    armyMovement = Movement.DOWN;
+                    doMoveDown = false;
+                    updateArmyPosition();
+                }
+                else
+                    armyMovement = Movement.RIGHT;
+            }
+            else doMoveDown = true;
+        }
 
         // FEEL FREE TO RE-WRITE THIS CODE.
         // This is just here to test a few things.
@@ -94,13 +142,7 @@ public class InvaderArmy {
             for (int j = 0; j < cols; j++) {
                 if (invaders[i][j] != null) {
 
-                    if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
-                        // inside here, do detection of boundaries
-                        invaders[i][j].setMovementState(Movement.LEFT);
-                        armyMovement = Movement.LEFT; // for each if statement, make sure to change
-                                                      // this to the correct movement.
-                                                      // updateArmyPosition uses this value.
-                    }
+                    if(doMove) invaders[i][j].setMovementState(armyMovement);
 
                     // This has to be here in this order so that the invaders move.
                     // Write it after the movement is changed to stop STOPPED, and nothing happens.
@@ -112,15 +154,13 @@ public class InvaderArmy {
             }
         }
 
-        // This is here to update the time that the invaders last moved and the position
-        // of the army. Needs to happen after updating every invader in the army.
-        if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
-            lastMoveTime = System.currentTimeMillis();
-            updateArmyPosition(); // This has to be here to keep track of the army, otherwise
-                                  // hit detection will get all screwy when the army starts
-                                  // to move down.
+        // This has to be here to keep track of the army, otherwise
+        // hit detection will get all screwy when the army starts
+        // to move down.
+        if(doMove) {
+            if(armyMovement != Movement.DOWN)
+            updateArmyPosition();
         }
-
         /**
          * Also, you might make a class attribute boolean value to indicate that the invader army has reached
          * the bottom of the playfield. At some point, in order to end the game, the game loop
@@ -146,7 +186,7 @@ public class InvaderArmy {
     }
 
     private void buildArmy() {
-        float xCoord = playFieldWidth - (xSpacing * 5.0f); // left most coordinate of the invader army
+        float xCoord = playFieldWidth - (xSpacing * 4.625f); // left most coordinate of the invader army
         float yCoord = ySpacing * 3.0f; // top most coordinate of the invader army
         setPosition(xCoord, yCoord);
 
@@ -169,10 +209,13 @@ public class InvaderArmy {
 
         invaderWidth = invaders[0][0].getWidth();
         invaderHeight = invaders[0][0].getHeight();
+        invaderXMovementIncrement = invaders[0][0].getxMoveIncrement();
+        invaderYMovementIncrement = invaders[0][0].getyMoveIncrement();
 
-        armyWidth = xSpacing * cols;
-        armyHeight = ySpacing * rows;
+        armyWidth = xSpacing * (cols - 1);
+        armyHeight = ySpacing * (rows - 1);
         armyCenter = new PointF(armyWidth / 2, armyHeight / 2);
+        armyMovement = Movement.LEFT;
     }
 
     private void updateArmyPosition() {
@@ -180,13 +223,13 @@ public class InvaderArmy {
         if(armyPos != null) {
             switch (armyMovement) {
                 case LEFT:
-                    armyPos.x = armyPos.x - invaderWidth;
+                    armyPos.x = armyPos.x - invaderXMovementIncrement;
                     break;
                 case RIGHT:
-                    armyPos.x = armyPos.x + invaderWidth;
+                    armyPos.x = armyPos.x + invaderXMovementIncrement;
                     break;
                 case DOWN:
-                    armyPos.y = armyPos.y + invaderHeight;
+                    armyPos.y += invaderYMovementIncrement;
                     break;
                 default:
                     break;
@@ -223,32 +266,71 @@ public class InvaderArmy {
     }
 
     public void doCollision(Sprite sprite) {
-        int rowIndex = getRowProximity(sprite);
 
-        // if getRowProximity returned a valid index
-        if(rowIndex > -1) {
-            for (int i = 0; i < cols; i++) {
-                invaders[rowIndex][i].doCollision(sprite);
+        if(sprite instanceof PlayerLaserShot) {
+            int colIndex = getColumnProximity(sprite);
 
-                if(invaders[rowIndex][i].isHit() && !invaders[rowIndex][i].isScoreTallied()) {
+            if(colIndex > -1) {
+                for (int i = 0; i < rows; i++) {
+                    if (!invaders[i][colIndex].isHit()) {
+                        invaders[i][colIndex].doCollision(sprite);
 
-                    switch (invaders[rowIndex][i].getType()) {
-                        case 'a':
-                            gameThread.addToPlayerScore(10);
-                            break;
-                        case 'b':
-                            gameThread.addToPlayerScore(20);
-                            break;
-                        case 'c':
-                            gameThread.addToPlayerScore(20);
-                            break;
-                        default:
-                            break;
+                        if (invaders[i][colIndex].isHit() && !invaders[i][colIndex].isScoreTallied()) {
+                            invaders[i][colIndex].dropPowerup();
+
+                            switch (invaders[i][colIndex].getType()) {
+                                case 'a':
+                                    gameThread.addToPlayerScore(10);
+                                    break;
+                                case 'b':
+                                    gameThread.addToPlayerScore(20);
+                                    break;
+                                case 'c':
+                                    gameThread.addToPlayerScore(20);
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            invaders[i][colIndex].isScoreTallied(true);
+                        }
                     }
-
-                    invaders[rowIndex][i].isScoreTallied(true);
                 }
             }
+
+            return;
+        }
+        // if getRowProximity returned a valid index
+        else  {
+            int rowIndex = getRowProximity(sprite);
+
+            if(rowIndex > -1) {
+                for (int i = 0; i < cols; i++) {
+                    invaders[rowIndex][i].doCollision(sprite);
+
+                    if (invaders[rowIndex][i].isHit() && !invaders[rowIndex][i].isScoreTallied()) {
+                        invaders[rowIndex][i].dropPowerup();
+
+                        switch (invaders[rowIndex][i].getType()) {
+                            case 'a':
+                                gameThread.addToPlayerScore(10);
+                                break;
+                            case 'b':
+                                gameThread.addToPlayerScore(20);
+                                break;
+                            case 'c':
+                                gameThread.addToPlayerScore(20);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        invaders[rowIndex][i].isScoreTallied(true);
+                    }
+                }
+            }
+
+            return;
         }
     }
 
@@ -284,6 +366,9 @@ public class InvaderArmy {
             float armyBottomY = armyPos.y + armyHeight;
             float armyRowHeight = ySpacing;
 
+            Log.d(this.getClass().toString(), "armyBottomY = " + armyBottomY
+                    + " :: bottomInvader " + (invaders[rows - 1][0].getRawY() + invaderHeight) );
+
             for(int i = 0, row = rows - 1 ; i < rows; i++, row--) {
                 if(y <= (armyBottomY - (armyRowHeight * i))
                         && y > (armyBottomY - (armyRowHeight * (i + 1))) ) {
@@ -292,6 +377,22 @@ public class InvaderArmy {
                     // of one of the rows of the invader army
                     return row;
                 }
+            }
+        }
+        return -1;
+    }
+
+    private int getColumnProximity(Sprite sprite) {
+        float colWidth = xSpacing;
+        float armyXPos = armyPos.x - (invaderWidth / 2);
+
+        for(int i = 0, col = 0 ; i < cols; i++, col++) {
+            if( sprite.getX() >= armyXPos + (colWidth * i)
+                    && sprite.getX() <= armyXPos + (colWidth * (i + 1)) ) {
+
+                // the above if statement passes when the sprite is within x-range
+                // of one of the columns of the invader army
+                return col;
             }
         }
         return -1;

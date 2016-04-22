@@ -1,5 +1,6 @@
 package com.spaceinvaders;
 
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -60,6 +61,8 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
         gamePlayLayout.addView(playFieldView);
 
         setContentView(gamePlayLayout);
+
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     @Override

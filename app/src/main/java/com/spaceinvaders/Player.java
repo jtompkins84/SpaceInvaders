@@ -1,9 +1,15 @@
 package com.spaceinvaders;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.RectF;
 
+import com.spaceinvaders.game_entities.PlayerLaserShot;
+import com.spaceinvaders.game_entities.PlayerShield;
+
 public class Player extends Sprite {
+    PlayerShield playerShield;
 
     /**
      * The count of how many projectiles belonging to the player are currently on
@@ -22,6 +28,34 @@ public class Player extends Sprite {
     private boolean isDead = false;
     private long deathTime = 0;
     private boolean doUpdate = true;
+    private boolean doMove = true;
+
+    /**
+     * a time-since-epoch value representing the time the player last fired
+     */
+    private long lastFireTime = 0l;
+    /**
+     * the time in milliseconds that the player can't fire in between shots.
+     */
+    private long rapidFireDelay = 500l;
+    /**
+     * Keeps track of elapsed while certain power-ups are active.
+     */
+    private long rapidFireTimer = 0l;
+    private long specialShotTimer = 0l;
+    /**
+     * the amount of time in milliseconds that the player can't move.
+     */
+    private long specialShotDelay = 1700l;
+
+    private boolean hasShield = true;
+
+    private boolean hasSpecial = true;
+    private boolean isSpecialFired = false;
+
+    private boolean hasRapid = false;
+    private short rapidCounter = 0;
+    private short rapidMaxSeconds = 5;
 
     /**
      * <code><b><i>Player</i></b></code><p>
@@ -42,6 +76,8 @@ public class Player extends Sprite {
         // set position relative to view of the play field
         setPosition(screenWidth / 2.0f, screenHeight - (screenHeight / 12.0f));
 
+        playerShield = new PlayerShield(getX(), getY());
+
         // initialize player movement speed
         speed = 350;
 
@@ -55,10 +91,13 @@ public class Player extends Sprite {
     @Override
     public void update(long fps) {
         RectF hitBox = getHitBox();
-        if(isDead == true) {
+
+        if(isDead) {
             this.setStartAndEndFrames(1, 4); // set animation frame loop to dead player frames
             long currTime = System.currentTimeMillis();
             if(deathTime == 0) deathTime = currTime; // set initial time of death.
+
+
 
             // check to see if death period is done.
             if(currTime - deathTime >= 2000) {
@@ -67,14 +106,43 @@ public class Player extends Sprite {
                 deathTime = 0;
             }
         }
-        if(hitBox != null && doUpdate == true) {
-            if(movement == Movement.RIGHT && hitBox.right < rBoundary) {
-                move(speed / fps, 0.0f);
+        else if(hasRapid || isSpecialFired) {
+            long currTime = System.currentTimeMillis();
+
+            if(hasRapid && currTime - rapidFireTimer >= 1000) {
+                rapidCounter--;
+                rapidFireTimer = currTime;
             }
-            if(movement == Movement.LEFT && hitBox.left > lBoundary) {
-                move(-(speed / fps), 0.0f);
+
+            if(rapidCounter <= 0) {
+                hasRapid = false;
+            }
+
+            if(isSpecialFired && currTime - specialShotTimer >= specialShotDelay) {
+                doMove = true;
+                isSpecialFired = false;
             }
         }
+
+        if(doMove && doUpdate && hitBox != null) {
+            if(movement == Movement.RIGHT && hitBox.right < rBoundary) {
+                move(speed / fps, 0.0f);
+                playerShield.move(speed / fps, 0.0f);
+            }
+            else if(movement == Movement.LEFT && hitBox.left > lBoundary) {
+                move(-(speed / fps), 0.0f);
+                playerShield.move(-(speed / fps), 0.0f);
+            }
+        }
+    }
+
+    @Override
+    public void draw(Canvas canvas, Paint paint, boolean showHitBox) {
+        if(hasShield) {
+            playerShield.draw(canvas, paint);
+        }
+
+        super.draw(canvas, paint, showHitBox);
     }
 
     /**
@@ -83,10 +151,40 @@ public class Player extends Sprite {
      * Otherwise, this returns <code>false</code>.
      */
     public boolean fire(ProjectileArray projArr) {
-        if( projCount < maxProjCount && isDead != true) {
-            projCount++;
-            projArr.addProjectile(getX(), getY(), true);
-            return true;
+        if(!isDead) {
+            long currTime = System.currentTimeMillis();
+
+            if(hasSpecial) {
+                hasSpecial = false;
+                doMove = false;
+                isSpecialFired = true;
+
+                specialShotTimer = currTime;
+                lastFireTime = currTime;
+
+                float laserYOrigin =
+                        Resources.img_player_laser.getHeight() / 2.1f;
+                projArr.addProjectile(new PlayerLaserShot(getX(),
+                        getY() - laserYOrigin - (getCurrentFrameSpriteBitmap().getHeight() * 1.2f)));
+
+                return true;
+            }
+            else if(projCount < maxProjCount && !isSpecialFired) {
+                projCount++;
+                projArr.addProjectile(getX(), getY(), Projectile.Type.PLAYER);
+                lastFireTime = currTime;
+
+                return true;
+            }
+            else if(hasRapid && !isSpecialFired) {
+                if(currTime - lastFireTime >= rapidFireDelay) {
+                    projCount++;
+                    projArr.addProjectile(getX(), getY(), Projectile.Type.PLAYER);
+                    lastFireTime = currTime;
+
+                    return true;
+                }
+            }
         }
 
         return false;
@@ -103,6 +201,7 @@ public class Player extends Sprite {
      * Does player death cycle.
      */
     public void doDeath() {
+        removePowerups();
         isDead = true;
         doUpdate = false;
     }
@@ -119,13 +218,24 @@ public class Player extends Sprite {
             if(sprite.getClass() == Projectile.class) {
                 Projectile projectile = (Projectile)sprite;
 
-                if(!projectile.isFromPlayer()) doDeath();
-                else return false; // if projectile isn't from the player, ignore collision and return false
+                Projectile.Type projType = projectile.getProjectileType();
+                if(projType == Projectile.Type.PLAYER || projType == Projectile.Type.PLAYER_SPECIAL)
+                    return false; // if projectile is from the player, ignore collision and return false
+                else if(projType == Projectile.Type.POWERUP) // TODO caste as a PowerUp object
+//                    ((PowerUp) projectile).getPowerUpType();
+
+                if(hasShield) {
+                    if(projType == Projectile.Type.INVADER
+                            || projType == Projectile.Type.LASER) {
+                        hasShield = false;
+                    }
+                }
+                else if(projType == Projectile.Type.INVADER
+                        || projType == Projectile.Type.LASER) doDeath();
 
                 return true;
             }
             else {
-                sprite = null;
                 doDeath();
             }
         }
@@ -187,9 +297,63 @@ public class Player extends Sprite {
 
     /**
      * Set <code>false</code> to prevent player from moving.
-     * @param bool
+     * @param b
      */
-    public void doUpdate(boolean bool) {
-        doUpdate = bool;
+    public void doUpdate(boolean b) {
+        doUpdate = b;
+    }
+
+    /**
+     * The boolean value that determines whether or not the play has the shield powerup.
+     * @return <code>true</code> of play has the shied power-up active
+     */
+    public boolean hasShield() {
+        return this.hasShield;
+    }
+
+    /**
+     * The boolean value that determines whether or not the play has the shield powerup.
+     * @param hasShield
+     */
+    public void hasShield(boolean hasShield) {
+        this.hasShield = hasShield;
+    }
+
+    /**
+     * The boolean value that determines whether or not the play has the special shot powerup.
+     * @return
+     */
+    public boolean hasSpecial() {
+        return hasSpecial;
+    }
+
+    /**
+     * The boolean value that determines whether or not the play has the special shot powerup.
+     * @param hasSpecial
+     */
+    public void hasSpecial(boolean hasSpecial) {
+        this.hasSpecial = hasSpecial;
+    }
+
+    /**
+     * The boolean value that determines whether or not the play has the rapid fire powerup.
+     * @return
+     */
+    public boolean hasRapid() {
+        return hasRapid;
+    }
+
+    /**
+     * Sets all the conditions for rapid fire.
+     */
+    public void startRapidFire() {
+        hasRapid = true;
+        rapidCounter = rapidMaxSeconds;
+    }
+
+    public void removePowerups() {
+        hasRapid = false;
+        hasShield = false;
+        hasSpecial = false;
     }
 }

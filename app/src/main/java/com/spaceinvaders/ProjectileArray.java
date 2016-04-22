@@ -21,7 +21,7 @@ public class ProjectileArray {
      */
     public ProjectileArray(Player p, float playFieldHeight) {
         this.playFieldHeight = playFieldHeight;
-        projectiles = new Projectile[64];
+        projectiles = new Projectile[32];
 
         for(int i = 0; i < projectiles.length; i++) projectiles[i] = null;
 
@@ -99,6 +99,36 @@ public class ProjectileArray {
             for(int i = 0; i < projectiles.length; i++) {
                 if(projectiles[i] == null) {
                     projectiles[i] = new Projectile(posX, posY, isFromPlayer);
+                    activeProjectileCount++;
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a <code>Projectile</code> to the array of the specified type.
+     */
+    public void addProjectile(float posX, float posY, Projectile.Type type) {
+        if(projectiles != null) {
+            for(int i = 0; i < projectiles.length; i++) {
+                if(projectiles[i] == null) {
+                    projectiles[i] = new Projectile(posX, posY, type);
+                    activeProjectileCount++;
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a <code>Projectile</code> to the array of the specified type.
+     */
+    public void addProjectile(Projectile p) {
+        if(projectiles != null) {
+            for(int i = 0; i < projectiles.length; i++) {
+                if(projectiles[i] == null) {
+                    projectiles[i] = p;
                     activeProjectileCount++;
                     return;
                 }

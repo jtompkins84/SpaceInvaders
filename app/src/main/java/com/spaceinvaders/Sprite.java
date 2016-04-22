@@ -15,7 +15,7 @@ public abstract class Sprite {
     /**
      * Array of images to animate. Should be in sequential order of frames.
      */
-    private Bitmap[] frames = null;
+    protected Bitmap[] frames = null;
     // index of the current frame of animation
     private int currFrame = 0;
     /**
@@ -52,10 +52,10 @@ public abstract class Sprite {
      */
     // The "position" of the Sprite. Should never need to be manipulated directly. Sets itself
     // to the center of the hit-box.
-    private PointF pos = new PointF();
+    protected PointF pos = new PointF();
 
     // player hit-box
-    private RectF[] hitBoxes = null;
+    protected RectF[] hitBoxes = null;
     protected boolean isCollisionDetected = false;
     /**
      * Just a flag to reference whether or not to do hit detection.
@@ -386,7 +386,7 @@ public abstract class Sprite {
         pos.set(x - ((float) frames[currFrame].getWidth() / 2.0f),
                 y - ((float)frames[currFrame].getHeight() / 2.0f));
 
-        if(hitBoxes != null || hitBoxes[currFrame] != null) {
+        if(hitBoxes != null) {
             // offset hitbox by position of sprite plus offset of hitbox relative to the sprite
             for (RectF hb : hitBoxes) {
                 if(hb != null)
@@ -460,18 +460,6 @@ public abstract class Sprite {
                 }
             }
         }
-    }
-
-    /**
-     * TODO --- IF UNUSED, REMOVE THIS METHOD ---
-     * Meant to be overridden by the child class.
-     * @param collidedWith the <code>Sprite</code> object that collided with this one.
-     */
-    public boolean doCollision(Sprite collidedWith) {
-        if(hitBoxes[currFrame].contains(collidedWith.getHitBox()))
-            return true;
-
-        return false;
     }
 
 /******************************************************
