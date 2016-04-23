@@ -17,4 +17,10 @@ public class HiScore extends SugarRecord {
         this.name = n;
         this.score = s;
     }
+
+    @Override
+    public String toString()
+    {
+        return name + ": " + score;
+    }
 }

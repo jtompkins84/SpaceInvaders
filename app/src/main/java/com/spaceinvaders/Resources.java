@@ -3,6 +3,7 @@ package com.spaceinvaders;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.tutorials.joseph.spaceinvaders.R;
@@ -21,7 +22,9 @@ public class Resources {
     public enum Difficulty {NORMAL, HARD};
     public static Difficulty difficulty = Difficulty.NORMAL;
 
-    static int player_final_score = 0;
+    public static int player_final_score = 0;
+
+    public static AppCompatActivity sGamePlayActivity;
 
     public static Bitmap img_player;
     public static Bitmap img_player_death01;

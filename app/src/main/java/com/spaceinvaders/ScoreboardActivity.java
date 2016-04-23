@@ -1,14 +1,17 @@
 package com.spaceinvaders;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.tutorials.joseph.spaceinvaders.R;
+
+import java.util.ArrayList;
 
 /**
  * Created by Joe on 4/18/2016.
@@ -26,6 +29,7 @@ public class ScoreboardActivity extends AppCompatActivity implements View.OnClic
     EditText mName;
     Button mSubmit;
 
+    ArrayList<HiScore> hiScores;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,61 +43,76 @@ public class ScoreboardActivity extends AppCompatActivity implements View.OnClic
         mThird = (TextView) findViewById(R.id.score3);
         mPlayerScore = (TextView) findViewById(R.id.new_score);
 
-        mScore1 = HiScore.findById(HiScore.class, 1);
-        mScore2 = HiScore.findById(HiScore.class, 2);
-        mScore3 = HiScore.findById(HiScore.class, 3);
+        hiScores = (ArrayList) HiScore.listAll(HiScore.class, "score desc");
 
-        mFirst.setText(toString(mScore1));
-        mSecond.setText(toString(mScore2));
-        mThird.setText(toString(mScore3));
+        if(hiScores.size() < 3) {
+            mScore1 = new HiScore("JIT", 200);
+            mScore2 = new HiScore("JNK", 100);
+            mScore3 = new HiScore("VCG", 50);
+
+            HiScore.save(mScore1);
+            HiScore.save(mScore2);
+            HiScore.save(mScore3);
+        }
+        else {
+            mScore1 = hiScores.get(0);
+            mScore2 = hiScores.get(1);
+            mScore3 = hiScores.get(2);
+        }
+
+        mFirst.setText(mScore1.toString());
+        mSecond.setText(mScore2.toString());
+        mThird.setText(mScore3.toString());
+
         mPlayerScore.setText("Your Score: " + Resources.player_final_score);
 
         mName = (EditText) findViewById(R.id.player_name);
         mSubmit = (Button) findViewById(R.id.submit_button);
         mSubmit.setOnClickListener(this);
-
-
     }
 
     @Override
     public void onClick(View v) {
         if(v.getId() == mSubmit.getId()) {
             if(mName.getText().length() == 3) {
-                if(Resources.player_final_score > mScore1.score) {
-                    mScore1.name = (mName.getText()).toString();
-                    mScore1.score = Resources.player_final_score;
-                }
+                ((ViewGroup) mSubmit.getParent()).removeView(mSubmit);
+                ((ViewGroup) mName.getParent()).removeView(mName);
+//                if(Resources.player_final_score > mScore1.score) {
+//                    mScore1.name = (mName.getText()).toString();
+//                    mScore1.score = Resources.player_final_score;
+//                }
+//
+//                else if(Resources.player_final_score <= mScore1.score
+//                        || Resources.player_final_score >= mScore2.score){
+//                    mScore2.name = (mName.getText()).toString();
+//                    mScore2.score = Resources.player_final_score;
+//                }
+//
+//                else if(Resources.player_final_score <= mScore2.score
+//                        || Resources.player_final_score >= mScore1.score) {
+//                    mScore3.name = (mName.getText()).toString();
+//                    mScore3.score = Resources.player_final_score;
+//                }
 
-                else if(Resources.player_final_score > mScore2.score || Resources.player_final_score <= mScore1.score && Resources.player_final_score != mScore2.score) {
-                    mScore2.name = (mName.getText()).toString();
-                    mScore2.score = Resources.player_final_score;
-                }
+                HiScore newScore = new HiScore(mName.getText().toString(),
+                        Resources.player_final_score);
 
-                else if(Resources.player_final_score > mScore3.score || Resources.player_final_score <= mScore2.score  && Resources.player_final_score != mScore3.score) {
-                    mScore3.name = (mName.getText()).toString();
-                    mScore3.score = Resources.player_final_score;
-                }
+                newScore.save();
 
-                mScore1.save();
-                mScore2.save();
-                mScore3.save();
+                hiScores = (ArrayList) HiScore.listAll(HiScore.class, "score desc");
 
-                //Not sure if this is necessary.
-                /*
-                Intent pewPewIntent = new Intent(this, TitleScreenActivity.class);
-                startActivity(pewPewIntent);
-                */
+                mScore1 = hiScores.get(0);
+                mScore2 = hiScores.get(1);
+                mScore3 = hiScores.get(2);
 
-                finish();
+                mFirst.setText(mScore1.toString());
+                mSecond.setText(mScore2.toString());
+                mThird.setText(mScore3.toString());
             }
         }
     }
-
-    public String toString(HiScore score) {
-        return score.name + ": " + score.score;
-    }
-
     @Override
     public void onBackPressed() {
+        finish();
     }
 }

@@ -66,8 +66,9 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
     private boolean uhOrOh;
 
     private short countdownNumber = -1;
+    private boolean doGameOver = false;
 
-/*******************************************************************************
+    /*******************************************************************************
  * Constructor
  *
  * @param context super constructor needs reference to this
@@ -138,8 +139,9 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
     @Override
     public void run() {
-
         while (playing) {
+            if(doGameOver) break;
+
             long startFrameTime = System.currentTimeMillis();
             if(resuming) doResumeCountdown();
             else if(!paused && player != null && player.doUpdate()) {
@@ -158,6 +160,8 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
             // We will do something here towards the end of the project
         }
+
+        if(doGameOver) ((SpaceInvadersActivity) getContext()).doGameOver();
     }
 
     private void update() {
@@ -379,7 +383,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
                 player.setMovementState(Movement.STOPPED);
-                
+
                 break;
         }
 
@@ -417,8 +421,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
      * 5 seconds, player movement is returned and the playfield resumes normal updates.
      */
     private void doPlayerDeath() {
-        if(lives == 0) {
-        }
+
 
         long currTime = System.currentTimeMillis();
         if(player.isDead() && startTime == -1) {
@@ -429,7 +432,15 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         }
 
         long timeDif = currTime - startTime;
-        if(timeDif >= 2000 && timeDif < 3000) countdownNumber =3;
+
+        if(lives <= 0 && timeDif >= 2000) {
+            if(getContext() instanceof SpaceInvadersActivity) {
+                Resources.player_final_score = score;
+                doGameOver = true;
+            }
+        }
+
+        else if(timeDif >= 2000 && timeDif < 3000) countdownNumber =3;
         else if(timeDif >= 3000 && timeDif < 4000) countdownNumber = 2;
         else if(timeDif >= 4000 && timeDif < 5000) countdownNumber = 1;
         else if(timeDif >= 5000) {
@@ -462,7 +473,15 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
     }
 
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
+    public boolean onTouch(View v, MotionEvent motionEvent) {
         return false;
+    }
+
+    public int getPlayerLives() {
+        return lives;
+    }
+
+    public int getPlayerScore() {
+        return score;
     }
 }

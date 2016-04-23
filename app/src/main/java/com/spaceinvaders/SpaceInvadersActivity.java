@@ -1,5 +1,6 @@
 package com.spaceinvaders;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Point;
@@ -20,6 +21,7 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
     FrameLayout gamePlayLayout;
     PlayFieldView playFieldView;
     PauseMenu pauseMenu;
+    GameOverFragment gameOverFragment;
 
     boolean paused = false;
 
@@ -30,6 +32,7 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
     */
     private Bitmap bmap_player;
     private Bitmap bmap_invader_a;
+    private boolean doingGameOver = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,9 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
         if(Resources.initResources(this) == false) {
             Log.e("SpaceInvadersActivity", "Resource initialization failed!");
         }
+
+        pauseMenu = new PauseMenu();
+        gameOverFragment = new GameOverFragment();
 
         // Get a Display object to access screen details
         Display display = getWindowManager().getDefaultDisplay();
@@ -51,8 +57,6 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
 
         playFieldView = new PlayFieldView(this, size.x, size.x);
         playFieldView.setId(R.id.play_field_view);
-
-        pauseMenu = new PauseMenu();
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
@@ -98,7 +102,7 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
                 transaction.remove(this.pauseMenu);
                 transaction.addToBackStack(null);
                 transaction.commit();
-                playFieldView.resume();
+                playFieldView.resumeNoCountdown();
             }
         }
     }
@@ -110,7 +114,7 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
             transaction.remove(this.pauseMenu);
             transaction.addToBackStack(null);
             transaction.commit();
-            playFieldView.resumeNoCountdown();
+            playFieldView.resume();
         }
     }
 
@@ -124,8 +128,26 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
             transaction.commit();
             playFieldView.resumeNoCountdown();
         }
+        else if(R.id.game_over_button == v.getId()) {
+            Intent gameOver = new Intent(this, ScoreboardActivity.class);
+            startActivity(gameOver);
+
+            finish();
+        }
         else if(R.id.quit_button == v.getId()) {
             finish();
         }
+        else if(playFieldView.getPlayerLives() == 0 && !doingGameOver) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(gamePlayLayout.getId(), gameOverFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+            doingGameOver = true;
+        }
+
+    }
+
+    public void doGameOver() {
+        onClick(playFieldView);
     }
 }
