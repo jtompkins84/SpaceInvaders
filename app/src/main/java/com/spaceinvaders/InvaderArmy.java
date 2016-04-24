@@ -363,9 +363,7 @@ public class InvaderArmy {
                         invaders[rowIndex][i].doCollision(sprite);
 
                         if (sprite instanceof Player) {
-                            ((Player) sprite).doDeath();
-                            invaders[rowIndex][i] = null;
-
+                            invaders[rowIndex][i].isHit();
                             invadersLeft--;
                             return;
                         }
