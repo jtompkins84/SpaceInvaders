@@ -303,7 +303,7 @@ public abstract class Sprite {
     public RectF getHitBox() {
         if(hitBoxes == null) return null;
         if(currFrame < hitBoxes.length && hitBoxes[currFrame] != null) {
-            return hitBoxes[currFrame];
+            return new RectF(hitBoxes[currFrame]);
         }
 
         return null;

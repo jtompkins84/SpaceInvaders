@@ -8,9 +8,6 @@ import android.graphics.PointF;
 import com.spaceinvaders.game_entities.PlayerLaserShot;
 import com.spaceinvaders.game_entities.PowerUp;
 
-/**
- * Created by Joseph on 2/6/2016.
- */
 public class DefenseWall {
 
     private DefenseBrick[][] bricks;
@@ -112,20 +109,23 @@ public class DefenseWall {
     public boolean doCollisions(Sprite sprite) {
         if(sprite != null) {
             if (sprite instanceof PlayerLaserShot && withinXRange(sprite)) {
+                boolean result = false;
                 for (int i = 0; i < bricksInCol; i++) {
                     for (int j = 0; j < bricksInRow; j++) {
                         if (bricks[i][j] != null && sprite.getHitBox() != null) {
+
                             if (bricks[i][j].getHitBox().intersect(sprite.getHitBox()) == true) {
                                 // if brick health is at or below 1, destroy brick
                                 if (bricks[i][j].getHealth() <= 1) bricks[i][j] = null;
                                 // otherwise, damage brick
                                 else bricks[i][j].takeDamage();
 
-                                return true;
+                                result = true;
                             }
                         }
                     }
                 }
+                return result;
             }
             // if not a laser projectile
             else if (withinProximity(sprite)) {

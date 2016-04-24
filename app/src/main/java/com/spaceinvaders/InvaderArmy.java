@@ -74,7 +74,7 @@ public class InvaderArmy {
     }
 
     public void update(long fps) {
-        if(invadersLeft <= 0) return;
+        if(invadersAlive <= 0) return;
 
         boolean doMove = false;
         int fireRow = 0, fireCol = 0;
