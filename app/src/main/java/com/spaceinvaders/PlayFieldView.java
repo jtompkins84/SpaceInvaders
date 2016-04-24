@@ -402,32 +402,6 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
                 }
                 break;
 
-            case MotionEvent.ACTION_POINTER_DOWN:
-                if (motionEvent.getX() > fireButtonPos.x - buttonRadius
-                        && motionEvent.getX() < fireButtonPos.x + buttonRadius
-                        && motionEvent.getY() > fireButtonPos.y - buttonRadius
-                        && motionEvent.getY() < fireButtonPos.y + buttonRadius)
-                {
-                    player.fire(projectiles);
-                }
-
-                if (motionEvent.getX() > leftButtonPos.x - buttonRadius
-                        && motionEvent.getX() < leftButtonPos.x + buttonRadius
-                        && motionEvent.getY() > leftButtonPos.y - buttonRadius
-                        && motionEvent.getY() < leftButtonPos.y + buttonRadius)
-                {
-                    player.setMovementState(Movement.LEFT);
-                }
-
-                if (motionEvent.getX() > rightButtonPos.x - buttonRadius
-                        && motionEvent.getX() < rightButtonPos.x + buttonRadius
-                        && motionEvent.getY() > rightButtonPos.y - buttonRadius
-                        && motionEvent.getY() < rightButtonPos.y + buttonRadius)
-                {
-                    player.setMovementState(Movement.RIGHT);
-                }
-                break;
-
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
                 player.setMovementState(Movement.STOPPED);
