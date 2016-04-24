@@ -50,29 +50,43 @@
         <ToggleButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="NORMAL"
-            android:id="@+id/normal_button"
-            android:layout_marginRight="80dp"
-            android:layout_marginTop="20dp"
-            android:textOn="NORMAL"
-            android:textOff="NORMAL"
-            android:checked="true"
-            android:background="#00b400"
-            android:textColor="@color/toggle_text" />
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="HARD"
             android:id="@+id/hard_button"
-            android:layout_gravity="right"
-            android:layout_marginRight="80dp"
-            android:layout_marginTop="-47dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="-75dp"
             android:checked="false"
             android:textOn="HARD"
             android:textOff="HARD"
             android:textColor="@color/toggle_text"
-            android:background="#00b400" />
+            android:background="#00b400"
+            android:layout_marginTop="10dp" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NORMAL"
+            android:id="@+id/normal_button"
+            android:layout_marginRight="80dp"
+            android:textOn="NORMAL"
+            android:textOff="NORMAL"
+            android:checked="true"
+            android:background="#00b400"
+            android:textColor="@color/toggle_text"
+            android:layout_marginTop="-49dp" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DEMO"
+            android:id="@+id/demo_button"
+            android:layout_gravity="center_horizontal"
+            android:background="#00b400"
+            android:textColor="@color/toggle_text"
+            android:textOff="DEMO"
+            android:textOn="DEMO"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="40dp"
+            android:checked="false" />
 
     </LinearLayout>
 

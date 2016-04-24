@@ -16,6 +16,7 @@ public class OptionsMenuActivity extends AppCompatActivity implements View.OnCli
     LinearLayout mOptionsMenu;
     ToggleButton mNormal;
     ToggleButton mHard;
+    ToggleButton mDemo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,33 +28,54 @@ public class OptionsMenuActivity extends AppCompatActivity implements View.OnCli
         mNormal.setOnClickListener(this);
         mHard = (ToggleButton) findViewById(R.id.hard_button);
         mHard.setOnClickListener(this);
+        mDemo = (ToggleButton) findViewById(R.id.demo_button);
+        mDemo.setOnClickListener(this);
 
         if(Resources.difficulty == Resources.Difficulty.NORMAL) {
             mNormal.setChecked(true);
             mHard.setChecked(false);
+            mDemo.setChecked(false);
         }
 
         else if(Resources.difficulty == Resources.Difficulty.HARD) {
             mNormal.setChecked(false);
             mHard.setChecked(true);
+            mDemo.setChecked(false);
+        }
+
+        else if(Resources.difficulty == Resources.Difficulty.DEMO) {
+            mNormal.setChecked(false);
+            mHard.setChecked(false);
+            mDemo.setChecked(true);
         }
     }
 
     @Override
     public void onClick(View v) {
         if(v.getId() == mNormal.getId()) {
-            if(Resources.difficulty == Resources.Difficulty.HARD || mNormal.isChecked() == false || mHard.isChecked() == true) {
+            if(Resources.difficulty == Resources.Difficulty.HARD || Resources.difficulty == Resources.Difficulty.DEMO || mNormal.isChecked() == false || mHard.isChecked() == true || mDemo.isChecked() == true) {
                 mNormal.setChecked(true);
                 mHard.setChecked(false);
+                mDemo.setChecked(false);
                 Resources.difficulty = Resources.Difficulty.NORMAL;
             }
         }
 
         else if(v.getId() == mHard.getId()) {
-            if(Resources.difficulty == Resources.Difficulty.NORMAL || mHard.isChecked() == false || mNormal.isChecked() == true) {
+            if(Resources.difficulty == Resources.Difficulty.NORMAL || Resources.difficulty == Resources.Difficulty.DEMO || mHard.isChecked() == false || mNormal.isChecked() == true || mDemo.isChecked() == true) {
                 mHard.setChecked(true);
                 mNormal.setChecked(false);
+                mDemo.setChecked(false);
                 Resources.difficulty = Resources.Difficulty.HARD;
+            }
+        }
+
+        else if(v.getId() == mDemo.getId()) {
+            if(Resources.difficulty == Resources.Difficulty.NORMAL || Resources.difficulty == Resources.Difficulty.HARD || mHard.isChecked() == false || mNormal.isChecked() == true || mHard.isChecked() == true) {
+                mDemo.setChecked(true);
+                mHard.setChecked(false);
+                mNormal.setChecked(false);
+                Resources.difficulty = Resources.Difficulty.DEMO;
             }
         }
     }
