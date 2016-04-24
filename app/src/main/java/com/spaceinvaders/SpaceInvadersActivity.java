@@ -170,6 +170,7 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
             doingGameOver = true;
         }
         else if(doVictory) {
+            doVictory = false;
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(gamePlayLayout.getId(), victoryFragment);
             transaction.addToBackStack(null);
@@ -177,6 +178,7 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
             playFieldView.pause();
         }
         else if(doSurvived) {
+            doSurvived = false;
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.replace(gamePlayLayout.getId(), survivedFragment);
             transaction.addToBackStack(null);
