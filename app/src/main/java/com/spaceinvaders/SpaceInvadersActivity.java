@@ -50,6 +50,7 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
         pauseMenu = new PauseMenu();
         gameOverFragment = new GameOverFragment();
         victoryFragment = new VictoryFragment();
+        survivedFragment = new SurvivedFragment();
 
         // Get a Display object to access screen details
         Display display = getWindowManager().getDefaultDisplay();

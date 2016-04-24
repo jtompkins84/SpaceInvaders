@@ -215,6 +215,8 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             }
         }
 
+        invaderArmy.doCollision(player);
+
         // Update player state
         player.update(fps);
 
