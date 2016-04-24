@@ -59,8 +59,7 @@ public class Player extends Sprite {
     private short rapidMaxSeconds = 8;
 
     /**
-     * <code><b><i>Player</i></b></code><p>
-     * <code>Player</code> contructor.
+     * <code>Player</code> constructor.
      * @param screenWidth <code>float</code> - play field's current width
      * @param screenHeight <code>float</code> - play field's current height
      */
@@ -205,6 +204,7 @@ public class Player extends Sprite {
         doAnimationLoop = true;
         isDead = true;
         doUpdate = false;
+        projCount = 0;
     }
 
     /**

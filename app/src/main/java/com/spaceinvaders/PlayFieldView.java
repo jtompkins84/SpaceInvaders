@@ -14,11 +14,10 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 
 import java.io.IOException;
 
-public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouchListener {
+public class PlayFieldView extends SurfaceView implements Runnable {
     private Thread gameThread = null;
     private SurfaceHolder ourHolder;
 
@@ -215,7 +214,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             }
         }
 
-//        invaderArmy.doCollision(player);
+        invaderArmy.doCollision(player);
 
         // Update player state
         player.update(fps);
@@ -313,15 +312,6 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             canvas.drawCircle(rightButtonPos.x, rightButtonPos.y, buttonRadius, paint);
             canvas.drawCircle(leftButtonPos.x, leftButtonPos.y, buttonRadius, paint);
 
-
-            //Slider
-            /*
-            canvas.drawCircle((playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/100, (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
-            canvas.drawCircle(playFieldWidth - (playFieldWidth/5 - playFieldWidth/100), (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
-            canvas.drawRect((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100, ((this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100) - playFieldWidth / 11,
-                    playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100), ((this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100) + playFieldWidth / 11, paint);
-            */
-
             paint.setColor(Color.argb(255, 0, 255, 0));
 
             float yOffset = playFieldHeight / 100;
@@ -382,7 +372,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
                         && motionEvent.getY() > fireButtonPos.y - buttonRadius
                         && motionEvent.getY() < fireButtonPos.y + buttonRadius)
                 {
-                    player.fire(projectiles);
+                    playerFire();
                 }
 
                 if (motionEvent.getX() > leftButtonPos.x - buttonRadius
@@ -390,7 +380,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
                         && motionEvent.getY() > leftButtonPos.y - buttonRadius
                         && motionEvent.getY() < leftButtonPos.y + buttonRadius)
                 {
-                    player.setMovementState(Movement.LEFT);
+                    playerMovement(Movement.LEFT);
                 }
 
                 if (motionEvent.getX() > rightButtonPos.x - buttonRadius
@@ -398,28 +388,19 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
                         && motionEvent.getY() > rightButtonPos.y - buttonRadius
                         && motionEvent.getY() < rightButtonPos.y + buttonRadius)
                 {
-                    player.setMovementState(Movement.RIGHT);
+                    playerMovement(Movement.RIGHT);
                 }
                 break;
 
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
-                player.setMovementState(Movement.STOPPED);
+                playerMovement(Movement.STOPPED);
 
                 break;
         }
 
         return true;
     }
-
-    // Need to implement the ability to drag the drawn circle.
-
-    /*
-    public boolean onDragEvent(DragEvent dragEvent) {
-
-        return true;
-    }
-    */
 
     public void playerFire() {
         player.fire(projectiles);
@@ -492,11 +473,6 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             startTime = -1;
             resuming = false;
         }
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent motionEvent) {
-        return false;
     }
 
     public int getPlayerLives() {

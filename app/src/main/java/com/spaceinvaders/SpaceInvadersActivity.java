@@ -187,16 +187,16 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
         }
     }
     public void doGameOver() {
-        onClick(playFieldView);
+        onClick(new View(this));
     }
 
     public void doVictory() {
         doVictory = true;
-        onClick(playFieldView);
+        onClick(new View(this));
     }
 
     public void doSurvived() {
         doSurvived = true;
-        onClick(playFieldView);
+        onClick(new View(this));
     }
 }
