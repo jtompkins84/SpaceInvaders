@@ -7,6 +7,7 @@ import android.graphics.RectF;
 
 import com.spaceinvaders.game_entities.PlayerLaserShot;
 import com.spaceinvaders.game_entities.PlayerShield;
+import com.spaceinvaders.game_entities.PowerUp;
 
 public class Player extends Sprite {
     PlayerShield playerShield;
@@ -48,14 +49,14 @@ public class Player extends Sprite {
      */
     private long specialShotDelay = 1700l;
 
-    private boolean hasShield = true;
+    private boolean hasShield = false;
 
-    private boolean hasSpecial = true;
+    private boolean hasSpecial = false;
     private boolean isSpecialFired = false;
 
     private boolean hasRapid = false;
     private short rapidCounter = 0;
-    private short rapidMaxSeconds = 5;
+    private short rapidMaxSeconds = 8;
 
     /**
      * <code><b><i>Player</i></b></code><p>
@@ -213,18 +214,33 @@ public class Player extends Sprite {
      * @return <code>true</code> collision detected
      */
     public boolean checkCollision(Sprite sprite) {
-        if(sprite != null && !isDead &&
-                sprite.getHitBox().intersect(getHitBox())) {
-            if(sprite.getClass() == Projectile.class) {
+        if(sprite != null && !isDead
+                && sprite.getHitBox() != null
+                && sprite.getHitBox().intersect(getHitBox())) {
+            if(sprite instanceof PowerUp) {
+                PowerUp p = (PowerUp) sprite;
+                switch (p.getColor()) {
+                    case BLUE:
+                        hasShield = true;
+                        break;
+                    case YELLOW:
+                        startRapidFire();
+                        break;
+                    case RED:
+                        hasSpecial = true;
+                        break;
+                }
+
+                p.isDestroyed(true);
+                return true;
+            }
+            else if(sprite.getClass() == Projectile.class) {
                 Projectile projectile = (Projectile)sprite;
 
                 Projectile.Type projType = projectile.getProjectileType();
                 if(projType == Projectile.Type.PLAYER || projType == Projectile.Type.PLAYER_SPECIAL)
                     return false; // if projectile is from the player, ignore collision and return false
-                else if(projType == Projectile.Type.POWERUP)
-                {} // TODO caste as a PowerUp object{}
-
-                if(!projectile.isFromPlayer() && !projectile.isDestroyed()) {
+                else if(!projectile.isFromPlayer() && !projectile.isDestroyed()) {
                     if (hasShield) {
                         {
                             hasShield = false;

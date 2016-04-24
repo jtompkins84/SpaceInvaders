@@ -14,14 +14,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.spaceinvaders.game_entities.SurvivedFragment;
 import com.tutorials.joseph.spaceinvaders.R;
 
 @SuppressWarnings("ALL")
 public class SpaceInvadersActivity extends AppCompatActivity implements View.OnClickListener {
-    FrameLayout gamePlayLayout;
-    PlayFieldView playFieldView;
-    PauseMenu pauseMenu;
-    GameOverFragment gameOverFragment;
+    private FrameLayout gamePlayLayout;
+    private PlayFieldView playFieldView;
+    private PauseMenu pauseMenu;
+    private GameOverFragment gameOverFragment;
+    private VictoryFragment victoryFragment;
+    private SurvivedFragment survivedFragment;
 
     boolean paused = false;
 
@@ -33,6 +36,8 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
     private Bitmap bmap_player;
     private Bitmap bmap_invader_a;
     private boolean doingGameOver = false;
+    private boolean doVictory = false;
+    private boolean doSurvived = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +49,7 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
 
         pauseMenu = new PauseMenu();
         gameOverFragment = new GameOverFragment();
+        victoryFragment = new VictoryFragment();
 
         // Get a Display object to access screen details
         Display display = getWindowManager().getDefaultDisplay();
@@ -55,7 +61,7 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
         gamePlayLayout = new FrameLayout(this);
         gamePlayLayout.setId(R.id.play_field_fragment);
 
-        playFieldView = new PlayFieldView(this, size.x, size.x);
+        playFieldView = new PlayFieldView(this, size.x, size.y);
         playFieldView.setId(R.id.play_field_view);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -128,14 +134,32 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
             transaction.commit();
             playFieldView.resumeNoCountdown();
         }
+        else if(R.id.quit_button == v.getId()) {
+            finish();
+        }
         else if(R.id.game_over_button == v.getId()) {
             Intent gameOver = new Intent(this, ScoreboardActivity.class);
             startActivity(gameOver);
 
             finish();
         }
-        else if(R.id.quit_button == v.getId()) {
-            finish();
+        else if(R.id.victory_button == v.getId()) {
+            doVictory = false;
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(victoryFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+            playFieldView.initializePlayField();
+            playFieldView.resume();
+        }
+        else if(R.id.survived_button == v.getId()) {
+            doSurvived = false;
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.remove(survivedFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+            playFieldView.initializePlayField();
+            playFieldView.resume();
         }
         else if(playFieldView.getPlayerLives() == 0 && !doingGameOver) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -144,10 +168,32 @@ public class SpaceInvadersActivity extends AppCompatActivity implements View.OnC
             transaction.commit();
             doingGameOver = true;
         }
-
+        else if(doVictory) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(gamePlayLayout.getId(), victoryFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+            playFieldView.pause();
+        }
+        else if(doSurvived) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(gamePlayLayout.getId(), survivedFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+            playFieldView.pause();
+        }
+    }
+    public void doGameOver() {
+        onClick(playFieldView);
     }
 
-    public void doGameOver() {
+    public void doVictory() {
+        doVictory = true;
+        onClick(playFieldView);
+    }
+
+    public void doSurvived() {
+        doSurvived = true;
         onClick(playFieldView);
     }
 }

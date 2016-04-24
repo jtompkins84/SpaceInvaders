@@ -58,7 +58,7 @@ public class Projectile extends Sprite {
                 frames = new Bitmap[] {img_projectile_a};
                 hitBoxes = new RectF[] {new RectF(9.0f * DPIRatio, 9.0f * DPIRatio,
                         14.0f * DPIRatio, 31.0f * DPIRatio)};
-
+                movement = Movement.UP;
                 speed = 450;
                 isFromPlayer(true);
                 break;
@@ -66,7 +66,7 @@ public class Projectile extends Sprite {
                 frames = new Bitmap[] {img_projectile_a}; // TODO replace with correct frames
                 hitBoxes = new RectF[] {new RectF(9.0f * DPIRatio, 9.0f * DPIRatio,
                         14.0f * DPIRatio, 31.0f * DPIRatio)}; // TODO replace with correct frames
-
+                movement = Movement.DOWN;
                 speed = 450;
                 isFromPlayer(false);
                 break;
@@ -90,10 +90,9 @@ public class Projectile extends Sprite {
                 speed = 0;
                 break;
             case POWERUP:
-//                frames = new Bitmap[] {null}; // TODO replace with correct frames
-//                hitBoxes = new RectF[] {null}; // TODO replace with correct frames
-                speed = 175;
-                break;
+                movement = Movement.DOWN;
+                speed = 200;
+                return;
         }
 
         setPosition(posX, posY);

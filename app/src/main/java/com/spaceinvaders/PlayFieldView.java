@@ -6,6 +6,7 @@ import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -58,6 +59,10 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
     private int uhID = -1;
     private int ohID = -1;
 
+    private float buttonRadius = 0.0f;
+    private PointF fireButtonPos;
+    private PointF leftButtonPos;
+    private PointF rightButtonPos;
 
     private int score = 0;
 
@@ -79,12 +84,19 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         super(context);
 
         playFieldWidth = width;
-        playFieldHeight = height + (height * 0.25f);
+        playFieldHeight = height * 0.75f;
         ourHolder = getHolder();
         paint = new Paint();
 
         controlPanel = new RectF(0, playFieldHeight,
-                playFieldWidth, playFieldHeight *2);
+                playFieldWidth, height);
+
+        buttonRadius = playFieldWidth / 11;
+        fireButtonPos = new PointF(buttonRadius * 2.25f, controlPanel.top + (buttonRadius * 2.25f));
+        rightButtonPos = new PointF(playFieldWidth - fireButtonPos.x,
+                fireButtonPos.y);
+        leftButtonPos = new PointF(rightButtonPos.x - (buttonRadius * 2.5f),
+                fireButtonPos.y);
 
 
         // TODO this is deprecated and we will most likely change it
@@ -118,10 +130,9 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         initializePlayField();
     }
 
-    private void initializePlayField() {
+    public void initializePlayField() {
     // Make a new player
         player = new Player(playFieldWidth, playFieldHeight);
-        player.startRapidFire();
 
     // Prepare the projectiles
         projectiles = new ProjectileArray(player, playFieldHeight);
@@ -165,8 +176,21 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
     }
 
     private void update() {
-        // Has the player lost
-        boolean lost = false;
+        if(invaderArmy.getInvadersLeft() <= 0) {
+            if(getContext() instanceof SpaceInvadersActivity) {
+                ((SpaceInvadersActivity) getContext()).doVictory();
+                return;
+            }
+        }
+        else if(invaderArmy.isAtBottom()){
+            if(getContext() instanceof SpaceInvadersActivity) {
+                score -= 200;
+                if(score < 0) score = 0;
+                ((SpaceInvadersActivity) getContext()).doSurvived();
+                return;
+            }
+        }
+
         // calculate projectile collisions
         for (Projectile p : projectiles.getProjectiles()) {
             if (p != null) {
@@ -185,25 +209,19 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
         // update walls
         for (DefenseWall w : walls) {
-            if(w != null) w.update(fps);
+            if(w != null){
+                invaderArmy.doWallCollision(w);
+                w.update(fps);
+            }
         }
 
-
-        // Move the player
+        // Update player state
         player.update(fps);
 
         // Update the invaders
         invaderArmy.update(fps);
 
-        // Update all the invaders bullets if active
-
-        // Did and invader bump into the edge of the screen
-
-        if (lost) {
-            initializePlayField();
-        }
-
-
+        // Update projectiles
         projectiles.update(fps);
 //        projectiles.getProjectiles()[0].update(fps);
     }
@@ -264,11 +282,22 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
                     break;
             }
 
+            float width = Resources.img_icon_player_life.getWidth();
+            float height = Resources.img_icon_player_life.getHeight();
+
+            for(int i = 0; i < lives; i++) {
+
+
+                canvas.drawBitmap(Resources.img_icon_player_life,
+                        (width * 0.5f) + ((width * 1.5f) * i), 0, paint);
+            }
+
             // Draw the score and remaining lives
             // Change brush color
             paint.setColor(Color.argb(255, 0, 255, 0));
             paint.setTextSize(40 * Resources.DPIRatio);
-            canvas.drawText("Score: " + score + "  Lives: " + lives, 10, 50, paint);
+            paint.setTextAlign(Paint.Align.RIGHT);
+            canvas.drawText(String.valueOf(score), playFieldWidth * 0.95f, height * 0.80f, paint);
 
             // Draw Player controls
             paint.setAntiAlias(true);
@@ -277,10 +306,10 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             canvas.drawRect(controlPanel, paint);
 
             paint.setColor(Color.argb(255, 0, 180, 0));
-            canvas.drawCircle(playFieldWidth / 5, this.getBottom() - playFieldHeight / 4, playFieldWidth / 11, paint);
+            canvas.drawCircle(fireButtonPos.x, fireButtonPos.y, buttonRadius, paint);
 
-            canvas.drawCircle(playFieldWidth - (playFieldWidth/2 - playFieldWidth/15), this.getBottom() - playFieldHeight/4, playFieldWidth/11, paint);
-            canvas.drawCircle(playFieldWidth - playFieldWidth/5, this.getBottom() - playFieldHeight/4, playFieldWidth/11, paint);
+            canvas.drawCircle(rightButtonPos.x, rightButtonPos.y, buttonRadius, paint);
+            canvas.drawCircle(leftButtonPos.x, leftButtonPos.y, buttonRadius, paint);
 
 
             //Slider
@@ -293,17 +322,11 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
             paint.setColor(Color.argb(255, 0, 255, 0));
 
-            canvas.drawCircle(playFieldWidth / 5, (this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100, playFieldWidth / 11, paint);
+            float yOffset = playFieldHeight / 100;
+            canvas.drawCircle(fireButtonPos.x, fireButtonPos.y - yOffset, buttonRadius, paint);
 
-            canvas.drawCircle(playFieldWidth - (playFieldWidth/2 - playFieldWidth/15), (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
-            canvas.drawCircle(playFieldWidth - playFieldWidth/5, (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
-
-
-            //Joystick Circle
-            /*
-            canvas.drawCircle((((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100) + (playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100)))/2,
-                    (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11 - playFieldWidth/100, paint);
-            */
+            canvas.drawCircle(rightButtonPos.x, rightButtonPos.y - yOffset, buttonRadius, paint);
+            canvas.drawCircle(leftButtonPos.x, leftButtonPos.y - yOffset, buttonRadius, paint);
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
@@ -348,36 +371,33 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
+
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
 
             case MotionEvent.ACTION_DOWN:
-                if (motionEvent.getX() > playFieldWidth/5 - playFieldWidth/11
-                        && motionEvent.getX() < playFieldWidth/5 + playFieldWidth/11
-                        && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
-                        && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
+                if (motionEvent.getX() > fireButtonPos.x - buttonRadius
+                        && motionEvent.getX() < fireButtonPos.x + buttonRadius
+                        && motionEvent.getY() > fireButtonPos.y - buttonRadius
+                        && motionEvent.getY() < fireButtonPos.y + buttonRadius)
                 {
-                    player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
- //                   projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
- //                   if(!resuming) resuming = true;
+                    player.fire(projectiles);
                 }
 
-                if (motionEvent.getX() > (playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/11
-                        && motionEvent.getX() < (playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) + playFieldWidth/11
-                        && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
-                        && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
+                if (motionEvent.getX() > leftButtonPos.x - buttonRadius
+                        && motionEvent.getX() < leftButtonPos.x + buttonRadius
+                        && motionEvent.getY() > leftButtonPos.y - buttonRadius
+                        && motionEvent.getY() < leftButtonPos.y + buttonRadius)
                 {
                     player.setMovementState(Movement.LEFT);
                 }
 
-                if (motionEvent.getX() > (playFieldWidth - playFieldWidth/5) - playFieldWidth/11
-                        && motionEvent.getX() < (playFieldWidth - playFieldWidth/5) + playFieldWidth/11
-                        && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
-                        && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
+                if (motionEvent.getX() > rightButtonPos.x - buttonRadius
+                        && motionEvent.getX() < rightButtonPos.x + buttonRadius
+                        && motionEvent.getY() > rightButtonPos.y - buttonRadius
+                        && motionEvent.getY() < rightButtonPos.y + buttonRadius)
                 {
                     player.setMovementState(Movement.RIGHT);
                 }
-
-
                 break;
 
             // Player has removed finger from screen
