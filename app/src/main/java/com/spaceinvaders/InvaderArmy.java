@@ -366,16 +366,16 @@ public class InvaderArmy {
                     if (invaders[rowIndex][i] != null) {
                         invaders[rowIndex][i].doCollision(sprite);
 
-                        if (invaders[rowIndex][i].isHit()
-                                && sprite instanceof Player) {
-                            invaders[rowIndex][i].isHit();
-                            invadersLeft--;
-                            return;
-                        }
-
                         if (invaders[rowIndex][i].isHit() && !invaders[rowIndex][i].isScoreTallied()) {
                             PowerUp powerUp = invaders[rowIndex][i].dropPowerup();
                             if (powerUp != null) projectiles.addProjectile(powerUp);
+
+                            if (invaders[rowIndex][i].isHit()
+                                    && sprite instanceof Player) {
+                                invaders[rowIndex][i].isScoreTallied(true);
+                                invadersLeft--;
+                                return;
+                            }
 
                             invadersLeft--;
                             timeBetweenMoves -= timeDecrement;
