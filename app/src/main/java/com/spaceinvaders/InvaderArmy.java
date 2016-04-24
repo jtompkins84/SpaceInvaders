@@ -56,8 +56,8 @@ public class InvaderArmy {
 
         if(Resources.difficulty == Resources.Difficulty.HARD) {
             randFireChance = 2;
-            timeBetweenMoves = 900;
-            timeBetweenMoves = 100;
+            timeBetweenMoves = 900l;
+            timeBtwnMovesMin = 100l;
             scoreA *= 2;
             scoreB *= 2;
             scoreC *= 2;
