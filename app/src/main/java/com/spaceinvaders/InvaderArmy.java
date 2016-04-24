@@ -46,6 +46,7 @@ public class InvaderArmy {
 
     boolean doMoveDown = false;
     boolean doFire = false;
+    boolean doHardFire = true;
     int randFireChance = 6;
 
     public InvaderArmy(float playFieldWidth, float playFieldHeight, ProjectileArray projectiles, PlayFieldView playFieldView) {
@@ -81,12 +82,15 @@ public class InvaderArmy {
         // This is here to update the time that the invaders last moved and the position
         // of the army. Needs to happen after updating every invader in the army.
         if(currTime - lastMoveTime >= timeBetweenMoves) {
+            doHardFire = true;
             lastMoveTime = System.currentTimeMillis();
             doMove = true;
         }
-        else if(randFireChance == 2
+        else if(randFireChance == 2 && doHardFire
                 && currTime - lastMoveTime >= timeBetweenMoves / 2
                 && currTime - lastMoveTime <= timeBetweenMoves - timeBetweenMoves / 4) {
+
+            doHardFire = false;
             if(invadersLeft <= (rows * cols) / 2) {
                 Random random = new Random();
                 int randFireResult = Math.abs( random.nextInt() % randFireChance );
@@ -362,7 +366,8 @@ public class InvaderArmy {
                     if (invaders[rowIndex][i] != null) {
                         invaders[rowIndex][i].doCollision(sprite);
 
-                        if (sprite instanceof Player) {
+                        if (invaders[rowIndex][i].isHit()
+                                && sprite instanceof Player) {
                             invaders[rowIndex][i].isHit();
                             invadersLeft--;
                             return;
