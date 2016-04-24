@@ -7,8 +7,6 @@ import android.graphics.RectF;
 import com.spaceinvaders.Projectile;
 import com.spaceinvaders.Resources;
 
-import static com.spaceinvaders.Resources.DPIRatio;
-
 public class PlayerLaserShot extends Projectile {
     private PlayerLaserCharge laserCharge;
     private short maxUpdateCount = 20;
@@ -89,10 +87,10 @@ public class PlayerLaserShot extends Projectile {
     }
 
     public void repairHitBox() {
-        hitBoxes[1] = new RectF(
-                getRawX() + 10.0f * DPIRatio,
-                getRawY() + 0.0f * DPIRatio,
-                getRawX() + 14.0f * DPIRatio,
-                getRawY() + 1500.0f * DPIRatio);
+//        hitBoxes[1] = new RectF(
+//                getRawX() + 10.0f * DPIRatio,
+//                getRawY() + 0.0f * DPIRatio,
+//                getRawX() + 14.0f * DPIRatio,
+//                getRawY() + 1500.0f * DPIRatio);
     }
 }

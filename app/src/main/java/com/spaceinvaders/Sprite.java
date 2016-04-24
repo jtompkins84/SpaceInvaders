@@ -303,7 +303,7 @@ public abstract class Sprite {
     public RectF getHitBox() {
         if(hitBoxes == null) return null;
         if(currFrame < hitBoxes.length && hitBoxes[currFrame] != null) {
-            return hitBoxes[currFrame];
+            return new RectF(hitBoxes[currFrame]);
         }
 
         return null;
@@ -314,13 +314,17 @@ public abstract class Sprite {
      * @return x-coordinate relative to center of this <code>Sprite</code>'s bitmap.
      */
     public float getX() {
-        if(hitBoxes == null || hitBoxes[currFrame] == null) {
-            float width = frames[currFrame].getWidth();
-            return (pos.x + (width / 2));
+        if(frames[currFrame] != null) {
+            if (hitBoxes == null || hitBoxes[currFrame] == null) {
+                float width = frames[currFrame].getWidth();
+                return (pos.x + (width / 2));
+            }
+
+            return hitBoxes[currFrame].left
+                    + ((hitBoxes[currFrame].right - hitBoxes[currFrame].left) / 2);
         }
 
-        return hitBoxes[currFrame].left
-                + ((hitBoxes[currFrame].right - hitBoxes[currFrame].left) / 2);
+        return 0.0f;
     }
 
     /**
@@ -336,13 +340,16 @@ public abstract class Sprite {
      * @return y-coordinate relative to center of this <code>Sprite</code>'s bitmap.
      */
     public float getY() {
-        if(hitBoxes == null || hitBoxes[currFrame] == null) {
-            float height = frames[currFrame].getHeight();
-            return (pos.y + (height / 2));
-        }
+        if(frames[currFrame] != null) {
+            if (hitBoxes == null || hitBoxes[currFrame] == null) {
+                float height = frames[currFrame].getHeight();
+                return (pos.y + (height / 2));
+            }
 
-        return hitBoxes[currFrame].top
-                + ((hitBoxes[currFrame].bottom - hitBoxes[currFrame].top) / 2);
+            return hitBoxes[currFrame].top
+                    + ((hitBoxes[currFrame].bottom - hitBoxes[currFrame].top) / 2);
+        }
+        return 0.0f;
     }
 
     /**

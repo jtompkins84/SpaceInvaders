@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="false"
     android:id="@+id/pause_menu"
-    android:background="#222222"
-    android:alpha="0.85">
+    android:background="@null">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:alpha="0.75"></FrameLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -56,4 +60,4 @@
 
         </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

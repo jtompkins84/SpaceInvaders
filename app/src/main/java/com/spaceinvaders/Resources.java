@@ -3,6 +3,7 @@ package com.spaceinvaders;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.tutorials.joseph.spaceinvaders.R;
@@ -21,7 +22,9 @@ public class Resources {
     public enum Difficulty {NORMAL, HARD};
     public static Difficulty difficulty = Difficulty.NORMAL;
 
-    static int player_final_score = 0;
+    public static int player_final_score = 0;
+
+    public static AppCompatActivity sGamePlayActivity;
 
     public static Bitmap img_player;
     public static Bitmap img_player_death01;
@@ -77,9 +80,19 @@ public class Resources {
     public static Bitmap img_brick_cc02;
     public static Bitmap img_brick_cc03;
     public static Bitmap img_brick_cc04;
+    public static Bitmap img_powerup_blue01;
+    public static Bitmap img_powerup_blue02;
+    public static Bitmap img_powerup_blue03;
+    public static Bitmap img_powerup_red01;
+    public static Bitmap img_powerup_red02;
+    public static Bitmap img_powerup_red03;
+    public static Bitmap img_powerup_yellow01;
+    public static Bitmap img_powerup_yellow02;
+    public static Bitmap img_powerup_yellow03;
     public static Bitmap img_countdown_1;
     public static Bitmap img_countdown_2;
     public static Bitmap img_countdown_3;
+    public static Bitmap img_icon_player_life;
     public static Bitmap img_blank;
     public static Bitmap img_title_splash;
 
@@ -106,6 +119,8 @@ public class Resources {
         // Tell rendering how to size bitmaps
         BitmapFactory.Options opt = new BitmapFactory.Options();
         opt.inDensity = 480;
+        BitmapFactory.Options opt2 = new BitmapFactory.Options();
+        opt2.inDensity = 240;
 
         DPIRatio = dpi / (float)opt.inDensity;
 
@@ -164,9 +179,19 @@ public class Resources {
         img_brick_cc03 = BitmapFactory.decodeResource(context.getResources(), R.drawable.def_brick_cc03, opt);
         img_brick_cc02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.def_brick_cc02, opt);
         img_brick_cc04 = BitmapFactory.decodeResource(context.getResources(), R.drawable.def_brick_cc04, opt);
+        img_powerup_blue01 = BitmapFactory.decodeResource(context.getResources(), R.drawable.powerup_blue01, opt);
+        img_powerup_blue02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.powerup_blue02, opt);
+        img_powerup_blue03 = BitmapFactory.decodeResource(context.getResources(), R.drawable.powerup_blue03, opt);
+        img_powerup_red01 = BitmapFactory.decodeResource(context.getResources(), R.drawable.powerup_red01, opt);
+        img_powerup_red02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.powerup_red02, opt);
+        img_powerup_red03 = BitmapFactory.decodeResource(context.getResources(), R.drawable.powerup_red03, opt);
+        img_powerup_yellow01 = BitmapFactory.decodeResource(context.getResources(), R.drawable.powerup_yellow01, opt);
+        img_powerup_yellow02 = BitmapFactory.decodeResource(context.getResources(), R.drawable.powerup_yellow02, opt);
+        img_powerup_yellow03 = BitmapFactory.decodeResource(context.getResources(), R.drawable.powerup_yellow03, opt);
         img_countdown_1 = BitmapFactory.decodeResource(context.getResources(), R.drawable.countdown_1, opt);
         img_countdown_2 = BitmapFactory.decodeResource(context.getResources(), R.drawable.countdown_2, opt);
         img_countdown_3 = BitmapFactory.decodeResource(context.getResources(), R.drawable.countdown_3, opt);
+        img_icon_player_life = BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_player_life, opt2);
         img_blank = BitmapFactory.decodeResource(context.getResources(), R.drawable.blank, opt);
         img_title_splash = BitmapFactory.decodeResource(context.getResources(), R.drawable.title_splash, opt);
 

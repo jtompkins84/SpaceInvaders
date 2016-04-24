@@ -6,10 +6,8 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 
 import com.spaceinvaders.game_entities.PlayerLaserShot;
+import com.spaceinvaders.game_entities.PowerUp;
 
-/**
- * Created by Joseph on 2/6/2016.
- */
 public class DefenseWall {
 
     private DefenseBrick[][] bricks;
@@ -62,16 +60,12 @@ public class DefenseWall {
                 bricks[i][j] = new DefenseBrick(images[i][j]);
             }
         }
-
-        // FIX PIXEL WIDTH AND HEIGHT OF WALL FOR DISPLAY RESOLUTION
-//        this.width = this.width * Resources.DPIRatio;
-//        this.height = this.height * Resources.DPIRatio;
     }
 
     public void setPos(float x, float y) {
         if(pos == null) { pos = new PointF(); }
 
-        pos.set(x - this.width / 2.0f, y - this.height / 2.0f);
+        pos.set(x - this.width / 2.0f, y + this.height / 2.0f);
 
         // PLACE BRICKS
         float brick_width = bricks[0][0].getCurrentFrameSpriteBitmap().getWidth();
@@ -86,6 +80,12 @@ public class DefenseWall {
 
     public PointF getPos() {
         return pos;
+    }
+
+    public PointF getRawPos() {
+        if(pos != null)
+            return new PointF(pos.x + this.width / 2.0f, pos.y - this.height / 2.0f);
+        return null;
     }
 
     public void update(long fps) {
@@ -106,28 +106,37 @@ public class DefenseWall {
         }
     }
 
-    public void doCollisions(Sprite sprite) {
+    public boolean doCollisions(Sprite sprite) {
         if(sprite != null) {
             if (sprite instanceof PlayerLaserShot && withinXRange(sprite)) {
+                boolean result = false;
                 for (int i = 0; i < bricksInCol; i++) {
                     for (int j = 0; j < bricksInRow; j++) {
                         if (bricks[i][j] != null && sprite.getHitBox() != null) {
+
                             if (bricks[i][j].getHitBox().intersect(sprite.getHitBox()) == true) {
                                 // if brick health is at or below 1, destroy brick
                                 if (bricks[i][j].getHealth() <= 1) bricks[i][j] = null;
                                 // otherwise, damage brick
                                 else bricks[i][j].takeDamage();
+
+                                result = true;
                             }
                         }
                     }
                 }
+                return result;
             }
             // if not a laser projectile
             else if (withinProximity(sprite)) {
                 for (int i = 0; i < bricksInCol; i++) {
                     for (int j = 0; j < bricksInRow; j++) {
-                        if (bricks[i][j] != null) {
+
+                        if (bricks[i][j] != null && sprite.getHitBox() != null) {
                             if (bricks[i][j].getHitBox().intersect(sprite.getHitBox()) == true) {
+                                if(sprite instanceof PowerUp)
+                                    return false;
+
                                 if (sprite.getClass() == Projectile.class) {
                                     // if brick health is at or below 1, destroy brick
                                     if (bricks[i][j].getHealth() <= 1) bricks[i][j] = null;
@@ -135,11 +144,12 @@ public class DefenseWall {
                                     else bricks[i][j].takeDamage();
                                     ((Projectile) sprite).isDestroyed(true);
                                     // return so that only one block can be damaged per projectile
-                                    return;
+                                    return true;
                                 }
                                 // if anything other than a projectile hits a brick, destroy brick.
                                 else {
                                     bricks[i][j] = null;
+                                    return true;
                                 }
                             }
 
@@ -148,7 +158,7 @@ public class DefenseWall {
                 }
             }
         }
-
+        return false;
     }
 
     /**
@@ -164,7 +174,7 @@ public class DefenseWall {
     }
 
     private boolean withinProximity(Sprite sprite) {
-        if(Math.abs(sprite.getX() - center.x) < (width * 1.0f) && Math.abs(sprite.getY() - center.y) < (height * 1.0f))
+        if (Math.abs(sprite.getX() - center.x) < (width * 1.0f) && Math.abs(sprite.getY() - center.y) < (height * 1.0f))
             return true;
 
         return false;

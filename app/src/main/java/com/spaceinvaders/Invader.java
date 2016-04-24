@@ -4,11 +4,15 @@ import android.graphics.Bitmap;
 import android.graphics.RectF;
 
 import com.spaceinvaders.game_entities.PlayerLaserShot;
+import com.spaceinvaders.game_entities.PowerUp;
+
+import java.util.Random;
 
 public class Invader extends Sprite {
 
     private boolean isHit = false;
     private boolean isDead = false;
+    private boolean isDeathCounted = false;
     private boolean isScoreTallied = false;
     private char invaderType;
 
@@ -16,6 +20,9 @@ public class Invader extends Sprite {
     private float height;
     private float xMoveIncrement;
     private float yMoveIncrement;
+
+    private int dropChanceWeapon = 10;
+    private int dropChanceShield = 7;
 
     /**
      *
@@ -56,6 +63,11 @@ public class Invader extends Sprite {
                 setHitBox(0, new RectF(7.0f * dpiRatio, 13.0f * dpiRatio, 98.0f * dpiRatio, 79.0f * dpiRatio));
                 setHitBox(1, new RectF(7.0f * dpiRatio, 13.0f * dpiRatio, 98.0f * dpiRatio, 78.0f * dpiRatio));
                 break;
+        }
+
+        if(Resources.difficulty == Resources.Difficulty.HARD) {
+            dropChanceWeapon = 15;
+            dropChanceShield = 12;
         }
 
         this.setSkipFrames((short) 5);
@@ -131,10 +143,10 @@ public class Invader extends Sprite {
                 else if (sprite.getClass() == DefenseBrick.class) {
                     return true;
                 }
-                else if (sprite.getClass() == Player.class) {
-                    doDrawFrame = false;
-                    setCurrFrame(7); // frame at index 7 is blank
-                    isDead = true; // should trigger
+                else if (sprite instanceof Player) {
+                    setStartAndEndFrames(7, 7);
+                    isDead = true;
+                    ((Player) sprite).doDeath();
                     return true;
                 }
             }
@@ -179,11 +191,36 @@ public class Invader extends Sprite {
         projectiles.addProjectile(getX(), getY(), false);
     }
 
-    /**
-     * TODO still need to implement power-ups
-     */
-    public void dropPowerup() {
-        // TODO implement after power-ups are implemented
+
+    public PowerUp dropPowerup() {
+        Random rand = new Random();
+
+        int result = rand.nextInt(100);
+
+        // If the drop chance calculation happens to result in a situation where the Invader could
+        // drop either a shield or weapon type power up, create another random chance where it is
+        // slightly more likely to drop a shield instead of a weapon type power up.
+        if(result % dropChanceWeapon == 0 && result % dropChanceShield == 0) {
+            if(rand.nextInt(dropChanceShield) % 10 > rand.nextInt(dropChanceWeapon) % 4) {
+                return new PowerUp(getX(), getY(), PowerUp.Color.BLUE);
+            }
+            else {
+                result = rand.nextInt(2);
+                if(result == 0) return new PowerUp(getX(), getY(), PowerUp.Color.RED);
+
+                return new PowerUp(getX(), getY(), PowerUp.Color.YELLOW);
+            }
+        }
+
+        if(result % dropChanceWeapon == 0) {
+            result = rand.nextInt(2);
+            if(result == 0) return new PowerUp(getX(), getY(), PowerUp.Color.RED);
+            return new PowerUp(getX(), getY(), PowerUp.Color.YELLOW);
+        }
+        else if(result % dropChanceShield == 0)
+            return new PowerUp(getX(), getY(), PowerUp.Color.BLUE);
+
+        return null;
     }
 
     public boolean isHit() {
@@ -196,6 +233,14 @@ public class Invader extends Sprite {
 
     public void isScoreTallied(boolean b) {
         isScoreTallied = b;
+    }
+
+    public boolean isDeathCounted() {
+        return isDeathCounted;
+    }
+
+    public void isDeathCounted(boolean b) {
+        isDeathCounted = b;
     }
 
     /**

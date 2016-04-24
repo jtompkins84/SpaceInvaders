@@ -11,8 +11,8 @@
         android:alpha="0.75"></FrameLayout>
 
     <ImageButton
-        android:id="@+id/game_over_button"
-        android:src="@drawable/game_over"
+        android:id="@+id/victory_button"
+        android:src="@drawable/victory"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@null"
