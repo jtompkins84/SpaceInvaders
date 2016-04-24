@@ -19,7 +19,7 @@ public class Resources {
 
     public static float DPIRatio;
 
-    public enum Difficulty {NORMAL, HARD};
+    public enum Difficulty {NORMAL, HARD, DEMO};
     public static Difficulty difficulty = Difficulty.NORMAL;
 
     public static int player_final_score = 0;
