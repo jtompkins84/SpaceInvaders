@@ -21,8 +21,8 @@ public class Invader extends Sprite {
     private float xMoveIncrement;
     private float yMoveIncrement;
 
-    private int dropChanceWeapon = 8;
-    private int dropChanceShield = 5;
+    private int dropChanceWeapon = 10;
+    private int dropChanceShield = 7;
 
     /**
      *
@@ -66,8 +66,8 @@ public class Invader extends Sprite {
         }
 
         if(Resources.difficulty == Resources.Difficulty.HARD) {
-            dropChanceWeapon = 10;
-            dropChanceShield = 7;
+            dropChanceWeapon = 15;
+            dropChanceShield = 12;
         }
 
         this.setSkipFrames((short) 5);
