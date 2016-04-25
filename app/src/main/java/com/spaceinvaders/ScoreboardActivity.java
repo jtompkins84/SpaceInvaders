@@ -64,7 +64,7 @@ public class ScoreboardActivity extends AppCompatActivity implements View.OnClic
         mSecond.setText(mScore2.toString());
         mThird.setText(mScore3.toString());
 
-        mPlayerScore.setText("Your Score: " + Resources.player_final_score);
+        mPlayerScore.setText(Resources.player_final_score);
 
         mName = (EditText) findViewById(R.id.player_name);
         mSubmit = (Button) findViewById(R.id.submit_button);
