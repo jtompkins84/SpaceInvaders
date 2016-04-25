@@ -21,7 +21,7 @@ public class ProjectileArray {
      */
     public ProjectileArray(Player p, float playFieldHeight) {
         this.playFieldHeight = playFieldHeight;
-        projectiles = new Projectile[64];
+        projectiles = new Projectile[32];
 
         for(int i = 0; i < projectiles.length; i++) projectiles[i] = null;
 
@@ -107,10 +107,49 @@ public class ProjectileArray {
     }
 
     /**
+     * Adds a <code>Projectile</code> to the array of the specified type.
+     */
+    public void addProjectile(float posX, float posY, Projectile.Type type) {
+        if(projectiles != null) {
+            for(int i = 0; i < projectiles.length; i++) {
+                if(projectiles[i] == null) {
+                    projectiles[i] = new Projectile(posX, posY, type);
+                    activeProjectileCount++;
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a <code>Projectile</code> to the array of the specified type.
+     */
+    public void addProjectile(Projectile p) {
+        if(projectiles != null) {
+            for(int i = 0; i < projectiles.length; i++) {
+                if(projectiles[i] == null) {
+                    projectiles[i] = p;
+                    activeProjectileCount++;
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
      * Get the array of <code>Projectile</code>s
      * @return <code>Projectile[]</code>
      */
     public Projectile[] getProjectiles() {
         return projectiles;
+    }
+
+    /**
+     * Causes all projectiles to be removed, making them simply disappear.
+     */
+    public void removeAllProjectiles() {
+        for(int i = 0; i < projectiles.length; i++) {
+            if(projectiles[i] != null) projectiles[i] = null;
+        }
     }
 }

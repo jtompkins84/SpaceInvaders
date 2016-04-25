@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/activity_scoreboard"
+    android:clickable="false"
+    android:background="#000000"
+    android:alpha="1">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:background="@null">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SCOREBOARD"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:textSize="50dp"
+            android:textIsSelectable="false"
+            android:textColor="#33ff00" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="top|center"
+        android:id="@+id/options_button_panel"
+        android:clickable="false"
+        android:background="@null"
+        android:weightSum="1">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score 1: "
+            android:id="@+id/score1"
+            android:layout_marginTop="30dp"
+            android:layout_weight="0.03"
+            android:textColor="#33ff00"
+            android:textSize="30dp"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score 2: "
+            android:id="@+id/score2"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="50dp"
+            android:layout_weight="0.03"
+            android:textColor="#33ff00"
+            android:textSize="25dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score 3: "
+            android:id="@+id/score3"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.03"
+            android:layout_marginTop="50dp"
+            android:textColor="#33ff00"
+            android:textSize="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Score: "
+            android:id="@+id/new_score"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.03"
+            android:layout_marginTop="80dp"
+            android:textColor="#33ff00"
+            android:textSize="30dp"
+            android:textIsSelectable="false" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/player_name"
+            android:layout_marginTop="40dp"
+            android:textColor="#33ff00"
+            android:textAlignment="center"
+            android:maxLength="3"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SUBMIT"
+            android:id="@+id/submit_button"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.03"
+            android:layout_marginTop="20dp"
+            android:textColor="#33ff00"
+            android:background="#00b400" />
+    </LinearLayout>
+
+</LinearLayout>

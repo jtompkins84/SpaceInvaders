@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="false"
+    android:id="@+id/activity_options_menu"
+    android:background="#000000"
+    android:alpha="1">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:background="@null">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OPTIONS"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="60dp"
+            android:textSize="50dp"
+            android:textIsSelectable="false"
+            android:textColor="#33ff00" />
+    </FrameLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="top|center"
+        android:id="@+id/options_button_panel"
+        android:clickable="false"
+        android:background="@null">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DIFFICULTY"
+            android:layout_gravity="center_horizontal"
+            android:textSize="20dp"
+            android:textIsSelectable="false"
+            android:textColor="#33ff00"
+            android:layout_marginTop="50dp"
+            android:layout_marginRight="90dp" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="HARD"
+            android:id="@+id/hard_button"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="-75dp"
+            android:checked="false"
+            android:textOn="HARD"
+            android:textOff="HARD"
+            android:textColor="@color/toggle_text"
+            android:background="#00b400"
+            android:layout_marginTop="10dp" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NORMAL"
+            android:id="@+id/normal_button"
+            android:layout_marginRight="80dp"
+            android:textOn="NORMAL"
+            android:textOff="NORMAL"
+            android:checked="true"
+            android:background="#00b400"
+            android:textColor="@color/toggle_text"
+            android:layout_marginTop="-49dp" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DEMO"
+            android:id="@+id/demo_button"
+            android:layout_gravity="center_horizontal"
+            android:background="#00b400"
+            android:textColor="@color/toggle_text"
+            android:textOff="DEMO"
+            android:textOn="DEMO"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="40dp"
+            android:checked="false" />
+
+    </LinearLayout>
+
+</LinearLayout>

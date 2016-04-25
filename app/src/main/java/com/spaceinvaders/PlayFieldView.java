@@ -6,6 +6,8 @@ import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.util.Log;
@@ -15,23 +17,17 @@ import android.view.SurfaceView;
 
 import java.io.IOException;
 
-/**
- * Created by Joseph on 2/5/2016.
- */
 public class PlayFieldView extends SurfaceView implements Runnable {
     private Thread gameThread = null;
     private SurfaceHolder ourHolder;
-    /**
-     * Set to 1.0f by default. DPIRatio is adjusted during resource initialization and is used to
-     * scale dimensions & coordinates to the correct proportions so that
-     * the play field looks the same no matter what device it is displayed on.
-     */
-    float DPIRatio = 1.0f;
 
     private volatile boolean playing;
+    RectF controlPanel;
 
     // game starts out paused
     private boolean paused = false;
+    // changes state of run() to do the resume countdown.
+    private boolean resuming = false;
 
     // need a canvas and paint object
     private Canvas canvas;
@@ -46,16 +42,13 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private float playFieldHeight;
 
     private Player player;
+    private long startTime = -1;
 
     private ProjectileArray projectiles;
-    private int maxPlayerBullets = 10;
 
-    private Invader[] invaders = new Invader[60]; // TODO replace with InvaderArmy class
-    private int numInvaders = 0;
+    private InvaderArmy invaderArmy;
 
-    private DefenseBrick[][] bricks = new DefenseBrick[3][4];
     private DefenseWall[] walls = new DefenseWall[4];
-    private int numBricks;
 
     private SoundPool soundPool;
     private int playerExplodeID = -1;
@@ -65,32 +58,45 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private int uhID = -1;
     private int ohID = -1;
 
-    // The score
+    private float buttonRadius = 0.0f;
+    private PointF fireButtonPos;
+    private PointF leftButtonPos;
+    private PointF rightButtonPos;
+
     private int score = 0;
 
-    // Lives
     private int lives = 3;
-
-    private long menaceInterval = 1000;
 
     private boolean uhOrOh;
 
-    private long lastMenaceTime = System.currentTimeMillis();
+    private short countdownNumber = -1;
+    private boolean doGameOver = false;
 
-/*******************************************************************************
+    /*******************************************************************************
  * Constructor
  *
  * @param context super constructor needs reference to this
  * @param width <code>int</code> - this view's width in pixels
  * @param height <code>int</code> - this view's height in pixels
  ********************************************************************************/
-    public PlayFieldView(Context context, int width, int height) {
+    public PlayFieldView(Context context, float width, float height) {
         super(context);
 
         playFieldWidth = width;
-        playFieldHeight = height;
+        playFieldHeight = height * 0.75f;
         ourHolder = getHolder();
         paint = new Paint();
+
+        controlPanel = new RectF(0, playFieldHeight,
+                playFieldWidth, height);
+
+        buttonRadius = playFieldWidth / 11;
+        fireButtonPos = new PointF(buttonRadius * 2.25f, controlPanel.top + (buttonRadius * 2.25f));
+        rightButtonPos = new PointF(playFieldWidth - fireButtonPos.x,
+                fireButtonPos.y);
+        leftButtonPos = new PointF(rightButtonPos.x - (buttonRadius * 2.5f),
+                fireButtonPos.y);
+
 
         // TODO this is deprecated and we will most likely change it
         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
@@ -123,9 +129,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         initializePlayField();
     }
 
-    private void initializePlayField() {
-    // Here we will initialize all the game objects
-
+    public void initializePlayField() {
     // Make a new player
         player = new Player(playFieldWidth, playFieldHeight);
 
@@ -133,6 +137,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         projectiles = new ProjectileArray(player, playFieldHeight);
 
     // Build an army of invaders
+        invaderArmy = new InvaderArmy(playFieldWidth, playFieldHeight, projectiles, this);
 
     // Build the defense walls
         playFieldWidth = this.getResources().getDisplayMetrics().widthPixels;
@@ -145,9 +150,16 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     @Override
     public void run() {
         while (playing) {
+            if(doGameOver) break;
+
             long startFrameTime = System.currentTimeMillis();
-            if (!paused) {
+            if(resuming) doResumeCountdown();
+            else if(!paused && player != null && player.doUpdate()) {
                 update();
+            }
+            else if (!paused && player != null && !player.doUpdate()) {
+                player.update(fps);
+                doPlayerDeath();
             }
 
             draw();
@@ -158,58 +170,61 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
             // We will do something here towards the end of the project
         }
+
+        if(doGameOver) ((SpaceInvadersActivity) getContext()).doGameOver();
     }
 
     private void update() {
-        // Has the player lost
-        boolean lost = false;
+        if(invaderArmy.getInvadersLeft() <= 0) {
+            if(getContext() instanceof SpaceInvadersActivity) {
+                ((SpaceInvadersActivity) getContext()).doVictory();
+                return;
+            }
+        }
+        else if(invaderArmy.isAtBottom()){
+            if(getContext() instanceof SpaceInvadersActivity) {
+                score -= 200;
+                if(score < 0) score = 0;
+                ((SpaceInvadersActivity) getContext()).doSurvived();
+                return;
+            }
+        }
 
-        // update walls and calculate collisions with walls
-        for(DefenseWall w : walls) {
-            if(w != null) {
-                for (Projectile p : projectiles.getProjectiles()) {
-                    if (p != null)
-                        w.doCollisions(p);
+        // calculate projectile collisions
+        for (Projectile p : projectiles.getProjectiles()) {
+            if (p != null) {
+                if (p.isFromPlayer() == false && player.checkCollision(p))
+                    return; // skip the rest of the update process for player death.
+
+                else if(p.isFromPlayer() == true) {
+                    invaderArmy.doCollision(p);
                 }
 
+                for (DefenseWall w : walls) {
+                    if(w != null) w.doCollisions(p);
+                }
+            }
+        }
+
+        // update walls
+        for (DefenseWall w : walls) {
+            if(w != null){
+                invaderArmy.doWallCollision(w);
                 w.update(fps);
             }
         }
 
+        invaderArmy.doCollision(player);
 
-
-        // Move the player
+        // Update player state
         player.update(fps);
 
-//        player.fire(projectiles); // TODO REMOVE THIS LINE. Only for testing functionality of player firing.
+        // Update the invaders
+        invaderArmy.update(fps);
 
-        // Update the invaders if visible
-
-        // Update all the invaders bullets if active
-
-        // Did and invader bump into the edge of the screen
-
-        if (lost) {
-            initializePlayField();
-        }
-
-
+        // Update projectiles
         projectiles.update(fps);
 //        projectiles.getProjectiles()[0].update(fps);
-
-        // Update the players projectile
-
-        // Has the player's projectile hit the top of the screen
-
-        // Has an invaders' projectile hit the bottom of the screen
-
-        // Has the player's projectile hit and invader
-
-        // Has an alien projectile hit a shelter brick
-
-        // Has the player projectile hit a shelter brick
-
-        // Has an invader projectile hit the player ship
     }
 
     private void draw() {
@@ -232,6 +247,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             player.draw(canvas, paint, false);
 
             // Draw the invaders
+            invaderArmy.draw(canvas, paint, false);
 
             // Draw the bricks if visible
             for(DefenseWall wall : walls) {
@@ -240,11 +256,69 @@ public class PlayFieldView extends SurfaceView implements Runnable {
                 }
             }
 
+            //Draw countdown numbers, if countdown is active
+            switch (countdownNumber) {
+                case 3:
+                    canvas.drawColor(Color.argb(127, 0, 0, 0));
+                    canvas.drawBitmap(Resources.img_countdown_3,
+                            (playFieldWidth / 2) - (Resources.img_countdown_3.getWidth() / 2),
+                            (playFieldHeight / 2) - (Resources.img_countdown_3.getHeight() / 2),
+                            paint);
+                    break;
+                case 2:
+                    canvas.drawColor(Color.argb(127, 0, 0, 0));
+                    canvas.drawBitmap(Resources.img_countdown_2,
+                            (playFieldWidth / 2) - (Resources.img_countdown_2.getWidth() / 2),
+                            (playFieldHeight / 2) - (Resources.img_countdown_2.getHeight() / 2),
+                            paint);
+                    break;
+                case 1:
+                    canvas.drawColor(Color.argb(127, 0, 0, 0));
+                    canvas.drawBitmap(Resources.img_countdown_1,
+                            (playFieldWidth / 2) - (Resources.img_countdown_1.getWidth() / 2),
+                            (playFieldHeight / 2) - (Resources.img_countdown_1.getHeight() / 2),
+                            paint);
+                    break;
+                default:
+                    break;
+            }
+
+            float width = Resources.img_icon_player_life.getWidth();
+            float height = Resources.img_icon_player_life.getHeight();
+
+            for(int i = 0; i < lives; i++) {
+
+
+                canvas.drawBitmap(Resources.img_icon_player_life,
+                        (width * 0.5f) + ((width * 1.5f) * i), 0, paint);
+            }
+
             // Draw the score and remaining lives
             // Change brush color
             paint.setColor(Color.argb(255, 0, 255, 0));
-            paint.setTextSize(40 * DPIRatio);
-            canvas.drawText("Score: " + score + "  Lives: " + lives, 10, 50, paint);
+            paint.setTextSize(40 * Resources.DPIRatio);
+            paint.setTextAlign(Paint.Align.RIGHT);
+            canvas.drawText(String.valueOf(score), playFieldWidth * 0.95f, height * 0.80f, paint);
+
+            // Draw Player controls
+            paint.setAntiAlias(true);
+
+            paint.setColor(Color.argb(255, 10, 10, 10));
+            canvas.drawRect(controlPanel, paint);
+
+            paint.setColor(Color.argb(255, 0, 180, 0));
+            canvas.drawCircle(fireButtonPos.x, fireButtonPos.y, buttonRadius, paint);
+
+            canvas.drawCircle(rightButtonPos.x, rightButtonPos.y, buttonRadius, paint);
+            canvas.drawCircle(leftButtonPos.x, leftButtonPos.y, buttonRadius, paint);
+
+            paint.setColor(Color.argb(255, 0, 255, 0));
+
+            float yOffset = playFieldHeight / 100;
+            canvas.drawCircle(fireButtonPos.x, fireButtonPos.y - yOffset, buttonRadius, paint);
+
+            canvas.drawCircle(rightButtonPos.x, rightButtonPos.y - yOffset, buttonRadius, paint);
+            canvas.drawCircle(leftButtonPos.x, leftButtonPos.y - yOffset, buttonRadius, paint);
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
@@ -254,6 +328,12 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     // IF SpaceInvadersActivity is paused/stopped
     public void pause() {
         playing = false;
+
+        // Resets timer to allow doResumeCountdown() to start from top of countdown.
+        // This insures that if the device is put into a "sleep" state, the resume countdown
+        // will always provide a 3 second countdown, even if the game is paused during the countdown.
+        startTime = -1;
+
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -267,20 +347,54 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         playing = true;
         gameThread = new Thread(this);
         gameThread.start();
+
+        resuming = true; // sets the state to resume
     }
 
-    // The SurfaceView class implements onTouchListner
-    // So we can override this method and detect screen touches
+    public void resumeNoCountdown() {
+        playing = true;
+        countdownNumber = -1;
+        startTime = -1;
+        resuming = false;
+
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
+
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
 
-            //Player has touched the screen
             case MotionEvent.ACTION_DOWN:
-                player.fire(projectiles);
+                if (motionEvent.getX() > fireButtonPos.x - buttonRadius
+                        && motionEvent.getX() < fireButtonPos.x + buttonRadius
+                        && motionEvent.getY() > fireButtonPos.y - buttonRadius
+                        && motionEvent.getY() < fireButtonPos.y + buttonRadius)
+                {
+                    playerFire();
+                }
+
+                if (motionEvent.getX() > leftButtonPos.x - buttonRadius
+                        && motionEvent.getX() < leftButtonPos.x + buttonRadius
+                        && motionEvent.getY() > leftButtonPos.y - buttonRadius
+                        && motionEvent.getY() < leftButtonPos.y + buttonRadius)
+                {
+                    playerMovement(Movement.LEFT);
+                }
+
+                if (motionEvent.getX() > rightButtonPos.x - buttonRadius
+                        && motionEvent.getX() < rightButtonPos.x + buttonRadius
+                        && motionEvent.getY() > rightButtonPos.y - buttonRadius
+                        && motionEvent.getY() < rightButtonPos.y + buttonRadius)
+                {
+                    playerMovement(Movement.RIGHT);
+                }
                 break;
+
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
+                playerMovement(Movement.STOPPED);
 
                 break;
         }
@@ -294,5 +408,78 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     public void playerMovement(Movement direction) {
         player.setMovementState(direction);
+    }
+
+    public void addToPlayerScore(int plusScore) {
+        score += plusScore;
+    }
+
+    /**
+     * The first call to this method decrements <code>lives</code> by 1,
+     * initializes a death cycle timer, removes all projectiles from the play field, and
+     * stops the player from being able to fire or move as well as prevents the rest of
+     * the <code>Sprite</code> objects from updating.
+     * <div></div>
+     * Each consecutive call after displays the countdown numbers and once the timer reaches
+     * 5 seconds, player movement is returned and the playfield resumes normal updates.
+     */
+    private void doPlayerDeath() {
+
+
+        long currTime = System.currentTimeMillis();
+        if(player.isDead() && startTime == -1) {
+            startTime = currTime;
+            player.doUpdate(false);
+            lives--;
+            projectiles.removeAllProjectiles();
+        }
+
+        long timeDif = currTime - startTime;
+
+        if(lives <= 0 && timeDif >= 2000) {
+            if(getContext() instanceof SpaceInvadersActivity) {
+                Resources.player_final_score = score;
+                doGameOver = true;
+            }
+        }
+
+        else if(timeDif >= 2000 && timeDif < 3000) countdownNumber =3;
+        else if(timeDif >= 3000 && timeDif < 4000) countdownNumber = 2;
+        else if(timeDif >= 4000 && timeDif < 5000) countdownNumber = 1;
+        else if(timeDif >= 5000) {
+            countdownNumber = -1;
+            startTime = -1;
+            player.doUpdate(true);
+        }
+    }
+
+    /**
+     * Does a 3 second countdown before allowing the game thread to resume updating.
+     */
+    private void doResumeCountdown() {
+        long currTime = System.currentTimeMillis();
+        long timeDif = 0;
+        timeDif = currTime - startTime;
+        if(startTime == -1) {
+            startTime = currTime;
+            countdownNumber = 3;
+            return;
+        }
+
+        if(timeDif >= 1000 && timeDif < 2000) countdownNumber = 2;
+        else if(timeDif >= 2000 && timeDif < 3000) countdownNumber = 1;
+        else if(timeDif >= 3000) {
+            countdownNumber = -1;
+            startTime = -1;
+            resuming = false;
+        }
+    }
+
+    public int getPlayerLives() {
+        return lives;
+    }
+
+    public int getPlayerScore() {
+        return score;
     }
 }

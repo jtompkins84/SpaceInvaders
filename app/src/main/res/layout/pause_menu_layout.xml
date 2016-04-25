@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="false"
+    android:id="@+id/pause_menu"
+    android:background="@null">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:alpha="0.75"></FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:background="@null">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PAUSED"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="60dp"
+            android:textSize="50dp"
+            android:textIsSelectable="false"
+            android:textColor="#33ff00" />
+
+    </FrameLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="bottom|center"
+            android:id="@+id/pause_button_panel"
+            android:clickable="false"
+            android:background="@null">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/quit_button"
+                android:src="@drawable/quit_button"
+                android:layout_marginBottom="15dp"
+                android:adjustViewBounds="false"
+                android:background="@null" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/resume_button"
+                android:background="@null"
+                android:id="@+id/resume_button"
+                android:layout_marginBottom="100dp" />
+
+        </LinearLayout>
+
+</FrameLayout>

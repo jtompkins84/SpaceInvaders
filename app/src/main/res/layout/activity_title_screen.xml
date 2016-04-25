@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_title_screen"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:gravity="top|center"
+    android:weightSum="1">
+
+    <ImageView
+        android:src="@drawable/title_splash"
+        android:layout_width="325dp"
+        android:layout_height="236dp"
+        android:layout_gravity="top|center_horizontal" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_gravity="center_horizontal" />
+
+    <ImageButton
+        android:id="@+id/title_start_button"
+        android:src="@drawable/start_button"
+        android:background="@null"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageButton
+        android:id="@+id/options_button"
+        android:src="@drawable/options_button"
+        android:background="@null"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>
