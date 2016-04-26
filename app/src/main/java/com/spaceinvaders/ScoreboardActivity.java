@@ -1,5 +1,7 @@
 package com.spaceinvaders;
 
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import com.tutorials.joseph.spaceinvaders.R;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Created by Joe on 4/18/2016.
@@ -43,6 +46,13 @@ public class ScoreboardActivity extends AppCompatActivity implements View.OnClic
         mThird = (TextView) findViewById(R.id.score3);
         mPlayerScore = (TextView) findViewById(R.id.new_score);
 
+        Typeface videophreak = Typeface.createFromAsset(getAssets(),  "fonts/VideoPhreak.ttf");
+
+        mFirst.setTypeface(videophreak);
+        mSecond.setTypeface(videophreak);
+        mThird.setTypeface(videophreak);
+        mPlayerScore.setTypeface(videophreak);
+
         hiScores = (ArrayList) HiScore.listAll(HiScore.class, "score desc");
 
         if(hiScores.size() < 3) {
@@ -64,9 +74,10 @@ public class ScoreboardActivity extends AppCompatActivity implements View.OnClic
         mSecond.setText(mScore2.toString());
         mThird.setText(mScore3.toString());
 
-        mPlayerScore.setText(Resources.player_final_score);
+        mPlayerScore.setText(String.valueOf(Resources.player_final_score));
 
         mName = (EditText) findViewById(R.id.player_name);
+        mName.setTypeface(videophreak);
         mSubmit = (Button) findViewById(R.id.submit_button);
         mSubmit.setOnClickListener(this);
     }

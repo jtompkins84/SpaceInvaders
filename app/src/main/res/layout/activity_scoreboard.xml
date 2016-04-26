@@ -41,7 +41,7 @@
             android:id="@+id/score1"
             android:layout_marginTop="30dp"
             android:layout_weight="0.03"
-            android:textColor="#33ff00"
+            android:textColor="#ffffff"
             android:textSize="30dp"
             android:layout_gravity="center_horizontal"
             style="d" />
@@ -54,7 +54,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="50dp"
             android:layout_weight="0.03"
-            android:textColor="#33ff00"
+            android:textColor="#FFFFFF"
             android:textSize="25dp" />
 
         <TextView
@@ -65,7 +65,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.03"
             android:layout_marginTop="50dp"
-            android:textColor="#33ff00"
+            android:textColor="#FFFFFF"
             android:textSize="20dp" />
 
         <ImageView
@@ -83,7 +83,7 @@
             android:id="@+id/new_score"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.05"
-            android:textColor="#33ff00"
+            android:textColor="#FFFFFF"
             android:textSize="40dp"
             android:textAlignment="center"
             android:textIsSelectable="false" />
@@ -92,11 +92,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/player_name"
-            android:layout_marginTop="20dp"
-            android:textColor="#33ff00"
+            android:layout_marginTop="10dp"
+            android:textColor="#FFFFFF"
             android:textAlignment="center"
             android:maxLength="3"
-            android:inputType="textShortMessage|textNoSuggestions" />
+            android:inputType="textShortMessage|textNoSuggestions"
+            android:layout_weight="0.14"
+            android:textSize="25dp" />
 
         <Button
             android:layout_width="wrap_content"
@@ -105,7 +107,7 @@
             android:id="@+id/submit_button"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.03"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:textColor="#33ff00"
             android:background="#00b400" />
     </LinearLayout>
