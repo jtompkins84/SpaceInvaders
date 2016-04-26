@@ -72,6 +72,9 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     private short countdownNumber = -1;
     private boolean doGameOver = false;
 
+    private int pointerID01;
+    private int pointerID02;
+
     /*******************************************************************************
  * Constructor
  *
@@ -363,9 +366,12 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
+        int pointerCount = motionEvent.getPointerCount();
 
-        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+        pointerID01 = motionEvent.getPointerId(0);
+        if(pointerCount > 1) pointerID02 = motionEvent.getPointerId(1);
 
+        switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 if (motionEvent.getX() > fireButtonPos.x - buttonRadius
                         && motionEvent.getX() < fireButtonPos.x + buttonRadius
@@ -374,7 +380,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
                 {
                     playerFire();
                 }
-
                 if (motionEvent.getX() > leftButtonPos.x - buttonRadius
                         && motionEvent.getX() < leftButtonPos.x + buttonRadius
                         && motionEvent.getY() > leftButtonPos.y - buttonRadius
@@ -382,7 +387,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
                 {
                     playerMovement(Movement.LEFT);
                 }
-
                 if (motionEvent.getX() > rightButtonPos.x - buttonRadius
                         && motionEvent.getX() < rightButtonPos.x + buttonRadius
                         && motionEvent.getY() > rightButtonPos.y - buttonRadius
@@ -390,8 +394,49 @@ public class PlayFieldView extends SurfaceView implements Runnable {
                 {
                     playerMovement(Movement.RIGHT);
                 }
+
+
                 break;
 
+            case MotionEvent.ACTION_POINTER_DOWN:
+                if(pointerCount > 1
+                        && motionEvent.getX(pointerID01) > fireButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID01) < fireButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID01) > fireButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID01) < fireButtonPos.y + buttonRadius
+                        || motionEvent.getX(pointerID02) > fireButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID02) < fireButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID02) > fireButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID02) < fireButtonPos.y + buttonRadius)
+                {
+                    playerFire();
+                }
+                if(pointerCount > 1
+                        && motionEvent.getX(pointerID01) > leftButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID01) < leftButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID01) > leftButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID01) < leftButtonPos.y + buttonRadius
+                        || motionEvent.getX(pointerID02) > leftButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID02) < leftButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID02) > leftButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID02) < leftButtonPos.y + buttonRadius)
+                {
+                    playerMovement(Movement.LEFT);
+                }
+                if(pointerCount > 1
+                        && motionEvent.getX(pointerID01) > rightButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID01) < rightButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID01) > rightButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID01) < rightButtonPos.y + buttonRadius
+                        || motionEvent.getX(pointerID02) > rightButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID02) < rightButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID02) > rightButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID02) < rightButtonPos.y + buttonRadius)
+                {
+                    playerMovement(Movement.RIGHT);
+                }
+
+                break;
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
                 playerMovement(Movement.STOPPED);
