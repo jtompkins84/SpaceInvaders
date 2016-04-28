@@ -14,15 +14,6 @@
         android:layout_gravity="center|top"
         android:background="@null">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="SCOREBOARD"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30dp"
-            android:textSize="50dp"
-            android:textIsSelectable="false"
-            android:textColor="#33ff00" />
     </FrameLayout>
 
     <LinearLayout
@@ -35,59 +26,79 @@
         android:background="@null"
         android:weightSum="1">
 
-        <TextView
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Score 1: "
-            android:id="@+id/score1"
-            android:layout_marginTop="30dp"
+            android:id="@+id/imageView"
             android:layout_weight="0.03"
-            android:textColor="#33ff00"
-            android:textSize="30dp"
-            android:layout_gravity="center_horizontal" />
+            android:background="@drawable/leadertitle"
+            android:layout_marginTop="20dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Score 2: "
+            android:text="SCORE 1:"
+            android:id="@+id/score1"
+            android:layout_marginTop="30dp"
+            android:layout_weight="0.03"
+            android:textColor="#ffffff"
+            android:textSize="30dp"
+            android:layout_gravity="center_horizontal"
+            style="d" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SCORE 2:"
             android:id="@+id/score2"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="50dp"
             android:layout_weight="0.03"
-            android:textColor="#33ff00"
+            android:textColor="#FFFFFF"
             android:textSize="25dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Score 3: "
+            android:text="SCORE 3:"
             android:id="@+id/score3"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.03"
             android:layout_marginTop="50dp"
-            android:textColor="#33ff00"
+            android:textColor="#FFFFFF"
             android:textSize="20dp" />
 
-        <TextView
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Your Score: "
-            android:id="@+id/new_score"
+            android:id="@+id/imageView2"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.03"
-            android:layout_marginTop="80dp"
-            android:textColor="#33ff00"
-            android:textSize="30dp"
+            android:background="@drawable/yourscore"
+            android:layout_marginTop="50dp" />
+
+        <TextView
+            android:layout_width="164dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/new_score"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.05"
+            android:textColor="#FFFFFF"
+            android:textSize="40dp"
+            android:textAlignment="center"
             android:textIsSelectable="false" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/player_name"
-            android:layout_marginTop="40dp"
-            android:textColor="#33ff00"
+            android:layout_marginTop="10dp"
+            android:textColor="#FFFFFF"
             android:textAlignment="center"
-            android:maxLength="3"/>
+            android:maxLength="3"
+            android:inputType="textShortMessage|textNoSuggestions"
+            android:layout_weight="0.14"
+            android:textSize="25dp" />
 
         <Button
             android:layout_width="wrap_content"
@@ -96,7 +107,7 @@
             android:id="@+id/submit_button"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.03"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:textColor="#33ff00"
             android:background="#00b400" />
     </LinearLayout>
