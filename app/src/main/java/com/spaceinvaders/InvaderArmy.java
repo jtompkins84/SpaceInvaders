@@ -40,7 +40,7 @@ public class InvaderArmy {
     private int invadersAlive = 0;
 
     private long lastMoveTime = System.currentTimeMillis();
-    private long timeBetweenMoves = 1500l;
+    private long timeBetweenMoves = 1200l;
     private long timeBtwnMovesMin = 200l;
     private long timeDecrement = 0;
 
@@ -63,12 +63,17 @@ public class InvaderArmy {
             scoreB *= 2;
             scoreC *= 2;
         }
+        else if(Resources.difficulty == Resources.Difficulty.DEMO) {
+            timeBetweenMoves = 800l;
+            timeBtwnMovesMin = 100l;
+        }
+
+        timeDecrement = (timeBetweenMoves - timeBtwnMovesMin) / (rows * cols) ;
 
         invaders = new Invader[rows][cols];
         xSpacing = Resources.img_invader_a01.getWidth()* 1.125f; // the amount to horizontally space invaders apart from each other
         ySpacing = Resources.img_invader_a01.getHeight(); // the amount to vertical space invaders apart from each other
 
-        timeDecrement = (timeBetweenMoves - timeBtwnMovesMin) / (rows * cols);
 
         buildArmy();
     }
@@ -223,8 +228,9 @@ public class InvaderArmy {
         if(armyPos.y + armyHeight > playFieldHeight) {
             for(int i = 0; i < rows; i++) {
                 for(int j = 0; j < cols; j++) {
-                    if(!invaders[i][j].isDead()) {
-                        if(invaders[i][j].getRawY() >= playFieldHeight) return true;
+                    if(!invaders[i][j].isDead() && !invaders[i][j].isHit()) {
+                        if(invaders[i][j].getHitBox().top > playFieldHeight) return true;
+                        else return false;
                     }
                 }
             }
