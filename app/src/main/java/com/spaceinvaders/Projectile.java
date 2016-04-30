@@ -13,10 +13,6 @@ public class Projectile extends Sprite {
     private boolean isFromPlayer = false;
     private boolean isDestroyed = false;
 
-    public Projectile() {
-        super();
-    }
-
     /**
      * Create an instance of <code>Projectile</code>.
      * @param posX <code>float</code> X-position
