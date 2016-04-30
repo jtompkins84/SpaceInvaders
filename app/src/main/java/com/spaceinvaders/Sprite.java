@@ -66,6 +66,7 @@ public abstract class Sprite {
     protected PointF pos = new PointF();
 
     protected RectF[] hitBoxes = null;
+    protected boolean isCollisionDetected = false;
 
     protected float speed;
 

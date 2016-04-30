@@ -69,7 +69,6 @@ public class ProjectileArray {
 
                         projectiles[i].isDestroyed(true);
                     }
-                    else if(projectiles[i].isCollisionDetected() == true) projectiles[i].isDestroyed(true);
 
                     if(projectiles[i].isDestroyed() == true) {
                         if (projectiles[i].isFromPlayer() == true)
