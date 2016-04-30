@@ -146,6 +146,10 @@ public abstract class Sprite {
         }
     }
 
+    public Sprite() {
+
+    }
+
 /******************************************************
 * ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
 * Memebers & Constructors
@@ -446,7 +450,7 @@ public abstract class Sprite {
 
         if ((hitBoxes != null && hitBoxes[currFrame] != null) && showHitBox == true) {
             int oldColor = paint.getColor();
-            paint.setARGB(150, 255, 0, 0);
+            paint.setARGB(255, 255, 0, 0);
             canvas.drawRect(hitBoxes[currFrame], paint);
             paint.setColor(oldColor);
         }

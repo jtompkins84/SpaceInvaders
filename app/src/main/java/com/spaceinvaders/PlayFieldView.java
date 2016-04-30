@@ -15,6 +15,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.spaceinvaders.game_entities.InvaderUFO;
+
 import java.io.IOException;
 
 public class PlayFieldView extends SurfaceView implements Runnable {
@@ -74,6 +76,8 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private int pointerID01;
     private int pointerID02;
+
+    private InvaderUFO ufo;
 
     /*******************************************************************************
  * Constructor
@@ -141,6 +145,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     // Build an army of invaders
         invaderArmy = new InvaderArmy(playFieldWidth, playFieldHeight, projectiles, this);
+        ufo = new InvaderUFO(Resources.img_invader_UFO01.getHeight() * 1.8f, player, projectiles, playFieldWidth);
 
     // Build the defense walls
         playFieldWidth = this.getResources().getDisplayMetrics().widthPixels;
@@ -211,7 +216,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
         // update walls
         for (DefenseWall w : walls) {
-            if(w != null){
+            if(w != null) {
                 invaderArmy.doWallCollision(w);
                 w.update(fps);
             }
@@ -224,10 +229,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
         // Update the invaders
         invaderArmy.update(fps);
+        ufo.update(fps);
 
         // Update projectiles
         projectiles.update(fps);
-//        projectiles.getProjectiles()[0].update(fps);
     }
 
     private void draw() {
@@ -244,13 +249,14 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             paint.setColor(Color.argb(255, 0, 255, 0));
 
             // Draw the  projectiles if active
-            projectiles.draw(canvas, paint, false);
+            projectiles.draw(canvas, paint, true);
 
             // Draw the player spaceship
             player.draw(canvas, paint, false);
 
             // Draw the invaders
             invaderArmy.draw(canvas, paint, false);
+            ufo.draw(canvas, paint, false);
 
             // Draw the bricks if visible
             for(DefenseWall wall : walls) {
@@ -351,6 +357,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         gameThread = new Thread(this);
         gameThread.start();
 
+        if(invaderArmy != null) {
+            invaderArmy.updateTimeOnResume();
+        }
+
         resuming = true; // sets the state to resume
     }
 
@@ -359,6 +369,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         countdownNumber = -1;
         startTime = -1;
         resuming = false;
+
+        if(invaderArmy != null) {
+            invaderArmy.updateTimeOnResume();
+        }
 
         gameThread = new Thread(this);
         gameThread.start();

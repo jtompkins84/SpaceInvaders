@@ -26,7 +26,7 @@ public class InvaderArmy {
     private int cols = 5;
     private int scoreA = 10;
     private int scoreB = 20;
-    private int scoreC = 30;
+    private int scoreC = 40;
     /**
      * spacing in between each invader.
      */
@@ -91,7 +91,7 @@ public class InvaderArmy {
             lastMoveTime = System.currentTimeMillis();
             doMove = true;
         }
-        else if(randFireChance == 2 && doHardFire
+        else if(randFireChance == 2 && doHardFire && invadersLeft > 0
                 && currTime - lastMoveTime >= timeBetweenMoves / 2
                 && currTime - lastMoveTime <= timeBetweenMoves - timeBetweenMoves / 4) {
 
@@ -122,7 +122,7 @@ public class InvaderArmy {
             Random random = new Random();
             int randFireResult = Math.abs( random.nextInt() % randFireChance );
 
-            if(randFireResult == 0){
+            if(randFireResult == 0 && invadersLeft > 0){
                 doFire = true;
 
                 // for loop is a safety measure to prevent the random number finding from taking too long
@@ -466,5 +466,9 @@ public class InvaderArmy {
             }
         }
         return -1;
+    }
+
+    public void updateTimeOnResume() {
+        lastMoveTime += (System.currentTimeMillis() - lastMoveTime);
     }
 }

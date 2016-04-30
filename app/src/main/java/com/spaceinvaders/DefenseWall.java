@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 
+import com.spaceinvaders.game_entities.InvaderLaser;
 import com.spaceinvaders.game_entities.PlayerLaserShot;
 import com.spaceinvaders.game_entities.PowerUp;
 
@@ -108,7 +109,9 @@ public class DefenseWall {
 
     public boolean doCollisions(Sprite sprite) {
         if(sprite != null) {
-            if (sprite instanceof PlayerLaserShot && withinXRange(sprite)) {
+            if ((sprite instanceof PlayerLaserShot || sprite instanceof InvaderLaser)
+                    && withinXRange(sprite) )
+            {
                 boolean result = false;
                 for (int i = 0; i < bricksInCol; i++) {
                     for (int j = 0; j < bricksInRow; j++) {

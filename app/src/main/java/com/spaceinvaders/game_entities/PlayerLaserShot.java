@@ -37,6 +37,16 @@ public class PlayerLaserShot extends Projectile {
             isCharged = true;
         }
 
+        /*
+            This method was devised to limit the amount of update ticks that the hitbox can be
+            "exposed."
+
+            The alternative to using this mod function was to increase the frame skipping. However,
+            if the frame skipping method is used, on the frame where the laser's hitbox is exposed,
+            hitbox collisions are being calculated the for each frame "skipped" by the animation.
+            This would basically defeat the original purpose, which is to limit the amount of
+            update ticks during which the laser's hitbox would check for collisions.
+         */
         if(isCharged) {
             if(updateCount % 8 == 0) setCurrFrame(1);
             else setCurrFrame(2);

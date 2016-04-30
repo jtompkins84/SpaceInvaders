@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
 
+import com.spaceinvaders.game_entities.InvaderLaser;
+
 /**
  * This class is designed to handle the projectiles of the play field as a iterable
  * collective.
@@ -62,7 +64,8 @@ public class ProjectileArray {
                 if(projectiles[i] != null) {
                     count++;    // increment number of active projectiles updated.
                     projectiles[i].update(fps);
-                    if(projectiles[i].getY() > playFieldHeight || projectiles[i].getY() < 20) {
+                    if(projectiles[i] instanceof InvaderLaser);
+                    else if(projectiles[i].getY() > playFieldHeight || projectiles[i].getY() < 20) {
 
                         projectiles[i].isDestroyed(true);
                     }
@@ -134,6 +137,20 @@ public class ProjectileArray {
                 }
             }
         }
+    }
+
+    public InvaderLaser addInvaderLaser(float xPos, float yPos) {
+        if(projectiles != null) {
+            for(int i = 0; i < projectiles.length; i++) {
+                if(projectiles[i] == null) {
+                    projectiles[i] = new InvaderLaser(xPos, yPos);
+                    activeProjectileCount++;
+                    return (InvaderLaser)projectiles[i];
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

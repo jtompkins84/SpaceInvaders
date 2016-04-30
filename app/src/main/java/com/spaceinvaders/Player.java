@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
+import com.spaceinvaders.game_entities.InvaderLaser;
 import com.spaceinvaders.game_entities.PlayerLaserShot;
 import com.spaceinvaders.game_entities.PlayerShield;
 import com.spaceinvaders.game_entities.PowerUp;
@@ -149,7 +150,7 @@ public class Player extends Sprite {
      * Otherwise, this returns <code>false</code>.
      */
     public boolean fire(ProjectileArray projArr) {
-        if(!isDead) {
+        if(!isDead && doUpdate) {
             long currTime = System.currentTimeMillis();
 
             if(hasSpecial) {
@@ -244,6 +245,8 @@ public class Player extends Sprite {
                     if (hasShield) {
                         {
                             hasShield = false;
+                            if(projectile instanceof InvaderLaser) return true;
+
                             projectile.isDestroyed(true);
                         }
                         return true;
