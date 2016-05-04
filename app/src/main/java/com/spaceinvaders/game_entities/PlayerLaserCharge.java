@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import com.spaceinvaders.Resources;
 
 public class PlayerLaserCharge extends Particle {
-    private boolean fullCharge = false;
 
     /**
      * Instantiates a <code>PlayerLaserCharge</code> particle.

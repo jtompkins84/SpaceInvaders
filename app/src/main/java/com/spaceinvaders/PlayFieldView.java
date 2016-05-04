@@ -6,6 +6,7 @@ import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -13,11 +14,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
+
+import com.spaceinvaders.game_entities.InvaderUFO;
 
 import java.io.IOException;
 
-public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouchListener {
+public class PlayFieldView extends SurfaceView implements Runnable {
     private Thread gameThread = null;
     private SurfaceHolder ourHolder;
 
@@ -58,6 +60,10 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
     private int uhID = -1;
     private int ohID = -1;
 
+    private float buttonRadius = 0.0f;
+    private PointF fireButtonPos;
+    private PointF leftButtonPos;
+    private PointF rightButtonPos;
 
     private int score = 0;
 
@@ -66,8 +72,14 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
     private boolean uhOrOh;
 
     private short countdownNumber = -1;
+    private boolean doGameOver = false;
 
-/*******************************************************************************
+    private int pointerID01;
+    private int pointerID02;
+
+    private InvaderUFO ufo;
+
+    /*******************************************************************************
  * Constructor
  *
  * @param context super constructor needs reference to this
@@ -78,12 +90,19 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         super(context);
 
         playFieldWidth = width;
-        playFieldHeight = height + (height * 0.25f);
+        playFieldHeight = height * 0.75f;
         ourHolder = getHolder();
         paint = new Paint();
 
         controlPanel = new RectF(0, playFieldHeight,
-                playFieldWidth, playFieldHeight *2);
+                playFieldWidth, height);
+
+        buttonRadius = playFieldWidth / 11;
+        fireButtonPos = new PointF(buttonRadius * 2.25f, controlPanel.top + (buttonRadius * 2.25f));
+        rightButtonPos = new PointF(playFieldWidth - fireButtonPos.x,
+                fireButtonPos.y);
+        leftButtonPos = new PointF(rightButtonPos.x - (buttonRadius * 2.5f),
+                fireButtonPos.y);
 
 
         // TODO this is deprecated and we will most likely change it
@@ -117,16 +136,16 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         initializePlayField();
     }
 
-    private void initializePlayField() {
+    public void initializePlayField() {
     // Make a new player
         player = new Player(playFieldWidth, playFieldHeight);
-        player.startRapidFire();
 
     // Prepare the projectiles
         projectiles = new ProjectileArray(player, playFieldHeight);
 
     // Build an army of invaders
         invaderArmy = new InvaderArmy(playFieldWidth, playFieldHeight, projectiles, this);
+        ufo = new InvaderUFO(Resources.img_invader_UFO01.getHeight() * 1.8f, player, projectiles, playFieldWidth);
 
     // Build the defense walls
         playFieldWidth = this.getResources().getDisplayMetrics().widthPixels;
@@ -138,8 +157,9 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
     @Override
     public void run() {
-
         while (playing) {
+            if(doGameOver) break;
+
             long startFrameTime = System.currentTimeMillis();
             if(resuming) doResumeCountdown();
             else if(!paused && player != null && player.doUpdate()) {
@@ -158,11 +178,26 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
             // We will do something here towards the end of the project
         }
+
+        if(doGameOver) ((SpaceInvadersActivity) getContext()).doGameOver();
     }
 
     private void update() {
-        // Has the player lost
-        boolean lost = false;
+        if(invaderArmy.getInvadersLeft() <= 0) {
+            if(getContext() instanceof SpaceInvadersActivity) {
+                ((SpaceInvadersActivity) getContext()).doVictory();
+                return;
+            }
+        }
+        else if(invaderArmy.isAtBottom()){
+            if(getContext() instanceof SpaceInvadersActivity) {
+                score -= 200;
+                if(score < 0) score = 0;
+                ((SpaceInvadersActivity) getContext()).doSurvived();
+                return;
+            }
+        }
+
         // calculate projectile collisions
         for (Projectile p : projectiles.getProjectiles()) {
             if (p != null) {
@@ -181,27 +216,23 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
         // update walls
         for (DefenseWall w : walls) {
-            if(w != null) w.update(fps);
+            if(w != null) {
+                invaderArmy.doWallCollision(w);
+                w.update(fps);
+            }
         }
 
+        invaderArmy.doCollision(player);
 
-        // Move the player
+        // Update player state
         player.update(fps);
 
         // Update the invaders
         invaderArmy.update(fps);
+        ufo.update(fps);
 
-        // Update all the invaders bullets if active
-
-        // Did and invader bump into the edge of the screen
-
-        if (lost) {
-            initializePlayField();
-        }
-
-
+        // Update projectiles
         projectiles.update(fps);
-//        projectiles.getProjectiles()[0].update(fps);
     }
 
     private void draw() {
@@ -225,6 +256,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
 
             // Draw the invaders
             invaderArmy.draw(canvas, paint, false);
+            ufo.draw(canvas, paint, false);
 
             // Draw the bricks if visible
             for(DefenseWall wall : walls) {
@@ -260,11 +292,22 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
                     break;
             }
 
+            float width = Resources.img_icon_player_life.getWidth();
+            float height = Resources.img_icon_player_life.getHeight();
+
+            for(int i = 0; i < lives; i++) {
+
+
+                canvas.drawBitmap(Resources.img_icon_player_life,
+                        (width * 0.5f) + ((width * 1.5f) * i), 0, paint);
+            }
+
             // Draw the score and remaining lives
             // Change brush color
             paint.setColor(Color.argb(255, 0, 255, 0));
             paint.setTextSize(40 * Resources.DPIRatio);
-            canvas.drawText("Score: " + score + "  Lives: " + lives, 10, 50, paint);
+            paint.setTextAlign(Paint.Align.RIGHT);
+            canvas.drawText(String.valueOf(score), playFieldWidth * 0.95f, height * 0.80f, paint);
 
             // Draw Player controls
             paint.setAntiAlias(true);
@@ -273,33 +316,18 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
             canvas.drawRect(controlPanel, paint);
 
             paint.setColor(Color.argb(255, 0, 180, 0));
-            canvas.drawCircle(playFieldWidth / 5, this.getBottom() - playFieldHeight / 4, playFieldWidth / 11, paint);
+            canvas.drawCircle(fireButtonPos.x, fireButtonPos.y, buttonRadius, paint);
 
-            canvas.drawCircle(playFieldWidth - (playFieldWidth/2 - playFieldWidth/15), this.getBottom() - playFieldHeight/4, playFieldWidth/11, paint);
-            canvas.drawCircle(playFieldWidth - playFieldWidth/5, this.getBottom() - playFieldHeight/4, playFieldWidth/11, paint);
-
-
-            //Slider
-            /*
-            canvas.drawCircle((playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/100, (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
-            canvas.drawCircle(playFieldWidth - (playFieldWidth/5 - playFieldWidth/100), (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
-            canvas.drawRect((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100, ((this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100) - playFieldWidth / 11,
-                    playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100), ((this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100) + playFieldWidth / 11, paint);
-            */
+            canvas.drawCircle(rightButtonPos.x, rightButtonPos.y, buttonRadius, paint);
+            canvas.drawCircle(leftButtonPos.x, leftButtonPos.y, buttonRadius, paint);
 
             paint.setColor(Color.argb(255, 0, 255, 0));
 
-            canvas.drawCircle(playFieldWidth / 5, (this.getBottom() - playFieldHeight / 4) - playFieldHeight / 100, playFieldWidth / 11, paint);
+            float yOffset = playFieldHeight / 100;
+            canvas.drawCircle(fireButtonPos.x, fireButtonPos.y - yOffset, buttonRadius, paint);
 
-            canvas.drawCircle(playFieldWidth - (playFieldWidth/2 - playFieldWidth/15), (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
-            canvas.drawCircle(playFieldWidth - playFieldWidth/5, (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11, paint);
-
-
-            //Joystick Circle
-            /*
-            canvas.drawCircle((((playFieldWidth - (playFieldWidth / 2 - playFieldWidth / 15)) - playFieldWidth / 100) + (playFieldWidth - (playFieldWidth / 5 - playFieldWidth / 100)))/2,
-                    (this.getBottom() - playFieldHeight/4) - playFieldHeight/100, playFieldWidth/11 - playFieldWidth/100, paint);
-            */
+            canvas.drawCircle(rightButtonPos.x, rightButtonPos.y - yOffset, buttonRadius, paint);
+            canvas.drawCircle(leftButtonPos.x, leftButtonPos.y - yOffset, buttonRadius, paint);
 
             // Draw everything to the screen
             ourHolder.unlockCanvasAndPost(canvas);
@@ -329,6 +357,10 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         gameThread = new Thread(this);
         gameThread.start();
 
+        if(invaderArmy != null) {
+            invaderArmy.updateTimeOnResume();
+        }
+
         resuming = true; // sets the state to resume
     }
 
@@ -338,62 +370,96 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         startTime = -1;
         resuming = false;
 
+        if(invaderArmy != null) {
+            invaderArmy.updateTimeOnResume();
+        }
+
         gameThread = new Thread(this);
         gameThread.start();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
-        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+        int pointerCount = motionEvent.getPointerCount();
 
+        pointerID01 = motionEvent.getPointerId(0);
+        if(pointerCount > 1) pointerID02 = motionEvent.getPointerId(1);
+
+        switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                if (motionEvent.getX() > playFieldWidth/5 - playFieldWidth/11
-                        && motionEvent.getX() < playFieldWidth/5 + playFieldWidth/11
-                        && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
-                        && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
+                if (motionEvent.getX() > fireButtonPos.x - buttonRadius
+                        && motionEvent.getX() < fireButtonPos.x + buttonRadius
+                        && motionEvent.getY() > fireButtonPos.y - buttonRadius
+                        && motionEvent.getY() < fireButtonPos.y + buttonRadius)
                 {
-                    player.fire(projectiles); // TODO REMOVE LINE. for testing purposes.
- //                   projectiles.addProjectile(playFieldWidth / 2, playFieldHeight / 2, false); // TODO REMOVE LINE. for testing purposes.
- //                   if(!resuming) resuming = true;
+                    playerFire();
                 }
-
-                if (motionEvent.getX() > (playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) - playFieldWidth/11
-                        && motionEvent.getX() < (playFieldWidth - (playFieldWidth/2 - playFieldWidth/15)) + playFieldWidth/11
-                        && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
-                        && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
+                if (motionEvent.getX() > leftButtonPos.x - buttonRadius
+                        && motionEvent.getX() < leftButtonPos.x + buttonRadius
+                        && motionEvent.getY() > leftButtonPos.y - buttonRadius
+                        && motionEvent.getY() < leftButtonPos.y + buttonRadius)
                 {
-                    player.setMovementState(Movement.LEFT);
+                    playerMovement(Movement.LEFT);
                 }
-
-                if (motionEvent.getX() > (playFieldWidth - playFieldWidth/5) - playFieldWidth/11
-                        && motionEvent.getX() < (playFieldWidth - playFieldWidth/5) + playFieldWidth/11
-                        && motionEvent.getY() > ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) - playFieldWidth/11
-                        && motionEvent.getY() < ((this.getBottom() - playFieldHeight/4) - playFieldHeight/100) + playFieldWidth/11)
+                if (motionEvent.getX() > rightButtonPos.x - buttonRadius
+                        && motionEvent.getX() < rightButtonPos.x + buttonRadius
+                        && motionEvent.getY() > rightButtonPos.y - buttonRadius
+                        && motionEvent.getY() < rightButtonPos.y + buttonRadius)
                 {
-                    player.setMovementState(Movement.RIGHT);
+                    playerMovement(Movement.RIGHT);
                 }
 
 
                 break;
 
+            case MotionEvent.ACTION_POINTER_DOWN:
+                if(pointerCount > 1
+                        && motionEvent.getX(pointerID01) > fireButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID01) < fireButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID01) > fireButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID01) < fireButtonPos.y + buttonRadius
+                        || motionEvent.getX(pointerID02) > fireButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID02) < fireButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID02) > fireButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID02) < fireButtonPos.y + buttonRadius)
+                {
+                    playerFire();
+                }
+                if(pointerCount > 1
+                        && motionEvent.getX(pointerID01) > leftButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID01) < leftButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID01) > leftButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID01) < leftButtonPos.y + buttonRadius
+                        || motionEvent.getX(pointerID02) > leftButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID02) < leftButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID02) > leftButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID02) < leftButtonPos.y + buttonRadius)
+                {
+                    playerMovement(Movement.LEFT);
+                }
+                if(pointerCount > 1
+                        && motionEvent.getX(pointerID01) > rightButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID01) < rightButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID01) > rightButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID01) < rightButtonPos.y + buttonRadius
+                        || motionEvent.getX(pointerID02) > rightButtonPos.x - buttonRadius
+                        && motionEvent.getX(pointerID02) < rightButtonPos.x + buttonRadius
+                        && motionEvent.getY(pointerID02) > rightButtonPos.y - buttonRadius
+                        && motionEvent.getY(pointerID02) < rightButtonPos.y + buttonRadius)
+                {
+                    playerMovement(Movement.RIGHT);
+                }
+
+                break;
             // Player has removed finger from screen
             case MotionEvent.ACTION_UP:
-                player.setMovementState(Movement.STOPPED);
-                
+                playerMovement(Movement.STOPPED);
+
                 break;
         }
 
         return true;
     }
-
-    // Need to implement the ability to drag the drawn circle.
-
-    /*
-    public boolean onDragEvent(DragEvent dragEvent) {
-
-        return true;
-    }
-    */
 
     public void playerFire() {
         player.fire(projectiles);
@@ -417,8 +483,7 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
      * 5 seconds, player movement is returned and the playfield resumes normal updates.
      */
     private void doPlayerDeath() {
-        if(lives == 0) {
-        }
+
 
         long currTime = System.currentTimeMillis();
         if(player.isDead() && startTime == -1) {
@@ -429,7 +494,15 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         }
 
         long timeDif = currTime - startTime;
-        if(timeDif >= 2000 && timeDif < 3000) countdownNumber =3;
+
+        if(lives <= 0 && timeDif >= 2000) {
+            if(getContext() instanceof SpaceInvadersActivity) {
+                Resources.player_final_score = score;
+                doGameOver = true;
+            }
+        }
+
+        else if(timeDif >= 2000 && timeDif < 3000) countdownNumber =3;
         else if(timeDif >= 3000 && timeDif < 4000) countdownNumber = 2;
         else if(timeDif >= 4000 && timeDif < 5000) countdownNumber = 1;
         else if(timeDif >= 5000) {
@@ -461,8 +534,11 @@ public class PlayFieldView extends SurfaceView implements Runnable, View.OnTouch
         }
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return false;
+    public int getPlayerLives() {
+        return lives;
+    }
+
+    public int getPlayerScore() {
+        return score;
     }
 }

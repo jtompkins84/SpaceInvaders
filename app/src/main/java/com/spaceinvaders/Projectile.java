@@ -58,15 +58,15 @@ public class Projectile extends Sprite {
                 frames = new Bitmap[] {img_projectile_a};
                 hitBoxes = new RectF[] {new RectF(9.0f * DPIRatio, 9.0f * DPIRatio,
                         14.0f * DPIRatio, 31.0f * DPIRatio)};
-
+                movement = Movement.UP;
                 speed = 450;
                 isFromPlayer(true);
                 break;
             case INVADER:
-                frames = new Bitmap[] {img_projectile_a}; // TODO replace with correct frames
+                frames = new Bitmap[] {img_projectile_a};
                 hitBoxes = new RectF[] {new RectF(9.0f * DPIRatio, 9.0f * DPIRatio,
-                        14.0f * DPIRatio, 31.0f * DPIRatio)}; // TODO replace with correct frames
-
+                        14.0f * DPIRatio, 31.0f * DPIRatio)};
+                movement = Movement.DOWN;
                 speed = 450;
                 isFromPlayer(false);
                 break;
@@ -84,16 +84,21 @@ public class Projectile extends Sprite {
                 speed = 0;
                 break;
             case LASER:
-//                frames = new Bitmap[] {null}; // TODO replace with correct frames
-//                hitBoxes = new RectF[] {null}; // TODO replace with correct frames
+                frames = new Bitmap[] {
+                        null,
+                        img_invader_laser01,
+                        img_invader_laser01};
+                hitBoxes = new RectF[] {
+                        null,
+                        new RectF(8 * DPIRatio, 0.0f, 16 * DPIRatio, 1500 * DPIRatio),
+                        null};
                 isFromPlayer = false;
                 speed = 0;
-                break;
+                return;
             case POWERUP:
-//                frames = new Bitmap[] {null}; // TODO replace with correct frames
-//                hitBoxes = new RectF[] {null}; // TODO replace with correct frames
-                speed = 175;
-                break;
+                movement = Movement.DOWN;
+                speed = 200;
+                return;
         }
 
         setPosition(posX, posY);

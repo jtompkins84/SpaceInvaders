@@ -3,12 +3,21 @@ package com.spaceinvaders;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.util.Log;
 
 import com.spaceinvaders.game_entities.PlayerLaserShot;
+import com.spaceinvaders.game_entities.PowerUp;
 
 import java.util.Random;
 
+/**
+ * COMPONENT: Enemy AI
+ * Written by Victor Garcia
+ * Co-Written by Joseph Tompkins
+ *
+ * This class dictates the movement of the Invaders, implemented as a 6 X 5 matrix. It also has
+ * methods to support collision detection between the Invaders and the various other objects in the game,
+ * including the player's projectiles.
+ */
 public class InvaderArmy {
     private Invader[][] invaders;
     private ProjectileArray projectiles;
@@ -26,7 +35,7 @@ public class InvaderArmy {
     private int cols = 5;
     private int scoreA = 10;
     private int scoreB = 20;
-    private int scoreC = 30;
+    private int scoreC = 40;
     /**
      * spacing in between each invader.
      */
@@ -37,14 +46,16 @@ public class InvaderArmy {
      * number of invaders left in the army.
      */
     private int invadersLeft = 0;
+    private int invadersAlive = 0;
 
     private long lastMoveTime = System.currentTimeMillis();
-    private long timeBetweenMoves = 1500l;
+    private long timeBetweenMoves = 1200l;
     private long timeBtwnMovesMin = 200l;
     private long timeDecrement = 0;
 
     boolean doMoveDown = false;
     boolean doFire = false;
+    boolean doHardFire = true;
     int randFireChance = 6;
 
     public InvaderArmy(float playFieldWidth, float playFieldHeight, ProjectileArray projectiles, PlayFieldView playFieldView) {
@@ -55,115 +66,127 @@ public class InvaderArmy {
 
         if(Resources.difficulty == Resources.Difficulty.HARD) {
             randFireChance = 2;
-            timeBetweenMoves = 1000;
+            timeBetweenMoves = 900l;
+            timeBtwnMovesMin = 100l;
             scoreA *= 2;
             scoreB *= 2;
             scoreC *= 2;
         }
 
+        timeDecrement = (timeBetweenMoves - timeBtwnMovesMin) / (rows * cols) ;
+
         invaders = new Invader[rows][cols];
-        invadersLeft = rows * cols;
         xSpacing = Resources.img_invader_a01.getWidth()* 1.125f; // the amount to horizontally space invaders apart from each other
         ySpacing = Resources.img_invader_a01.getHeight(); // the amount to vertical space invaders apart from each other
-
-        timeDecrement = (timeBetweenMoves - timeBtwnMovesMin) / (rows * cols);
 
         buildArmy();
     }
 
     public void update(long fps) {
+        if(invadersAlive <= 0) return;
+
         boolean doMove = false;
         int fireRow = 0, fireCol = 0;
+        long currTime = System.currentTimeMillis();
         // This is here to update the time that the invaders last moved and the position
         // of the army. Needs to happen after updating every invader in the army.
-        if(System.currentTimeMillis() - lastMoveTime >= timeBetweenMoves) {
+        if(currTime - lastMoveTime >= timeBetweenMoves) {
+            doHardFire = true;
             lastMoveTime = System.currentTimeMillis();
             doMove = true;
         }
+        else if(randFireChance == 2 && doHardFire && invadersLeft > 0
+                && currTime - lastMoveTime >= timeBetweenMoves / 2
+                && currTime - lastMoveTime <= timeBetweenMoves - timeBetweenMoves / 4) {
+
+            doHardFire = false;
+            if(invadersLeft <= (rows * cols) / 2) {
+                Random random = new Random();
+                int randFireResult = Math.abs( random.nextInt() % randFireChance );
+
+                if(randFireResult == 0){
+                    doFire = true;
+
+                    // for loop is a safety measure to prevent the random number finding from taking too long
+                    for(int i = 0; i < 200; i++) {
+                        fireRow = random.nextInt(rows);
+                        fireCol = random.nextInt(cols);
+
+                        if(!invaders[fireRow][fireCol].isHit()) break;
+                    }
+                }
+
+            }
+        }
+
+        if(invadersLeft <= (rows * cols) / 2 && randFireChance > 4) randFireChance = 4;
 
         if(doMove) {
             // inside here, do detection of boundaries
             Random random = new Random();
             int randFireResult = Math.abs( random.nextInt() % randFireChance );
 
-            if(randFireResult == 0){
+            if(randFireResult == 0 && invadersLeft > 0){
                 doFire = true;
 
-                do {
+                // for loop is a safety measure to prevent the random number finding from taking too long
+                for(int i = 0; i < 200; i++) {
                     fireRow = random.nextInt(rows);
                     fireCol = random.nextInt(cols);
 
-                    Log.v(getClass().toString(), "fireRow = " + fireRow + " :: fireCol = " + fireCol);
-                }while(invaders[fireRow][fireCol].isHit());
+                    if(!invaders[fireRow][fireCol].isHit()) break;
+                }
             }
-
-            // this is only back and for code. you will have to come up with a way
-            // make them move down once at the edge
 
             // detection for right boundary
             if( (armyPos.x + armyWidth) > (playFieldWidth - invaderWidth) ){
                 if(doMoveDown) {
-                    armyMovement = Movement.DOWN;
+                    armyMovement = Movement.DOWN; // The army reaches the edge and moves down once
                     updateArmyPosition();
                     doMoveDown = false;
                 }
-                else
-                    armyMovement = Movement.LEFT; // for each if statement, make sure to change
-                // this to the correct movement.
-                // updateArmyPosition uses this value.
-
-
+                else armyMovement = Movement.LEFT;
             }
             // detection for left boundary
             else if(armyPos.x < invaderWidth) {
                 if(doMoveDown) {
-                    armyMovement = Movement.DOWN;
+                    armyMovement = Movement.DOWN; // The army reaches the edge and moves down once
                     doMoveDown = false;
                     updateArmyPosition();
                 }
-                else
-                    armyMovement = Movement.RIGHT;
+                else armyMovement = Movement.RIGHT;
             }
             else doMoveDown = true;
         }
-
-
+// Below is the nested loop to update each invader in the army.
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 if (invaders[i][j] != null) {
 
-                    if(doMove) {
-                        invaders[i][j].setMovementState(armyMovement);
-                    }
+                    if(doMove) { invaders[i][j].setMovementState(armyMovement); }
 
                     invaders[i][j].update(fps);
 
                     // This has to be here to keep the invaders from moving more than they are meant to.
                     invaders[i][j].setMovementState(Movement.STOPPED);
+
+                    if(invaders[i][j].isDead() && !invaders[i][j].isDeathCounted()) {
+                        invaders[i][j].isDeathCounted(true);
+                        invadersAlive--;
+                    }
                 }
             }
         }
 
         if(doFire){
+            if(invaders[fireRow][fireCol] != null)
             invaders[fireRow][fireCol].fireProjectile(projectiles);
             doFire = false;
         }
 
-        // This has to be here to keep track of the army, otherwise
-        // hit detection will get all screwy when the army starts
-        // to move down.
-        if(doMove) {
-            if(armyMovement != Movement.DOWN)
-            updateArmyPosition();
-        }
-        /**
-         * Also, you might make a class attribute boolean value to indicate that the invader army has reached
-         * the bottom of the playfield. At some point, in order to end the game, the game loop
-         * will have to check if the invader army has reached the bottom, because if any
-         * invaders reach the bottom, the round is over.
-         *
-         * If you choose to go this route, then make a public method to return this boolean value.
-         */
+        // Updating the position of army insures accurate location tracking of the rows and columns
+        // for use in the hit detection.
+        if(doMove) { if(armyMovement != Movement.DOWN) updateArmyPosition(); }
     }
 
     public void draw(Canvas canvas, Paint paint, boolean showHitBox) {
@@ -176,8 +199,20 @@ public class InvaderArmy {
         }
     }
 
-    public int getInvadersLeft() {
-        return invadersLeft;
+    public int getInvadersLeft() { return invadersAlive; }
+
+    public boolean isAtBottom() {
+        if(armyPos.y + armyHeight > playFieldHeight) {
+            for(int i = 0; i < rows; i++) {
+                for(int j = 0; j < cols; j++) {
+                    if(!invaders[i][j].isDead() && !invaders[i][j].isHit()) {
+                        if(invaders[i][j].getHitBox().top > playFieldHeight) return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     private void buildArmy() {
@@ -211,6 +246,9 @@ public class InvaderArmy {
         armyHeight = ySpacing * (rows - 1);
         armyCenter = new PointF(armyWidth / 2, armyHeight / 2);
         armyMovement = Movement.LEFT;
+
+        invadersLeft = cols * rows;
+        invadersAlive = cols * rows;
     }
 
     private void updateArmyPosition() {
@@ -261,89 +299,73 @@ public class InvaderArmy {
     }
 
     public void doCollision(Sprite sprite) {
+        int col = -1;
+        int row = -1;
 
-        if(sprite instanceof PlayerLaserShot) {
-            int colIndex = getColumnProximity(sprite);
+        if(sprite instanceof PlayerLaserShot) { col = getColumnProximity(sprite); }
+        else row = getRowProximity(sprite);
 
-            if(colIndex > -1) {
-                for (int i = 0; i < rows; i++) {
-                    if (!invaders[i][colIndex].isHit()) {
-                        invaders[i][colIndex].doCollision(sprite);
+        if(col > -1) {
+            for (int i = 0; i < rows; i++) {
+                if (invaders[i][col] != null) {
+                    if (!invaders[i][col].isHit()) {
+                        invaders[i][col].doCollision(sprite);
 
-                        if (invaders[i][colIndex].isHit() && !invaders[i][colIndex].isScoreTallied()) {
-                            invaders[i][colIndex].dropPowerup();
+                        if (invaders[i][col].isHit() && !invaders[i][col].isScoreTallied()) {
+                            PowerUp powerUp = invaders[i][col].dropPowerup();
+                            if (powerUp != null) projectiles.addProjectile(powerUp);
+
                             timeBetweenMoves -= timeDecrement;
+                            invadersLeft--;
 
-                            switch (invaders[i][colIndex].getType()) {
-                                case 'a':
-                                    gameThread.addToPlayerScore(scoreA);
-                                    break;
-                                case 'b':
-                                    gameThread.addToPlayerScore(scoreB);
-                                    break;
-                                case 'c':
-                                    gameThread.addToPlayerScore(scoreC);
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            invaders[i][colIndex].isScoreTallied(true);
+                            tallyScore(i, col);
                         }
                     }
                 }
             }
-
             return;
         }
         // if getRowProximity returned a valid index
-        else  {
-            int rowIndex = getRowProximity(sprite);
+        else if(row > -1) {
 
-            if(rowIndex > -1) {
+            if(row > -1 && row < rows) {
                 for (int i = 0; i < cols; i++) {
-                    invaders[rowIndex][i].doCollision(sprite);
+                    if (invaders[row][i] != null) {
+                        invaders[row][i].doCollision(sprite);
 
-                    if (invaders[rowIndex][i].isHit() && !invaders[rowIndex][i].isScoreTallied()) {
-                        invaders[rowIndex][i].dropPowerup();
-                        timeBetweenMoves -= timeDecrement;
+                        if (invaders[row][i].isHit() && !invaders[row][i].isScoreTallied()) {
+                            PowerUp powerUp = invaders[row][i].dropPowerup();
+                            if (powerUp != null) projectiles.addProjectile(powerUp);
 
-                        switch (invaders[rowIndex][i].getType()) {
-                            case 'a':
-                                gameThread.addToPlayerScore(scoreA);
-                                break;
-                            case 'b':
-                                gameThread.addToPlayerScore(scoreB);
-                                break;
-                            case 'c':
-                                gameThread.addToPlayerScore(scoreC);
-                                break;
-                            default:
-                                break;
+                            // Invader hits a player. Don't tally score. Player & Invader "die"
+                            if (invaders[row][i].isHit()
+                                    && sprite instanceof Player) {
+                                invaders[row][i].isScoreTallied(true);
+                                invadersLeft--;
+                                return;
+                            }
+
+                            invadersLeft--;
+                            timeBetweenMoves -= timeDecrement;
+
+                            tallyScore(row, i);
                         }
-
-                        invaders[rowIndex][i].isScoreTallied(true);
                     }
                 }
             }
-
-            return;
         }
     }
 
     public void doWallCollision(DefenseWall wall) {
         if (wall != null) {
-            float wallTop = wall.getPos().y;
+            float wallTop = wall.getRawPos().y;
             float armyBottomY = armyPos.y + armyHeight;
-            float armyRowHeight = invaderHeight + ySpacing;
+
+            if(armyBottomY < wallTop) return;
 
             for(int i = 0; i < rows; i++) {
-                if(wallTop >= armyBottomY - (armyRowHeight * i)
-                        && wallTop < armyBottomY - (armyRowHeight * (i - 1)) ) {
-
-                    // the above if statement passes when the wall is within range
-                    // of one of the rows of the invader army
-                    for(int j = 0; j < cols; j++) {
+                for(int j = 0; j < cols; j++) {
+                    if(invaders[i][j] != null ) {
                         wall.doCollisions(invaders[i][j]);
                     }
                 }
@@ -390,5 +412,27 @@ public class InvaderArmy {
             }
         }
         return -1;
+    }
+
+    private void tallyScore(int row, int col) {
+        switch (invaders[row][col].getType()) {
+            case 'a':
+                gameThread.addToPlayerScore(scoreA);
+                break;
+            case 'b':
+                gameThread.addToPlayerScore(scoreB);
+                break;
+            case 'c':
+                gameThread.addToPlayerScore(scoreC);
+                break;
+            default:
+                break;
+        }
+
+        invaders[row][col].isScoreTallied(true);
+    }
+
+    public void updateTimeOnResume() {
+        lastMoveTime += (System.currentTimeMillis() - lastMoveTime);
     }
 }

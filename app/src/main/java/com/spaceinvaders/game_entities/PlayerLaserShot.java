@@ -7,8 +7,6 @@ import android.graphics.RectF;
 import com.spaceinvaders.Projectile;
 import com.spaceinvaders.Resources;
 
-import static com.spaceinvaders.Resources.DPIRatio;
-
 public class PlayerLaserShot extends Projectile {
     private PlayerLaserCharge laserCharge;
     private short maxUpdateCount = 20;
@@ -39,6 +37,16 @@ public class PlayerLaserShot extends Projectile {
             isCharged = true;
         }
 
+        /*
+            This method was devised to limit the amount of update ticks that the hitbox can be
+            "exposed."
+
+            The alternative to using this mod function was to increase the frame skipping. However,
+            if the frame skipping method is used, on the frame where the laser's hitbox is exposed,
+            hitbox collisions are being calculated the for each frame "skipped" by the animation.
+            This would basically defeat the original purpose, which is to limit the amount of
+            update ticks during which the laser's hitbox would check for collisions.
+         */
         if(isCharged) {
             if(updateCount % 8 == 0) setCurrFrame(1);
             else setCurrFrame(2);
@@ -89,10 +97,10 @@ public class PlayerLaserShot extends Projectile {
     }
 
     public void repairHitBox() {
-        hitBoxes[1] = new RectF(
-                getRawX() + 10.0f * DPIRatio,
-                getRawY() + 0.0f * DPIRatio,
-                getRawX() + 14.0f * DPIRatio,
-                getRawY() + 1500.0f * DPIRatio);
+//        hitBoxes[1] = new RectF(
+//                getRawX() + 10.0f * DPIRatio,
+//                getRawY() + 0.0f * DPIRatio,
+//                getRawX() + 14.0f * DPIRatio,
+//                getRawY() + 1500.0f * DPIRatio);
     }
 }
