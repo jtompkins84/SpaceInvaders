@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
-import com.spaceinvaders.Projectile;
 import com.spaceinvaders.Resources;
 
 public class PlayerLaserShot extends Projectile {

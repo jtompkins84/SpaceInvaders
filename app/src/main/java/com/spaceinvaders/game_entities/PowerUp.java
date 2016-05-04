@@ -3,7 +3,6 @@ package com.spaceinvaders.game_entities;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 
-import com.spaceinvaders.Projectile;
 import com.spaceinvaders.Resources;
 
 /**

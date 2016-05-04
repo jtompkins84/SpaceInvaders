@@ -1,15 +1,16 @@
-package com.spaceinvaders;
+package com.spaceinvaders.game_entities;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
-import com.spaceinvaders.game_entities.InvaderLaser;
-import com.spaceinvaders.game_entities.PlayerLaserShot;
-import com.spaceinvaders.game_entities.PlayerShield;
-import com.spaceinvaders.game_entities.PowerUp;
+import com.spaceinvaders.gui.Movement;
+import com.spaceinvaders.Resources;
 
+/**
+ * Written by Joseph Tompkins
+ */
 public class Player extends Sprite {
     PlayerShield playerShield;
 

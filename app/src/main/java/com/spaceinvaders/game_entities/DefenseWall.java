@@ -1,13 +1,11 @@
-package com.spaceinvaders;
+package com.spaceinvaders.game_entities;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 
-import com.spaceinvaders.game_entities.InvaderLaser;
-import com.spaceinvaders.game_entities.PlayerLaserShot;
-import com.spaceinvaders.game_entities.PowerUp;
+import com.spaceinvaders.Resources;
 
 public class DefenseWall {
 

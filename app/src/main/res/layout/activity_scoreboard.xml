@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-Written by Joseph Kent
-
-This is the layout XML for the scoreboard.
--->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -19,6 +14,15 @@ This is the layout XML for the scoreboard.
         android:layout_gravity="center|top"
         android:background="@null">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SCOREBOARD"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:textSize="50dp"
+            android:textIsSelectable="false"
+            android:textColor="#33ff00" />
     </FrameLayout>
 
     <LinearLayout
@@ -31,79 +35,59 @@ This is the layout XML for the scoreboard.
         android:background="@null"
         android:weightSum="1">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView"
-            android:layout_weight="0.03"
-            android:background="@drawable/leadertitle"
-            android:layout_marginTop="20dp" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SCORE 1:"
+            android:text="Score 1: "
             android:id="@+id/score1"
             android:layout_marginTop="30dp"
             android:layout_weight="0.03"
-            android:textColor="#ffffff"
+            android:textColor="#33ff00"
             android:textSize="30dp"
-            android:layout_gravity="center_horizontal"
-            style="d" />
+            android:layout_gravity="center_horizontal" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SCORE 2:"
+            android:text="Score 2: "
             android:id="@+id/score2"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="50dp"
             android:layout_weight="0.03"
-            android:textColor="#FFFFFF"
+            android:textColor="#33ff00"
             android:textSize="25dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SCORE 3:"
+            android:text="Score 3: "
             android:id="@+id/score3"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.03"
             android:layout_marginTop="50dp"
-            android:textColor="#FFFFFF"
+            android:textColor="#33ff00"
             android:textSize="20dp" />
 
-        <ImageView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView2"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="0.03"
-            android:background="@drawable/yourscore"
-            android:layout_marginTop="50dp" />
-
-        <TextView
-            android:layout_width="164dp"
-            android:layout_height="wrap_content"
+            android:text="Your Score: "
             android:id="@+id/new_score"
             android:layout_gravity="center_horizontal"
-            android:layout_weight="0.05"
-            android:textColor="#FFFFFF"
-            android:textSize="40dp"
-            android:textAlignment="center"
+            android:layout_weight="0.03"
+            android:layout_marginTop="80dp"
+            android:textColor="#33ff00"
+            android:textSize="30dp"
             android:textIsSelectable="false" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/player_name"
-            android:layout_marginTop="10dp"
-            android:textColor="#FFFFFF"
+            android:layout_marginTop="40dp"
+            android:textColor="#33ff00"
             android:textAlignment="center"
-            android:maxLength="3"
-            android:inputType="textShortMessage|textNoSuggestions"
-            android:layout_weight="0.14"
-            android:textSize="25dp" />
+            android:maxLength="3"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -112,7 +96,7 @@ This is the layout XML for the scoreboard.
             android:id="@+id/submit_button"
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.03"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:textColor="#33ff00"
             android:background="#00b400" />
     </LinearLayout>

@@ -1,11 +1,12 @@
-package com.spaceinvaders;
+package com.spaceinvaders.game_entities;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
 
-import com.spaceinvaders.game_entities.PlayerLaserShot;
-import com.spaceinvaders.game_entities.PowerUp;
+import com.spaceinvaders.gui.Movement;
+import com.spaceinvaders.gui.PlayFieldView;
+import com.spaceinvaders.Resources;
 
 import java.util.Random;
 
@@ -64,6 +65,7 @@ public class InvaderArmy {
         this.projectiles = projectiles;
         this.gameThread = playFieldView;
 
+        // Changes some settings for the HARD difficulty.
         if(Resources.difficulty == Resources.Difficulty.HARD) {
             randFireChance = 2;
             timeBetweenMoves = 900l;
@@ -82,12 +84,17 @@ public class InvaderArmy {
         buildArmy();
     }
 
+    /**
+     * All A.I. behavior if the <code>InvaderArmy</code> is handled here.
+     * @param fps <i>Frames-Per-Second</i>
+     */
     public void update(long fps) {
         if(invadersAlive <= 0) return;
 
         boolean doMove = false;
         int fireRow = 0, fireCol = 0;
         long currTime = System.currentTimeMillis();
+
         // This is here to update the time that the invaders last moved and the position
         // of the army. Needs to happen after updating every invader in the army.
         if(currTime - lastMoveTime >= timeBetweenMoves) {
@@ -95,6 +102,8 @@ public class InvaderArmy {
             lastMoveTime = System.currentTimeMillis();
             doMove = true;
         }
+        // if it's not time move, and the difficulty is set to HARD, then the invaders will
+        // have a chance of shooting a projectile half way in between moves.
         else if(randFireChance == 2 && doHardFire && invadersLeft > 0
                 && currTime - lastMoveTime >= timeBetweenMoves / 2
                 && currTime - lastMoveTime <= timeBetweenMoves - timeBetweenMoves / 4) {
@@ -189,6 +198,13 @@ public class InvaderArmy {
         if(doMove) { if(armyMovement != Movement.DOWN) updateArmyPosition(); }
     }
 
+    /**
+     * A nested loop that calls the <code>draw</code> method of each <code>Invader</code> in the
+     * army.
+     * @param canvas the canvas to draw to
+     * @param paint the paint object to use when drawing
+     * @param showHitBox display the hit box
+     */
     public void draw(Canvas canvas, Paint paint, boolean showHitBox) {
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -199,8 +215,17 @@ public class InvaderArmy {
         }
     }
 
+    /**
+     *
+     * @return the number of <code>Invader</code>s left alive.
+     */
     public int getInvadersLeft() { return invadersAlive; }
 
+    /**
+     *
+     * @return <code>true</code> if the top-most <code>Invader</code> in the army has passed below
+     * the bottom of the play field.
+     */
     public boolean isAtBottom() {
         if(armyPos.y + armyHeight > playFieldHeight) {
             for(int i = 0; i < rows; i++) {
@@ -215,6 +240,10 @@ public class InvaderArmy {
         return false;
     }
 
+    /**
+     * Instantiates each of the <code>Invader</code>s in the army. Also sets some important
+     * attributes that track the size-on-screen and position of the army.
+     */
     private void buildArmy() {
         float xCoord = playFieldWidth - (xSpacing * 4.625f); // left most coordinate of the invader army
         float yCoord = ySpacing * 3.0f; // top most coordinate of the invader army
@@ -251,6 +280,9 @@ public class InvaderArmy {
         invadersAlive = cols * rows;
     }
 
+    /**
+     * Tracks the current upper-left-hand corner of the InvaderArmy.
+     */
     private void updateArmyPosition() {
 
         if(armyPos != null) {
@@ -298,6 +330,18 @@ public class InvaderArmy {
         return;
     }
 
+    /**
+     * If <code>sprite</code> <i><b>is</b></i> an instance of <code>PlayerLaserShot</code>, this method
+     * checks if <code>sprite</code>'s x-position is within the x-range of one of the columns of
+     * this <code>InvaderArmy</code>. Reduces collision checks to a specific column rather than
+     * to each and every <code>Invader</code> in the <code>InvaderArmy</code>.
+     * <div></div>
+     * If <code>sprite</code> <i><b>is not</b></i> an instance of <code>PlayerLaserShot</code>,
+     * this method checks if <code>sprite</code>'s y-position is within the y-range of one of the
+     * rows of this <code>InvaderArmy</code>. Reduces collision checks to a specific row
+     * rather than to each and every <code>Invader</code> in the <code>InvaderArmy</code>.
+     * @param sprite
+     */
     public void doCollision(Sprite sprite) {
         int col = -1;
         int row = -1;
@@ -356,6 +400,11 @@ public class InvaderArmy {
         }
     }
 
+    /**
+     * Designed specifically to manage <code>InvaderArmy</code> collisions with the a
+     * <code>DefenseWall</code>.
+     * @param wall
+     */
     public void doWallCollision(DefenseWall wall) {
         if (wall != null) {
             float wallTop = wall.getRawPos().y;
@@ -398,6 +447,12 @@ public class InvaderArmy {
         return -1;
     }
 
+    /**
+     * Checks to see if the sprite is in proximity to one of the rows of the invader army.
+     * If it is, the row's index number will be returned. Otherwise, -1 is returned as a result.
+     * @param sprite
+     * @return the row index number that the sprite is closest to.
+     */
     private int getColumnProximity(Sprite sprite) {
         float colWidth = xSpacing;
         float armyXPos = armyPos.x - (invaderWidth / 2);
@@ -414,6 +469,12 @@ public class InvaderArmy {
         return -1;
     }
 
+    /**
+     * Sub-routine to tally a score for an <code>Invader</code> that has been hit by a player
+     * projectile.
+     * @param row
+     * @param col
+     */
     private void tallyScore(int row, int col) {
         switch (invaders[row][col].getType()) {
             case 'a':
@@ -432,6 +493,11 @@ public class InvaderArmy {
         invaders[row][col].isScoreTallied(true);
     }
 
+    /**
+     * For use when resuming the game from a pause. Prevents the <code>InvaderArmy</code> from
+     * strange behavior, like firing a dozen projectiles at once because real time has advanced, but
+     * the <code>InvaderArmy</code>'s time has not.
+     */
     public void updateTimeOnResume() {
         lastMoveTime += (System.currentTimeMillis() - lastMoveTime);
     }

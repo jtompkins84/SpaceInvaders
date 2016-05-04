@@ -1,4 +1,4 @@
-package com.spaceinvaders;
+package com.spaceinvaders.game_entities;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -6,6 +6,8 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.Log;
+
+import com.spaceinvaders.gui.Movement;
 
 /**
  * COMPONENT: Game Entities

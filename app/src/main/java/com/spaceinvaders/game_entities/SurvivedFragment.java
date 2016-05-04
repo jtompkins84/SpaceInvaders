@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
-import com.spaceinvaders.SpaceInvadersActivity;
+import com.spaceinvaders.gui.SpaceInvadersActivity;
 import com.tutorials.joseph.spaceinvaders.R;
 
 /**

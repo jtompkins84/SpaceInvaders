@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.spaceinvaders.SpaceInvadersActivity">
+    tools:context="com.spaceinvaders.gui.SpaceInvadersActivity">
 
     <include layout="@layout/content_space_invaders" />
 

@@ -1,24 +1,30 @@
-package com.spaceinvaders;
+package com.spaceinvaders.gui;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.spaceinvaders.Resources;
+import com.spaceinvaders.game_entities.DefenseWall;
+import com.spaceinvaders.game_entities.InvaderArmy;
 import com.spaceinvaders.game_entities.InvaderUFO;
+import com.spaceinvaders.game_entities.Player;
+import com.spaceinvaders.game_entities.Projectile;
+import com.spaceinvaders.game_entities.ProjectileArray;
 
-import java.io.IOException;
-
+/**
+ * Written by Joseph Tompkins
+ *
+ * The basic outline of this class was written with the help the code given at the below URL.
+ * http://gamecodeschool.com/android/coding-a-space-invaders-game/
+ */
 public class PlayFieldView extends SurfaceView implements Runnable {
     private Thread gameThread = null;
     private SurfaceHolder ourHolder;
@@ -52,14 +58,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private DefenseWall[] walls = new DefenseWall[4];
 
-    private SoundPool soundPool;
-    private int playerExplodeID = -1;
-    private int invaderExplodeID = -1;
-    private int shootID = -1;
-    private int damageShelterID = -1;
-    private int uhID = -1;
-    private int ohID = -1;
-
     private float buttonRadius = 0.0f;
     private PointF fireButtonPos;
     private PointF leftButtonPos;
@@ -69,8 +67,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private int lives = 3;
 
-    private boolean uhOrOh;
-
     private short countdownNumber = -1;
     private boolean doGameOver = false;
 
@@ -79,7 +75,7 @@ public class PlayFieldView extends SurfaceView implements Runnable {
 
     private InvaderUFO ufo;
 
-    /*******************************************************************************
+/*******************************************************************************
  * Constructor
  *
  * @param context super constructor needs reference to this
@@ -104,35 +100,6 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         leftButtonPos = new PointF(rightButtonPos.x - (buttonRadius * 2.5f),
                 fireButtonPos.y);
 
-
-        // TODO this is deprecated and we will most likely change it
-        soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-
-        try {
-            AssetManager assetManager = context.getAssets();
-            AssetFileDescriptor descriptor;
-
-            descriptor = assetManager.openFd("invaderexplode.ogg");
-            invaderExplodeID = soundPool.load(descriptor, 0);
-
-            descriptor = assetManager.openFd("damageshelter.ogg");
-            damageShelterID = soundPool.load(descriptor, 0);
-
-            descriptor = assetManager.openFd("playerexplode.ogg");
-            playerExplodeID = soundPool.load(descriptor, 0);
-
-            descriptor = assetManager.openFd("damageshelter.ogg");
-            damageShelterID = soundPool.load(descriptor, 0);
-
-            descriptor = assetManager.openFd("uh.ogg");
-            uhID = soundPool.load(descriptor, 0);
-
-            descriptor = assetManager.openFd("oh.ogg");
-            ohID = soundPool.load(descriptor, 0);
-        } catch (IOException e) {
-            Log.e("error", "failed to load sound files");
-        }
-
         initializePlayField();
     }
 
@@ -156,6 +123,10 @@ public class PlayFieldView extends SurfaceView implements Runnable {
     }
 
     @Override
+    /**
+     * The "game-loop." This is where the general activity of the game is controlled, such as
+     * pausing and resuming, and the countdown after the player death.
+     */
     public void run() {
         while (playing) {
             if(doGameOver) break;
@@ -175,13 +146,15 @@ public class PlayFieldView extends SurfaceView implements Runnable {
             if (timeThisFrame >= 1) {
                 fps = 1000 / timeThisFrame;
             }
-
-            // We will do something here towards the end of the project
         }
 
         if(doGameOver) ((SpaceInvadersActivity) getContext()).doGameOver();
     }
 
+    /**
+     * This is where collision detections are handled within the game-loop, and all object's states,
+     * positions, etc. are updated.
+     */
     private void update() {
         if(invaderArmy.getInvadersLeft() <= 0) {
             if(getContext() instanceof SpaceInvadersActivity) {
@@ -235,6 +208,9 @@ public class PlayFieldView extends SurfaceView implements Runnable {
         projectiles.update(fps);
     }
 
+    /**
+     * This is where everything on screen is re-drawn for each frame.
+     */
     private void draw() {
         //Make sure our drawing surface is valid or we crash
         if (ourHolder.getSurface().isValid()) {

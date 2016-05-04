@@ -1,4 +1,4 @@
-package com.spaceinvaders;
+package com.spaceinvaders.gui;
 
 import android.content.Intent;
 import android.os.Bundle;

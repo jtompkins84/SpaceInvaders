@@ -1,4 +1,4 @@
-package com.spaceinvaders;
+package com.spaceinvaders.gui;
 
 /**
  * Created by Joseph on 2/3/2016.

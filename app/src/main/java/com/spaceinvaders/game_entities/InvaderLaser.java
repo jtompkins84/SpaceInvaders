@@ -3,8 +3,6 @@ package com.spaceinvaders.game_entities;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-import com.spaceinvaders.Projectile;
-
 import static com.spaceinvaders.Resources.img_invader_laser01;
 
 public class InvaderLaser extends Projectile {

@@ -1,10 +1,8 @@
-package com.spaceinvaders;
+package com.spaceinvaders.game_entities;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
-
-import com.spaceinvaders.game_entities.InvaderLaser;
 
 /**
  * This class is designed to handle the projectiles of the play field as a iterable

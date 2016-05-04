@@ -5,11 +5,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
-import com.spaceinvaders.Movement;
-import com.spaceinvaders.Player;
-import com.spaceinvaders.ProjectileArray;
+import com.spaceinvaders.gui.Movement;
 import com.spaceinvaders.Resources;
-import com.spaceinvaders.Sprite;
 
 import java.util.Random;
 import java.util.Timer;

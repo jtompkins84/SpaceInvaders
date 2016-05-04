@@ -1,4 +1,4 @@
-package com.spaceinvaders;
+package com.spaceinvaders.gui;
 
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.spaceinvaders.HiScore;
+import com.spaceinvaders.Resources;
 import com.tutorials.joseph.spaceinvaders.R;
 
 import java.util.ArrayList;

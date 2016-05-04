@@ -3,7 +3,9 @@ package com.spaceinvaders;
 import com.orm.SugarRecord;
 
 /**
- * Created by Joe on 4/20/2016.
+ * Created by Joseph Kent on 4/20/2016.
+ *
+ * Designed to use the Sugar ORM to track player score and initials locally on a device.
  */
 public class HiScore extends SugarRecord {
     String name = "AAA";
